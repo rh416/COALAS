@@ -3,12 +3,12 @@ package uk.ac.kent.coalas.pwc.gui.pwcinterface;
 /**
  * Created by rm538 on 06/08/2014.
  */
-public class PWCInterfaceBusScanPayload extends PWCInterfaceEventPayload {
+public class PWCInterfacePayloadBusScan extends PWCInterfaceEventPayload {
 
     private int nodeId;
     private boolean present;
 
-    public PWCInterfaceBusScanPayload(String response) throws Exception{
+    public PWCInterfacePayloadBusScan(String response) throws Exception{
 
         super(response);
 

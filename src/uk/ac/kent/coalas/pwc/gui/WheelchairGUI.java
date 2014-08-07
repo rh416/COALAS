@@ -10,6 +10,7 @@ import uk.ac.kent.coalas.pwc.gui.frames.ConfigurationFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.DiagnosticsFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.WheelchairGUIFrame;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterface;
+import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceCommunicationProvider;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEvent;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceListener;
 

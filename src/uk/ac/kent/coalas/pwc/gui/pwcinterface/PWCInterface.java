@@ -1,8 +1,6 @@
 package uk.ac.kent.coalas.pwc.gui.pwcinterface;
 
-import controlP5.ControlListener;
 import processing.serial.Serial;
-import uk.ac.kent.coalas.pwc.gui.PWCInterfaceCommunicationProvider;
 
 import java.io.PrintStream;
 
@@ -64,12 +62,12 @@ public class PWCInterface {
                 // Information from a scan of the bus
                 case 'b':
                     type = PWCInterfaceEvent.EventType.BUS_SCAN;
-                    payload = new PWCInterfaceBusScanPayload(response);
+                    payload = new PWCInterfacePayloadBusScan(response);
                     break;
 
                 // Diagnostic information from sensors
                 case 'd':
-                    type = PWCInterfaceEvent.EventType.SENSOR_VALUES;
+                    type = PWCInterfaceEvent.EventType.NODE_CURRENT_DATA;
 
                     break;
             }
