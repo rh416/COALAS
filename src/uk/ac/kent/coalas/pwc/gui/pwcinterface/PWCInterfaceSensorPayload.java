@@ -10,14 +10,8 @@ public class PWCInterfaceSensorPayload extends PWCInterfaceEventPayload {
 
     public PWCInterfaceSensorPayload(String response){
 
-        // Valid response is exactly 4 characters
-        if(response.length() != 4){
-            parseFailed();
-            return;
-        }
+        super(response);
 
-        nodeId = Integer.parseInt(response.substring(2));
-        present = (response.substring(-1).equals("Y"));
     }
 
     public int getNodeId(){

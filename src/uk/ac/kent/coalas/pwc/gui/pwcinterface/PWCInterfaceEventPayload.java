@@ -5,15 +5,15 @@ package uk.ac.kent.coalas.pwc.gui.pwcinterface;
  */
 public abstract class PWCInterfaceEventPayload {
 
-    private boolean parsed_successfully = true;
+    private String response;
 
-    public void parseFailed(){
+    public PWCInterfaceEventPayload(String response){
 
-        parsed_successfully = false;
+        this.response = response;
     }
 
-    public boolean parseWasSuccessful(){
+    public String getResponse(){
 
-        return parsed_successfully;
+        return response;
     }
 }

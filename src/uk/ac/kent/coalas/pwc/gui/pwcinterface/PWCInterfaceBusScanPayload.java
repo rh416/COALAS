@@ -8,18 +8,29 @@ public class PWCInterfaceBusScanPayload extends PWCInterfaceEventPayload {
     private int nodeId;
     private boolean present;
 
-    public PWCInterfaceBusScanPayload(String response){
+    public PWCInterfaceBusScanPayload(String response) throws Exception{
 
         super(response);
 
+        System.out.println("Bus Scan Payload");
+
         // Valid response is exactly 4 characters
-        if(response.length() != 4){
-            parseFailed("Response is the wrong length");
-            return;
+        if (response.length() != 4) {
+            throw new PWCInterfaceParseException("Response is the wrong length");
         }
 
-        nodeId = Integer.parseInt(response.substring(2));
-        present = (response.substring(-1).equals("Y"));
+        nodeId = Integer.parseInt(response.substring(1, 2));
+
+        String connected = response.substring(3);
+
+        if("Y".equals(connected)){
+            present = true;
+        } else if ("N".equals(connected)){
+            present = false;
+        } else {
+            throw new PWCInterfaceParseException("Invalid response");
+        }
+
     }
 
     public int getNodeId(){

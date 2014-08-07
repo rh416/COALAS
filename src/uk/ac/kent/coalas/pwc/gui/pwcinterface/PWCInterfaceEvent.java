@@ -5,7 +5,7 @@ package uk.ac.kent.coalas.pwc.gui.pwcinterface;
  */
 public class PWCInterfaceEvent {
 
-    public static enum EventType {ERROR, UNKNOWN, CHAIR_STOPPED, CHAIR_MOVED, BUS_SCAN, SENSOR_VALUES };
+    public static enum EventType {ERROR, UNKNOWN, CHAIR_STOPPED, CHAIR_MOVED, BUS_SCAN, SENSOR_VALUES }
 
     private EventType type;
     private PWCInterfaceEventPayload payload;
@@ -21,7 +21,7 @@ public class PWCInterfaceEvent {
         return type;
     }
 
-    public Object getPayload(){
+    public PWCInterfaceEventPayload getPayload(){
 
         return payload;
     }
