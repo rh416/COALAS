@@ -5,5 +5,5 @@ package uk.ac.kent.coalas.pwc.gui.pwcinterface;
  */
 public interface PWCInterfaceCommunicationProvider {
 
-    public Object getCommunicationProvider();
+    public void write(String output);
 }

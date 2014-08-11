@@ -9,13 +9,14 @@ import processing.serial.Serial;
 import uk.ac.kent.coalas.pwc.gui.frames.ConfigurationFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.DiagnosticsFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.WheelchairGUIFrame;
-import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterface;
-import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceCommunicationProvider;
-import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEvent;
-import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceListener;
+import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.EnumMap;
 
 /*
@@ -36,7 +37,7 @@ Make sure that the JVM has been given the location of the native files for your 
 /**
  * Created by rm538 on 05/08/2014.
  */
-public class WheelchairGUI extends PApplet implements PWCInterfaceListener, PWCInterfaceCommunicationProvider, ControlListener {
+public class WheelchairGUI extends PApplet implements PWCInterfaceListener, ControlListener {
 
     // Ensure that we refer to different frames consistently
     public static enum FrameId {USER, CONFIG, DIAGNOSTICS}
@@ -45,34 +46,54 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener, PWCI
 
     private ControlP5 ControlsObject;
 
-    PFont DefaultFont = createFont("Georgia", 20);
-    PFont ErrorFont = createFont("Georgia", 15);
+    public PFont HeadingFont = createFont("Georgia", 20);
+    public PFont DefaultFont = createFont("Tahoma", 15);
 
     private ListBox DueSerialList, DXBusSerialList;
     private Textfield DueBaudRate;
     private Textlabel DueError;
     private Button DueSerialConnect, DueSerialDisconnect;
+    private Textarea LogTextArea;
+    private CheckBox LogCheckbox;
 
     private static String CONTROL_ID_DROPDOWN_DUE = "ListDUESerialPorts";
     private static String CONTROL_ID_TEXTFIELD_DUE_BAUD = "TextfieldDUEBaudRate";
     private static String CONTROL_ID_TEXTLABEL_DUE_ERROR = "TextlabelDUEError";
     private static String CONTROL_ID_BUTTON_DUE_CONNECT = "ButtonDUESerialConnect";
     private static String CONTROL_ID_BUTTON_DUE_DISCONNECT = "ButtonDUESerialDisconnect";
+    private static String CONTROL_ID_TEXTAREA_LOG = "TextareaLog";
+    private static String CONTROL_ID_CHECKBOX_LOG = "CheckboxLog";
+
+    private int WindowWidth = 320;
+    private int WindowHeight = 480;
+    private int WindowXPosition = 500;
+    private int WindowYPosition = 100;
+    private int WindowXOffset = 10;
 
     BufferedReader SystemIn = new BufferedReader(new InputStreamReader(System.in));
 
-    private Serial SerialPort;
+    private Serial DueSerialPort, DXBusSerialPort;
 
-    private PWCInterface WheelchairInterface = new PWCInterface(this, this);
+    // Use this interface for debubgging using the console I/O
+    private PWCInterface DueWheelchairInterface = new PWCInterface(this, new PWCConsoleCommunicationProvider());
+    //
+    // Use this interface for communication with a Due running Diagnostics / Config Firmware
+    //private PWCInterface DueWheelchairInterface = new PWCInterface(this, new PWCDueSerialCommunicationProvider());
+
+    int cnt = 1;
 
     public void setup() {
-        size(400, 400);
+        size(800, 800);
+        smooth();
+
         ControlsObject = new ControlP5(this);
 
-        addNewFrame(FrameId.USER, new DiagnosticsFrame(this, 320, 480, 200, 200));
-        addNewFrame(FrameId.CONFIG, new ConfigurationFrame(this, 320, 480, 525, 200));
-        addNewFrame(FrameId.DIAGNOSTICS, new DiagnosticsFrame(this, 320, 480, 850, 200));
-
+        addNewFrame(FrameId.USER, new DiagnosticsFrame(this, WindowWidth, WindowHeight, WindowXPosition, WindowYPosition));
+        WindowXPosition += WindowWidth + WindowXOffset;
+        addNewFrame(FrameId.CONFIG, new ConfigurationFrame(this, WindowWidth, WindowHeight, WindowXPosition, WindowYPosition));
+        WindowXPosition += WindowWidth + WindowXOffset;
+        addNewFrame(FrameId.DIAGNOSTICS, new DiagnosticsFrame(this, WindowWidth, WindowHeight, WindowXPosition, WindowYPosition));
+        WindowXPosition += WindowWidth + WindowXOffset;
 
         ControlsObject.setFont(DefaultFont);
 
@@ -92,7 +113,7 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener, PWCI
                 .setCaptionLabel("Connect")
                 .setSize(100, 40);
 
-        DueSerialConnect = ControlsObject.addButton(CONTROL_ID_BUTTON_DUE_DISCONNECT)
+        DueSerialDisconnect = ControlsObject.addButton(CONTROL_ID_BUTTON_DUE_DISCONNECT)
                 .setPosition(360, 100)
                 .setCaptionLabel("Disconnect")
                 .setSize(100, 40)
@@ -102,7 +123,18 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener, PWCI
                 .setPosition(50, 350)
                 .setText("Blah blah blah")
                 .setSize(200, 20)
-                .setFont(ErrorFont);
+                .setColor(0xffff0000);
+
+        LogTextArea = ControlsObject.addTextarea(CONTROL_ID_TEXTAREA_LOG)
+                .setPosition(100, 300)
+                .setSize(400, 400)
+                .setFont(createFont("Consolas", 12))
+                .setColorBackground(0xff000000);
+
+        LogCheckbox = ControlsObject.addCheckBox(CONTROL_ID_CHECKBOX_LOG)
+                .setPosition(550, 300)
+                .setCaptionLabel("Enable Logging")
+                .setSize(30, 30);
     }
 
     public void draw() {
@@ -110,16 +142,16 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener, PWCI
         try {
             if(SystemIn.ready()) {
                 String line = SystemIn.readLine();
-                WheelchairInterface.parse(line);
+                DueWheelchairInterface.parse(line);
             }
         } catch (Exception e){
             println(e.getMessage());
         }
 
         if(frameCount % 500 == 0){
-            WheelchairInterface.scanForNode(1);
+            //DueWheelchairInterface.getNode(1).checkExistsOnBus();
         } else if (frameCount % 300 == 0){
-            WheelchairInterface.scanForNode(3);
+            //DueWheelchairInterface.getNode(3).checkExistsOnBus();
         }
 
     }
@@ -135,13 +167,32 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener, PWCI
         return frames.get(frameId);
     }
 
+    private String timestamp(){
+
+        return new Timestamp(new Date().getTime()).toString();
+    }
+
     @Override
     public void onPWCInterfaceEvent(PWCInterfaceEvent e) {
 
         // Handle any specific events we want to here
         switch(e.getType()){
 
+            case ERROR:
+                PWCInterfaceErrorPayload errorPayload = (PWCInterfaceErrorPayload)e.getPayload();
+                Exception err = errorPayload.getException();
+                println(errorPayload.getResponse() + ": " + err.getClass().getName() + ":" + err.getMessage());
+
+                StringWriter sw = new StringWriter();
+                err.printStackTrace(new PrintWriter(sw));
+                String exceptionAsString = sw.toString();
+
+                println(exceptionAsString);
+                break;
+
             default:
+                println(e.getType().name());
+                LogTextArea.setText(LogTextArea.getText() + timestamp() + " - " + e.getType().name() + "\n");
                 break;
         }
 
@@ -155,19 +206,35 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener, PWCI
     public void serialEvent(Serial port){
 
         // Send the input to the interface to parsed
-        WheelchairInterface.parse(port.readString());
+        DueWheelchairInterface.parse(port.readString());
     }
 
     public void controlEvent(ControlEvent event){
 
-        if(event.getName() == CONTROL_ID_BUTTON_DUE_CONNECT){
-            WheelchairInterface.scanForNode(2);
+        if(event.isFrom(DueSerialConnect)){
+//            for(int i = 1; i < 10; i++){
+//                DueWheelchairInterface.getNode(i).checkExistsOnBus();
+//            }
+            DueWheelchairInterface.parse("C3:1gIE,1hu,1aM.");
+            cnt++;
         }
     }
 
-    public Object getCommunicationProvider(){
+    public class PWCConsoleCommunicationProvider implements PWCInterfaceCommunicationProvider{
 
-        return System.out; // For testing
-        //return SerialPort // For production
+        @Override
+        public void write(String command){
+
+            System.out.print(command);
+        }
+    }
+
+    public class PWCDueSerialCommunicationProvider implements PWCInterfaceCommunicationProvider {
+
+        @Override
+        public void write(String command) {
+
+            DueSerialPort.write(command);
+        }
     }
 }

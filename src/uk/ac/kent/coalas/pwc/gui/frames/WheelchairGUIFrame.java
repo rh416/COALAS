@@ -7,21 +7,6 @@ import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 
 import java.awt.*;
 
-/**
- * ControlP5 Controlframe
- * with controlP5 2.0 all java.awt dependencies have been removed
- * as a consequence the option to display controllers in a separate
- * window had to be removed as well.
- * this example shows you how to create a java.awt.frame and use controlP5
- *
- * by Andreas Schlegel, 2012
- * www.sojamo.de/libraries/controlp5
- *
- */
-
-
-
-
 // the ControlFrame class extends PApplet, so we
 // are creating a new processing applet inside a
 // new frame with a controlP5 object loaded
@@ -52,6 +37,7 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
     }
 
     public void setup() {
+        super.setup();
         size(frameWidth, frameHeight);
         frameRate(25);
 
