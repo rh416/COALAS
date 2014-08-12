@@ -21,8 +21,6 @@ import java.util.EnumMap;
 
 /*
 
-TEST FOR GITLAB
-
 ======= IMPORTANT ======
 
 If you are trying to use Serial commands and you receive the following error:
