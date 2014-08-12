@@ -1,13 +1,9 @@
 package uk.ac.kent.coalas.pwc.gui.frames;
 
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfacePayloadBusScan;
-import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceErrorPayload;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEvent;
 import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEventPayload;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
 /**
  * Created by rm538 on 06/08/2014.
@@ -46,7 +42,7 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
 
             case BUS_SCAN:
                 PWCInterfacePayloadBusScan busPayload = (PWCInterfacePayloadBusScan)payload;
-                console("Node " + busPayload.getNodeId() + " is " + (busPayload.getPresent() ? "connected" : "not connected"));
+                console("Node " + busPayload.getNode().getId() + " is " + (busPayload.getNode().isConnectedToBus() ? "connected" : "not connected"));
                 break;
         }
     }

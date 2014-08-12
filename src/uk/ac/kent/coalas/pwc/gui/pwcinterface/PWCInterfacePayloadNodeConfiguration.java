@@ -18,7 +18,7 @@ public class PWCInterfacePayloadNodeConfiguration extends PWCInterfaceEventPaylo
         super(response);
 
         int nodeId = Integer.parseInt(response.substring(0, 1));
-        chairInterface.getNode(nodeId);
+        node = chairInterface.getNode(nodeId);
 
         // Check that the response ends with a '.'
         if(! ".".equals(response.substring(response.length() - 1))){
@@ -62,9 +62,10 @@ public class PWCInterfacePayloadNodeConfiguration extends PWCInterfaceEventPaylo
                 for(char c : item.substring(2).toCharArray()){
                     int charCode = (int)c;
                     // Detect the type of sensor
-                    for(Sensor.Type type : Sensor.Type.values()){
-                        if((charCode & 0xC) == type.getBitmask()){      // Bitmask = OxC -> 1100 (as we only care about
-                            tmpSensors.add(new Sensor(type));           //            the 3rd and 4th bits ie xxxx11xx)
+                    for(Sensor.SensorType sensorType : Sensor.SensorType.values()){
+                        if((charCode & 0x1F) == (sensorType.getBitmask() + zoneNum)){      // Bitmask = OxC -> 11111 (as we only care about
+                            tmpSensors.add(new Sensor(sensorType));           //            the first 5 bits ie xxx?????)
+                            System.out.println(sensorType.name());
                             break;
                         }
                     }

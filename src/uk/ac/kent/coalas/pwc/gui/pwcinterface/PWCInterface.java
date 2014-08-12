@@ -83,10 +83,15 @@ public class PWCInterface {
                     payload = new PWCInterfacePayloadBusScan(this, response);
                     break;
 
-                // Diagnostic information from sensors
-                case 'd':
-                    type = PWCInterfaceEvent.EventType.NODE_CURRENT_DATA;
+                case 'F':
+                    type = PWCInterfaceEvent.EventType.NODE_DATA_FORMAT;
+                    payload = new PWCInterfacePayloadNodeDataFormat(this, response);
+                    break;
 
+                // Diagnostic information from sensors
+                case 'D':
+                    type = PWCInterfaceEvent.EventType.NODE_CURRENT_DATA;
+                    payload = new PWCInterfacePayloadNodeCurrentData(this, response);
                     break;
             }
         }catch(Exception e){

@@ -1,6 +1,7 @@
 package uk.ac.kent.coalas.pwc.gui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by rm538 on 11/08/2014.
@@ -38,6 +39,7 @@ public class Zone {
     private Position position;
     private Orientation orientation;
     private ArrayList<Sensor> sensors;
+    private HashMap<Integer, Integer> sensorByType = new HashMap<Integer, Integer>();
 
     public static ArrayList<Sensor> decodeSensorString(String sensorString){
 
@@ -66,8 +68,35 @@ public class Zone {
         return zoneNum;
     }
 
+    public Sensor getSensorByType(Sensor.SensorType sensorType){
+
+        return getSensorByTypeBitmask(sensorType.getBitmask());
+    }
+
+    public Sensor getSensorByTypeBitmask(int typeBitmask){
+
+        int checkZoneNum = typeBitmask & 0x3;   // Bitmask = 0x3  -> 11 (as we need to get the 1st and second bits)
+        int sensorType = typeBitmask & 0x1C;    // Bitmask = Ox1C -> 11100 (as we need to get the 3rd, 4th & 5th bits
+
+        if(getZoneNumber() != checkZoneNum){
+            return null;
+        }
+
+        Integer index = sensorByType.get(sensorType);
+        if(index != null){
+            return sensors.get(index);
+        } else {
+            return null;
+        }
+    }
+
     public void setSensors(ArrayList<Sensor> inSensors){
 
         sensors = inSensors;
+        int index = 0;
+        for(Sensor sensor : sensors){
+            sensorByType.put(sensor.getType().getBitmask(), index);
+            index++;
+        }
     }
 }
