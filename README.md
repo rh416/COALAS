@@ -12,10 +12,10 @@ These instructions assume the use of IntelliJ, but will most likely be similar w
 2. Paste in this URL: `http://84.200.70.31/rm538/sysiass-wheelchar-gui.git` and click `Clone`
 3. Go through the steps to create a new project. No need to select special libraries / frameworks, just make sure that the SDK is set to a version of Java (I used 1.7)
 4. Add the Processing and Control5 libraries to your project.
-    a. Download Processing 2.x to your PC.
-    b. Click `File` > `Project Structure`. Under `Libraries` select `Add New Project Library` > `Java` and navigate to the folder where you downloaded Processing 2.x. Select `core/library/core.jar`
-    c. Download Control5.
-    c. Go back to `Libraries`, select `Add New Project Library` > `Java` and naviate to the Control5 folder. Select `library/control5.jar`
+    1. Download Processing 2.x to your PC.
+    2. Click `File` > `Project Structure`. Under `Libraries` select `Add New Project Library` > `Java` and navigate to the folder where you downloaded Processing 2.x. Select `core/library/core.jar`
+    3. Download Control5.
+    4. Go back to `Libraries`, select `Add New Project Library` > `Java` and naviate to the Control5 folder. Select `library/control5.jar`
 5. You are now ready to start developing!
 
 ## Important ##
