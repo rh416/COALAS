@@ -1,4 +1,4 @@
-##Introduction##
+## Introduction ##
 This GUI, along with the accompanying firmware can be used to ensure the chair's hardware has been setup correctly.
 
 It can also be used to configure the way in which sensors behave and report their data.
@@ -6,7 +6,7 @@ It can also be used to configure the way in which sensors behave and report thei
 Although this GUI is based up Processing 2.x it must be run from a more advanced IDE, such as IntelliJ - the free Community Edition can be downloaded from here: http://www.jetbrains.com/idea/download/
 
 
-##Important##
+## Important ##
 If you are trying to use Serial commands and you receive the following error:
 
 ```
