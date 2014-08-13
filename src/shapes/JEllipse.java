@@ -1,3 +1,7 @@
+package shapes;
+
+import processing.core.PApplet;
+
 import java.awt.geom.*;
 
 /** Represents an ellipse that can be drawn on screen and inform listeners that it 
@@ -19,9 +23,9 @@ public class JEllipse extends JShape
     * @param w Width of ellipse.
     * @param h Height of ellipse.
     */
-  public JEllipse(float x, float y, float w, float h)
+  public JEllipse(PApplet parent, float x, float y, float w, float h)
   {
-    super();
+    super(parent);
     // Because Java Ellipse2D stores x,y as top left corner, not centre
     // we need to offset centre.
     myEllipse = new Ellipse2D.Float(x-w/2,y-h/2,w,h);
@@ -35,8 +39,8 @@ public class JEllipse extends JShape
   public void draw()
   {    
     super.draw();
-    ellipseMode(CORNER);
-    ellipse(myEllipse.x,myEllipse.y, myEllipse.width,myEllipse.height);
+    parent.ellipseMode(parent.CENTER);
+    parent.ellipse(myEllipse.x,myEllipse.y, myEllipse.width,myEllipse.height);
   }
   
   /** Moves the ellipse by the given offsets.
