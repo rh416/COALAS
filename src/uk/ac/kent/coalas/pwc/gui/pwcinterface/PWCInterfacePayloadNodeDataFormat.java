@@ -1,10 +1,8 @@
 package uk.ac.kent.coalas.pwc.gui.pwcinterface;
 
-import uk.ac.kent.coalas.pwc.gui.Node;
-import uk.ac.kent.coalas.pwc.gui.Sensor;
-import uk.ac.kent.coalas.pwc.gui.Zone;
-
-import java.util.ArrayList;
+import uk.ac.kent.coalas.pwc.gui.hardware.Node;
+import uk.ac.kent.coalas.pwc.gui.hardware.Sensor;
+import uk.ac.kent.coalas.pwc.gui.hardware.Zone;
 
 /**
  * Created by rm538 on 06/08/2014.
@@ -40,7 +38,7 @@ public class PWCInterfacePayloadNodeDataFormat extends PWCInterfaceEventPayload 
             // If this sensor's data type is Logic, we don't need to ask how to interpret its response - it will be boolean
             if(dataType == 'L'){
                 currentSensorFormat = Sensor.SensorDataFormat.LOGIC;
-                currentSensorInterpretation = Sensor.SensorDataInterpretation.UNKOWN;
+                currentSensorInterpretation = Sensor.SensorDataInterpretation.THRESHOLD;
                 sensorFormatStrLength = 2;
             } else {
                 char dataRepresentation = formatStr.charAt(2);

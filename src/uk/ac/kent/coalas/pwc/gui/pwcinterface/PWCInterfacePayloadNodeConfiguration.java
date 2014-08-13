@@ -1,8 +1,8 @@
 package uk.ac.kent.coalas.pwc.gui.pwcinterface;
 
-import uk.ac.kent.coalas.pwc.gui.Node;
-import uk.ac.kent.coalas.pwc.gui.Sensor;
-import uk.ac.kent.coalas.pwc.gui.Zone;
+import uk.ac.kent.coalas.pwc.gui.hardware.Node;
+import uk.ac.kent.coalas.pwc.gui.hardware.Sensor;
+import uk.ac.kent.coalas.pwc.gui.hardware.Zone;
 
 import java.util.ArrayList;
 

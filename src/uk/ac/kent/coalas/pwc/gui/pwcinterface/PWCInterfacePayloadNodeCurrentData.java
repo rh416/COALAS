@@ -1,8 +1,7 @@
 package uk.ac.kent.coalas.pwc.gui.pwcinterface;
 
-import uk.ac.kent.coalas.pwc.gui.Node;
-import uk.ac.kent.coalas.pwc.gui.Sensor;
-import uk.ac.kent.coalas.pwc.gui.Zone;
+import uk.ac.kent.coalas.pwc.gui.hardware.Node;
+import uk.ac.kent.coalas.pwc.gui.hardware.Sensor;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,7 +13,7 @@ public class PWCInterfacePayloadNodeCurrentData extends PWCInterfaceEventPayload
 
     private Node node;
 
-    private static Pattern faultySensorPattern = Pattern.compile("\"^(U-{0,7}).*$");
+    private static Pattern faultySensorPattern = Pattern.compile("^(U-{0,7}).*$");
 
     public PWCInterfacePayloadNodeCurrentData(PWCInterface chairInterface, String response) throws Exception{
 
@@ -43,6 +42,9 @@ public class PWCInterfacePayloadNodeCurrentData extends PWCInterfaceEventPayload
                                                                     //  a faulty sensor so that we can skip far enough ahead
             } else {
                 dataLength = currentSensor.getDataFormat().getCharLength();
+                if(dataStr.length() < dataLength){
+                    throw new PWCInterfaceParseException("Response is too short - the given data type expects " + dataLength + "characters");
+                }
                 currentSensorData = dataStr.substring(0, dataLength);
                 currentSensor.parseDataString(currentSensorData);
             }

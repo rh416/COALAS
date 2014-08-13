@@ -1,4 +1,4 @@
-package uk.ac.kent.coalas.pwc.gui;
+package uk.ac.kent.coalas.pwc.gui.hardware;
 
 /**
  * Created by rm538 on 11/08/2014.
@@ -92,6 +92,11 @@ public class Sensor {
     public short getCurrentValue(){
 
         return currentValue;
+    }
+
+    public boolean getCurrentBoolValue(){
+
+        return (getCurrentValue() == 1);
     }
 
     public void parseDataString(String currentSensorData) {

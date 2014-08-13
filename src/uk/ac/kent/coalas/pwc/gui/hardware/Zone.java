@@ -1,4 +1,4 @@
-package uk.ac.kent.coalas.pwc.gui;
+package uk.ac.kent.coalas.pwc.gui.hardware;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,19 +20,24 @@ public class Zone {
     }
 
     public static enum Orientation{
-        UNKNOWN(""),
-        FORWARD("a"),       // 0°
-        FORWARD_RIGHT("b"), // 45°
-        RIGHT("c"),          // 90°
-        BACK_RIGHT("d"),     // 135°
-        BACK("e"),           // 180°
-        BACK_LEFT("f"),      // 225°
-        LEFT("g"),           // 270°
-        FORWARD_LEFT("h");   // 315°
+        UNKNOWN("", 0),
+        FORWARD("a", 0),          // 0°
+        FORWARD_RIGHT("b", 45),   // 45°
+        RIGHT("c", 90),           // 90°
+        BACK_RIGHT("d", 135),     // 135°
+        BACK("e", 180),           // 180°
+        BACK_LEFT("f", 225),      // 225°
+        LEFT("g", 270),           // 270°
+        FORWARD_LEFT("h", 315);   // 315°
 
         private final String code;
-        private Orientation(final String code){ this.code = code; }
+        private final int angle;
+        private Orientation(final String code, final int angle){
+            this.code = code;
+            this.angle = angle;
+        }
         public String toString(){ return this.code; }
+        public int getAngle(){ return this.angle; }
     }
 
     private int zoneNum;

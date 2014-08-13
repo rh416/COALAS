@@ -1,9 +1,7 @@
 package uk.ac.kent.coalas.pwc.gui.pwcinterface;
 
-import processing.serial.Serial;
-import uk.ac.kent.coalas.pwc.gui.Node;
+import uk.ac.kent.coalas.pwc.gui.hardware.Node;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 
 /**
@@ -19,7 +17,11 @@ public class PWCInterface {
     public final Node ALL_NODES;
 
     public static enum UltrasoundMode{
-        CONTINUOUS, PULSED
+        CONTINUOUS('C'), PULSED('P');
+
+        private final char charCode;
+        private UltrasoundMode(final char charCode){ this.charCode = charCode; }
+        public char getCharCode(){ return this.charCode; }
     }
 
     public PWCInterface(PWCInterfaceListener listener, PWCInterfaceCommunicationProvider commsProvider){

@@ -1,6 +1,6 @@
 package uk.ac.kent.coalas.pwc.gui.pwcinterface;
 
-import uk.ac.kent.coalas.pwc.gui.Node;
+import uk.ac.kent.coalas.pwc.gui.hardware.Node;
 
 /**
  * Created by rm538 on 06/08/2014.

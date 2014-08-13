@@ -1,10 +1,8 @@
-package uk.ac.kent.coalas.pwc.gui;
+package uk.ac.kent.coalas.pwc.gui.hardware;
 
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterface;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by rm538 on 11/08/2014.
@@ -119,12 +117,7 @@ public class Node {
 
     public void setUltrasoundMode(PWCInterface.UltrasoundMode mode){
 
-        String modeStr = "";
-        if(mode == PWCInterface.UltrasoundMode.CONTINUOUS){
-            modeStr = "C";
-        } else if(mode == PWCInterface.UltrasoundMode.PULSED){
-            modeStr = "P";
-        }
+        char modeStr = mode.getCharCode();
 
         chairInterface.sendCommand("&" + String.valueOf(getId()) + "M" + modeStr);
     }
