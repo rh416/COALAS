@@ -9,7 +9,7 @@ Although this GUI is based up Processing 2.x it must be run from a more advanced
 These instructions assume the use of IntelliJ, but will most likely be similar whatever IDE you use.
 
 1. Checkout the code from the repository: Click `VCS` > `Checkout from Version Control` > `Git` (not GitHub)
-2. Paste in this URL: `http://84.200.70.31/rm538/sysiass-wheelchar-gui.git` and click `Clone`
+2. Paste in this URL: `http://84.200.70.31/sysiass-wheelchair-configuration-tools/sysiass-wheelchar-gui.git` and click `Clone`
 3. Go through the steps to create a new project. No need to select special libraries / frameworks, just make sure that the SDK is set to a version of Java (I used 1.7)
 4. Add the Processing and Control5 libraries to your project.
     1. Download Processing 2.x to your PC.
@@ -27,6 +27,13 @@ Exception in thread "Animation Thread" java.lang.UnsatisfiedLinkError:
 ```
 
 Make sure that the JVM has been given the location of the native files for your platform. This can be done by
-appending `-Djava.library.path=/absolute-path/to/lib/serial/YOUR-PLATFORM/` to the JVM command line options in the IDE
+appending `-Djava.library.path=/absolute-path/to/lib/sysiass-wheelchar-gui/serial/YOUR-PLATFORM/` to the JVM command line options in the IDE
+
+`YOUR-PLATFORM` indicates the Operating System you are using out of:
+ + linux32 (32-bit Linux)
+ + linux64 (64-bit Linux)
+ + macosx (OS X)
+ + windows32 (32-bit Windows)
+ + window64 (64-bit Windows)
 
 This value can be set using the Edit Configurations option in IntelliJ in "VM Options for Applet Viewer"
