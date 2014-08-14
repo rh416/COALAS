@@ -27,7 +27,7 @@ public class JRectangle extends JShape
   public JRectangle(PApplet parent, float x, float y, float w, float h)
   {
     super(parent);
-    myRect = new Rectangle2D.Float(x,y,w,h);
+    myRect = new Rectangle2D.Float(x - (w/2),y - (h/2),w,h);
     shape = myRect;
   }    
   

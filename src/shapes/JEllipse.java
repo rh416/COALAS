@@ -39,7 +39,7 @@ public class JEllipse extends JShape
   public void draw()
   {    
     super.draw();
-    parent.ellipseMode(parent.CENTER);
+    parent.ellipseMode(parent.CORNER);
     parent.ellipse(myEllipse.x,myEllipse.y, myEllipse.width,myEllipse.height);
   }
   

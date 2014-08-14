@@ -58,8 +58,12 @@ public abstract class JShape
   public void draw()
   {
     parent.fill(fillColour);
-    parent.strokeWeight(borderWidth);
-    parent.stroke(borderColour);
+    if(borderWidth == 0){
+        parent.noStroke();
+    } else {
+        parent.strokeWeight(borderWidth);
+        parent.stroke(borderColour);
+    }
   }
   
   /** Should perform a translation of the object by the given coordinates.
