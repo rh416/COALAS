@@ -9,9 +9,11 @@ import java.util.ArrayList;
  */
 public class Node {
 
+    public static int MAX_ZONES = 3;
+
     private PWCInterface chairInterface;
     private int id;
-    private ArrayList<Zone> zones = new ArrayList<Zone>(3);
+    private ArrayList<Zone> zones = new ArrayList<Zone>(MAX_ZONES);
     private ArrayList<Integer> sensorDataOrder = new ArrayList<Integer>();
     private boolean connected = false;
 
@@ -21,7 +23,7 @@ public class Node {
         id = nodeId;
 
         // Each node has a maximum of 3 zones - lets create some empty ones ready for use later
-        for(int i = 0; i < 3; i++){
+        for(int i = 0; i < MAX_ZONES; i++){
             zones.add(i, new Zone(i+1, Zone.Position.UNKNOWN, Zone.Orientation.UNKNOWN));
         }
     }

@@ -1,49 +1,54 @@
 package uk.ac.kent.coalas.pwc.gui.frames;
 
-import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfacePayloadBusScan;
-import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEvent;
+import controlP5.ControlEvent;
 import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
-import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEventPayload;
+import uk.ac.kent.coalas.pwc.gui.hardware.Node;
+import uk.ac.kent.coalas.pwc.gui.hardware.Sensor;
+import uk.ac.kent.coalas.pwc.gui.hardware.Zone;
+import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEvent;
 
 /**
  * Created by rm538 on 06/08/2014.
  */
 public class ConfigurationFrame extends WheelchairGUIFrame {
 
+    private Node node;
 
-    public ConfigurationFrame(WheelchairGUI theParent, int theWidth, int theHeight, int xPos, int yPos) {
+    public ConfigurationFrame(int width, int height, int xPos, int yPos){
 
-        super(theParent, theWidth, theHeight, xPos, yPos);
+        super(width, height, xPos, yPos);
     }
 
-    @Override
     public void setup() {
+
         super.setup();
 
-        // Setup controls here
+        for(int i = 0; i < Node.MAX_ZONES; i++){
+            Zone zone = node.getZone(i + 1);
+        }
     }
 
     @Override
     public void draw() {
 
+        background(255);
     }
 
     @Override
     public void onPWCInterfaceEvent(PWCInterfaceEvent e) {
 
-        PWCInterfaceEvent.EventType eventType = e.getType();
-        PWCInterfaceEventPayload payload = e.getPayload();
 
-        String eType = eventType.name();
+    }
 
-        console("Got event: " + eType);
+    public void setConfigNode(Node node){
 
-        switch(e.getType()){
+        this.node = node;
+    }
 
-            case BUS_SCAN:
-                PWCInterfacePayloadBusScan busPayload = (PWCInterfacePayloadBusScan)payload;
-                console("Node " + busPayload.getNode().getId() + " is " + (busPayload.getNode().isConnectedToBus() ? "connected" : "not connected"));
-                break;
-        }
+    public void setupZoneRow(Zone zone){
+
+        Sensor IRSensor = zone.getSensorByType(Sensor.SensorType.INFRARED);
+        Sensor UltrasoundSensor = zone.getSensorByType(Sensor.SensorType.ULTRASONIC);
+
     }
 }

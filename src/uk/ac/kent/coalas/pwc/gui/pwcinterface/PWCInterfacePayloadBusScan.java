@@ -18,7 +18,7 @@ public class PWCInterfacePayloadBusScan extends PWCInterfaceEventPayload {
             throw new PWCInterfaceParseException("Response is the wrong length");
         }
 
-        int nodeId = Integer.parseInt(response.substring(1, 1));
+        int nodeId = Integer.parseInt(response.substring(0, 1));
         node = chairInterface.getNode(nodeId);
 
         String connected = response.substring(2);

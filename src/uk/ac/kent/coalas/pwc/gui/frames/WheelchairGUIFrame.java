@@ -1,52 +1,77 @@
 package uk.ac.kent.coalas.pwc.gui.frames;
 
+import controlP5.ControlListener;
 import controlP5.ControlP5;
+import g4p_controls.G4P;
+import g4p_controls.GConstants;
 import processing.core.PApplet;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceListener;
 import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 // the ControlFrame class extends PApplet, so we
 // are creating a new processing applet inside a
 // new frame with a controlP5 object loaded
 public abstract class WheelchairGUIFrame extends PApplet implements PWCInterfaceListener {
 
-    ControlP5 cp5;
-    WheelchairGUI parent;
-    Frame containingFrame;
+    protected WheelchairGUI parent;
+    private final Frame containingFrame;
 
-    int frameWidth, frameHeight;
+    private int frameWidth, frameHeight;
 
-    public WheelchairGUIFrame(WheelchairGUI theParent, int theWidth, int theHeight, int xPos, int yPos) {
-        parent = theParent;
+    public WheelchairGUIFrame(int theWidth, int theHeight, int xPos, int yPos) {
         frameWidth = theWidth;
         frameHeight = theHeight;
 
-        Frame f = new Frame(this.getClass().getName());
-        f.add(this);
-        this.init();
-        f.setTitle(this.getClass().getName());
-        f.setSize(theWidth, theHeight);
-        f.setLocation(xPos, yPos);
-        f.setUndecorated(true);
-        f.setResizable(false);
-        f.setVisible(true);
+        containingFrame = new Frame(this.getClass().getName());
+        containingFrame.add(this);
+        containingFrame.setTitle(this.getClass().getName());
+        containingFrame.setSize(theWidth, theHeight);
+        containingFrame.setLocation(xPos, yPos);
+        //containingFrame.setUndecorated(true);
+        containingFrame.setResizable(false);
+        containingFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent windowEvent) {
+                containingFrame.dispose();
+            }
+        });
 
-        this.containingFrame = f;
+        containingFrame.setVisible(true);
+        this.init();
     }
 
     public void setup() {
         super.setup();
         size(frameWidth, frameHeight);
         frameRate(25);
+        smooth();
 
-        cp5 = new ControlP5(this);
+        G4P.setGlobalColorScheme(GConstants.BLUE_SCHEME);
+
+    }
+
+    public void setTitle(String title){
+
+        getFrame().setTitle(title);
+    }
+
+    public void setParent(WheelchairGUI parent){
+
+        this.parent = parent;
     }
 
     public Frame getFrame(){
 
         return containingFrame;
+    }
+
+    public WheelchairGUI getMainApp(){
+
+        return parent;
     }
 
     public void console(String s){

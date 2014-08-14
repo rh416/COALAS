@@ -1,5 +1,6 @@
 package uk.ac.kent.coalas.pwc.gui.frames;
 
+import controlP5.ControlEvent;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceErrorPayload;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEvent;
 import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
@@ -11,27 +12,29 @@ import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEventPayload;
 public class DiagnosticsFrame extends WheelchairGUIFrame {
 
 
-    public DiagnosticsFrame(WheelchairGUI parent, int width, int height, int xPos, int yPos){
+    public DiagnosticsFrame(int width, int height, int xPos, int yPos){
 
-        super(parent, width, height, xPos, yPos);
+        super(width, height, xPos, yPos);
     }
 
     public void setup() {
 
         super.setup();
-
-        cp5.addSlider("abc").setRange(0, 255).setPosition(10, 10);
-        cp5.addSlider("def").plugTo(parent, "def").setRange(0, 255).setPosition(10, 30);
     }
 
     @Override
     public void draw() {
-        //console(frameRate);
+        background(255);
+
     }
 
     @Override
     public void onPWCInterfaceEvent(PWCInterfaceEvent e) {
 
+
+    }
+
+    public void controlEvent(ControlEvent e){
 
     }
 }
