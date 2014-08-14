@@ -6,13 +6,21 @@ It can also be used to configure the way in which sensors behave and report thei
 Although this GUI is based up Processing 2.x it must be run from a more advanced IDE, such as IntelliJ - the free Community Edition can be downloaded from here: http://www.jetbrains.com/idea/download/
 
 ### External Libraries Used ###
-Processing 2.x
-    Reference & Download: https://www.processing.org/
-G4P - UI library for Processing
-    Intro & Download: http://www.lagers.org.uk/g4p/index.html
-    Reference: http://lagers.org.uk/g4p/ref/index.html
-Shapes - Shape library for Processing
-    Intro & Download: http://www.soi.city.ac.uk/~jwo/processing/shapes/
++ Processing 2.x
+
+    *Reference & Download: https://www.processing.org/*
+    
+    
++ G4P - UI library for Processing
+
+    *Intro & Download: http://www.lagers.org.uk/g4p/index.html*
+    
+    *Reference: http://lagers.org.uk/g4p/ref/index.html*
+   
+    
++ Shapes - Shape library for Processing
+
+    *Intro & Download: http://www.soi.city.ac.uk/~jwo/processing/shapes/*
 
 ## Installation ##
 These instructions assume the use of IntelliJ, but will most likely be similar whatever IDE you use.
