@@ -5,7 +5,7 @@ package uk.ac.kent.coalas.pwc.gui.pwcinterface;
  */
 public class PWCInterfaceEvent {
 
-    public static enum EventType {ERROR, UNKNOWN, BUS_SCAN,
+    public static enum EventType {ERROR, UNKNOWN, FIRMWARE_INFO, BUS_SCAN,
         NODE_CURRENT_DATA, NODE_CONFIGURATION, NODE_DATA_FORMAT, ACK }
 
     private EventType type;

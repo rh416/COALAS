@@ -131,12 +131,8 @@ public class UINode extends UIObject {
         public void shapePressed(JShape shape){
 
             if((dataNode != null) && dataNode.isConnectedToBus()) {
-                int width = parent.width;
-                int height = parent.height;
-                int xPos = parent.getFrame().getX();
-                int yPos = parent.getFrame().getY();
                 ConfigurationFrame configFrame = (ConfigurationFrame) parent.getMainApp().addNewFrame(WheelchairGUI.FrameId.CONFIG,
-                                                                                                    new ConfigurationFrame(width, height, xPos, yPos));
+                                                                                                    new ConfigurationFrame(parent));
                 configFrame.setConfigNode(dataNode);
             }
         }

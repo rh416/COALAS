@@ -75,7 +75,7 @@ public class Zone {
 
     public Sensor getSensorByType(Sensor.SensorType sensorType){
 
-        return getSensorByTypeBitmask(sensorType.getBitmask());
+        return getSensorByTypeBitmask(sensorType.getBitmask() + getZoneNumber());
     }
 
     public Sensor getSensorByTypeBitmask(int typeBitmask){

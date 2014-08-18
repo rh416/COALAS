@@ -22,6 +22,11 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
 
     private int frameWidth, frameHeight;
 
+    public WheelchairGUIFrame(WheelchairGUIFrame copyFrame){
+
+        this(copyFrame.width, copyFrame.height, copyFrame.getFrame().getX(), copyFrame.getFrame().getY());
+    }
+
     public WheelchairGUIFrame(int theWidth, int theHeight, int xPos, int yPos) {
         frameWidth = theWidth;
         frameHeight = theHeight;
@@ -45,7 +50,6 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
     }
 
     public void setup() {
-        super.setup();
         size(frameWidth, frameHeight);
         frameRate(25);
         smooth();

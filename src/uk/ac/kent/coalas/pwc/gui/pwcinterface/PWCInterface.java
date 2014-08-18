@@ -43,6 +43,11 @@ public class PWCInterface {
         return nodes.get(nodeId - 1);
     }
 
+    public void getVersion(){
+
+        sendCommand("V");
+    }
+
     public void sendCommand(String command){
 
         command += EOL;
@@ -68,9 +73,10 @@ public class PWCInterface {
         try {
             switch (firstChar) {
 
-                // Information from the joystick
-                case 'j':
-
+                // Version information from the firmware
+                case 'V':
+                    type = PWCInterfaceEvent.EventType.FIRMWARE_INFO;
+                    payload = new PWCInterfacePayloadFirmwareInfo(this, response);
                     break;
 
                 // Result from requesting node configuration
@@ -98,7 +104,7 @@ public class PWCInterface {
             }
         }catch(Exception e){
             type = PWCInterfaceEvent.EventType.ERROR;
-            payload= new PWCInterfaceErrorPayload(response, e);
+            payload= new PWCInterfacePayloadError(response, e);
         }
 
         if(listener != null) {

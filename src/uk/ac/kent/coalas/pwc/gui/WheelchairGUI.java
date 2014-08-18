@@ -1,9 +1,14 @@
 package uk.ac.kent.coalas.pwc.gui;
 
+import g4p_controls.GButton;
+import g4p_controls.GDropList;
+import g4p_controls.GEvent;
+import g4p_controls.GLabel;
 import processing.core.PApplet;
 
 import processing.serial.Serial;
 
+import uk.ac.kent.coalas.pwc.gui.frames.ConfigurationFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.OverviewFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.WheelchairGUIFrame;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
@@ -47,6 +52,19 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
     private int WindowYPosition = 100;
     private int WindowXOffset = 10;
 
+    private static int DUE_BAUD_RATE = 9600;        // Must match the baud rate set in the DUE firmware.
+
+    private static final String STRING_CONNECT = "Connect";
+    private static final String STRING_DISCONNECT = "Disconnect";
+    private static final String STRING_CHECKING_CONNECTION = "Connecting to Wheelchair, please wait.";
+    private static final String STRING_FIRMWARE_RESPONSE = "Wheelchair connected! Running firmware version: ";
+    private static final String STRING_SERIAL_DISCONNECTED = "Serial Disconnected";
+
+
+    GDropList DueSerialPortList;
+    GButton DueSerialControlButton;
+    GLabel DueInfoLabel;
+
     BufferedReader SystemIn = new BufferedReader(new InputStreamReader(System.in));
 
     private Serial DueSerialPort, DXBusSerialPort;
@@ -58,18 +76,49 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
     //private PWCInterface DueWheelchairInterface = new PWCInterface(this, new PWCDueSerialCommunicationProvider());
 
     public void setup() {
-        size(800, 800);
+        size(300, 300);
         smooth();
 
-        //addNewFrame(FrameId.USER, new DiagnosticsFrame(WindowWidth, WindowHeight, WindowXPosition, WindowYPosition));
+        DueSerialPortList = new GDropList(this, 25, 25, 100, 150, 4);
+        DueSerialPortList.setItems(Serial.list(), 0);
+
+        DueSerialControlButton = new GButton(this, 175, 25, 100, 30, STRING_CONNECT);
+
+        DueInfoLabel = new GLabel(this, 25, 100, 200, 30);
+
+        PWCInterface pwcI = getChairInterface();
+
+        // Simulate commands from the chair
+        pwcI.parse("S1:Y");
+        pwcI.parse("S2:Y");
+        pwcI.parse("S4:Y");
+        pwcI.parse("S5:Y");
+
+        pwcI.parse("S3:N");
+        pwcI.parse("S6:N");
+        pwcI.parse("S7:N");
+        pwcI.parse("S8:N");
+        pwcI.parse("S9:N");
+
+        pwcI.parse("C1:1gIE,1hu,1aO.");
+        pwcI.parse("C2:3cI,3eF,3bG.");
+        pwcI.parse("C4:FaE,FbJ.");
+        pwcI.parse("C5:RbIE,RcJ,RdG.");
+
+        addNewFrame(FrameId.USER, new ConfigurationFrame(WindowWidth, WindowHeight, WindowXPosition, WindowYPosition));
         WindowXPosition += WindowWidth + WindowXOffset;
         addNewFrame(FrameId.OVERVIEW, new OverviewFrame(WindowWidth, WindowHeight, WindowXPosition, WindowYPosition));
         WindowXPosition += WindowWidth + WindowXOffset;
         //addNewFrame(FrameId.DIAGNOSTICS, new DiagnosticsFrame(WindowWidth, WindowHeight, WindowXPosition, WindowYPosition));
         WindowXPosition += WindowWidth + WindowXOffset;
+
+        ConfigurationFrame cfgFrame = (ConfigurationFrame)getFrame(FrameId.USER);
+        cfgFrame.setConfigNode(getChairInterface().getNode(1));
     }
 
     public void draw() {
+
+        background(255);    // Make sure this is here, otherwise controls won't work properly
 
         try {
             if(SystemIn.ready()) {
@@ -117,7 +166,7 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
         switch(e.getType()){
 
             case ERROR:
-                PWCInterfaceErrorPayload errorPayload = (PWCInterfaceErrorPayload)e.getPayload();
+                PWCInterfacePayloadError errorPayload = (PWCInterfacePayloadError)e.getPayload();
                 Exception err = errorPayload.getException();
                 println(errorPayload.getResponse() + ": " + err.getClass().getName() + ":" + err.getMessage());
 
@@ -126,6 +175,11 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
                 String exceptionAsString = sw.toString();
 
                 println(exceptionAsString);
+                break;
+
+            case FIRMWARE_INFO:
+                PWCInterfacePayloadFirmwareInfo firmwareInfo = (PWCInterfacePayloadFirmwareInfo) e.getPayload();
+                DueInfoLabel.setText(STRING_FIRMWARE_RESPONSE + firmwareInfo.getVersion());
                 break;
 
             default:
@@ -146,6 +200,65 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
         // Send the input to the interface to parsed
         DueWheelchairInterface.parse(port.readString());
     }
+
+    public void handleButtonEvents(GButton button, GEvent event){
+
+        if(button == DueSerialControlButton && event == GEvent.CLICKED) {
+            String portName = DueSerialPortList.getSelectedText();
+
+            // Close the serial port if it is already active
+            if (DueSerialPort != null) {
+                DueSerialPort.clear();
+                DueSerialPort.stop();
+            }
+
+            // If we are trying to connect
+            if(button.getText() == STRING_CONNECT){
+
+                try {
+                    // Connect to the serial port
+                    DueSerialPort = new Serial(this, portName, DUE_BAUD_RATE);
+
+                    // Change button label for disconnection
+                    button.setText(STRING_DISCONNECT);
+                    println("Serial connected on: " + portName);
+                    println("Checking DUE Firmware version");
+                    DueInfoLabel.setText(STRING_CHECKING_CONNECTION);
+                    DueWheelchairInterface.getVersion();
+                } catch (RuntimeException e){
+                    DueInfoLabel.setText("Error: " + e.getMessage());
+                }
+            } else {
+                // Otherwise we are trying to disconnect, so don't recreate connection but we need to change the button label
+                button.setText(STRING_CONNECT);
+                DueInfoLabel.setText(STRING_SERIAL_DISCONNECTED);
+                println("Serial disconnected");
+            }
+        }
+    }
+
+    public void handleDropListEvents(GDropList list, GEvent event){
+
+        // Reset the connect button to ease changing port
+        DueSerialControlButton.setText(STRING_CONNECT);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public class PWCConsoleCommunicationProvider implements PWCInterfaceCommunicationProvider{
 

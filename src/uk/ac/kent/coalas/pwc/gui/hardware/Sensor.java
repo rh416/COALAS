@@ -7,7 +7,7 @@ public class Sensor {
 
     private SensorType sensorType;
     private SensorDataFormat dataFormat = SensorDataFormat.UNKNOWN;
-    private SensorDataInterpretation dataInterpretation = SensorDataInterpretation.UNKOWN;
+    private SensorDataInterpretation dataInterpretation = SensorDataInterpretation.UNKNOWN;
     private boolean faulty;
     private short currentValue;
 
@@ -33,7 +33,7 @@ public class Sensor {
     }
 
     public static enum SensorDataInterpretation{
-        UNKOWN('u'), CM('c'), RAW('r'), THRESHOLD('t');
+        UNKNOWN('u'), CM('c'), RAW('r'), THRESHOLD('t');
 
         private final char representation;
         private SensorDataInterpretation(final char representation){
@@ -59,7 +59,7 @@ public class Sensor {
 
     public static SensorDataInterpretation getDataInterpretationFromCharacter(char dataInterpretationChar) {
 
-        SensorDataInterpretation responseInterpretation = SensorDataInterpretation.UNKOWN;
+        SensorDataInterpretation responseInterpretation = SensorDataInterpretation.UNKNOWN;
 
         // Cycle through all the data representations to see which one is represented by the given character
         for (SensorDataInterpretation interpretation : SensorDataInterpretation.values()) {

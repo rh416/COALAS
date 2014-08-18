@@ -1,10 +1,7 @@
 package uk.ac.kent.coalas.pwc.gui.frames;
 
 import controlP5.ControlEvent;
-import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceErrorPayload;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEvent;
-import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
-import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEventPayload;
 
 /**
  * Created by rm538 on 06/08/2014.

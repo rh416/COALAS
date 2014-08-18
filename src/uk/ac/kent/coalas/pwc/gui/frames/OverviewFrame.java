@@ -24,6 +24,11 @@ public class OverviewFrame extends WheelchairGUIFrame {
 
     private EnumMap<Zone.Position, UINode> uiNodes = new EnumMap<Zone.Position, UINode>(Zone.Position.class);
 
+    public OverviewFrame(WheelchairGUIFrame copyFrame){
+
+        super(copyFrame);
+    }
+
     public OverviewFrame(int theWidth, int theHeight, int xPos, int yPos) {
 
         super(theWidth, theHeight, xPos, yPos);
@@ -44,7 +49,9 @@ public class OverviewFrame extends WheelchairGUIFrame {
 
         Font logFont = new Font("Monospace", Font.PLAIN, 10);
 
-        btnScanBus = new GButton(this, 130, 130, 60, 60, "Scan\nBus");
+        btnScanBus = new GButton(this, 130, 130, 60, 60, "ScanBus");
+        btnScanBus.addEventHandler(this, "handleButtonEvents");
+
         txtScanResults = new GTextArea(this, 20, 350, 280, 80, GConstants.SCROLLBARS_VERTICAL_ONLY);
         //txtScanResults.setTextEditEnabled(false);
         txtScanResults.setFont(logFont);
@@ -106,30 +113,37 @@ public class OverviewFrame extends WheelchairGUIFrame {
 
     public void handleButtonEvents(GButton button, GEvent event){
 
+        console("Button event");
+
         if(button == btnScanBus){
+
+            console("Scan button event");
+
+            PWCInterface pwcI = parent.getChairInterface();
+
             // Scan the bus for any nodes
             for(int i = 1; i < 10; i++){
-                parent.getChairInterface().getNode(i).checkExistsOnBus();
+                pwcI.getNode(i).checkExistsOnBus();
             }
 
 
 
             // Simulate commands from the chair
-            parent.getChairInterface().parse("S1:Y");
-            parent.getChairInterface().parse("S2:Y");
-            parent.getChairInterface().parse("S4:Y");
-            parent.getChairInterface().parse("S5:Y");
+            pwcI.parse("S1:Y");
+            pwcI.parse("S2:Y");
+            pwcI.parse("S4:Y");
+            pwcI.parse("S5:Y");
 
-            parent.getChairInterface().parse("S3:N");
-            parent.getChairInterface().parse("S6:N");
-            parent.getChairInterface().parse("S7:N");
-            parent.getChairInterface().parse("S8:N");
-            parent.getChairInterface().parse("S9:N");
+            pwcI.parse("S3:N");
+            pwcI.parse("S6:N");
+            pwcI.parse("S7:N");
+            pwcI.parse("S8:N");
+            pwcI.parse("S9:N");
 
-            parent.getChairInterface().parse("C1:1gIE,1hu,1aO.");
-            parent.getChairInterface().parse("C2:3cI,3eF,3bG.");
-            parent.getChairInterface().parse("C4:FaE,FbJ.");
-            parent.getChairInterface().parse("C5:RbIE,RcJ,RdG.");
+            pwcI.parse("C1:1gIE,1hu,1aO.");
+            pwcI.parse("C2:3cI,3eF,3bG.");
+            pwcI.parse("C4:FaE,FbJ.");
+            pwcI.parse("C5:RbIE,RcJ,RdG.");
         }
     }
 }
