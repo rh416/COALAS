@@ -9,15 +9,15 @@ import java.util.ArrayList;
 /**
  * Created by rm538 on 14/08/2014.
  */
-public class UIZoneRow extends UIObject {
+public class UIZoneConfigRow extends UIObject {
 
     private WheelchairGUIFrame parent;
     private Zone srcZone;
     private RowPositionTracker positionTracker;
 
-    private ArrayList<UISensorRow>uiSensorRows = new ArrayList<UISensorRow>();
+    private ArrayList<UISensorConfigRow> uiSensorConfigRows = new ArrayList<UISensorConfigRow>();
 
-    public UIZoneRow(WheelchairGUIFrame parent, Zone srcZone, RowPositionTracker positionTracker){
+    public UIZoneConfigRow(WheelchairGUIFrame parent, Zone srcZone, RowPositionTracker positionTracker){
 
         this.parent = parent;
         this.srcZone = srcZone;
@@ -26,7 +26,7 @@ public class UIZoneRow extends UIObject {
         for(Sensor.SensorType type : Sensor.SensorType.values()){
             Sensor sensor = srcZone.getSensorByType(type);
             if(sensor != null){
-                uiSensorRows.add(new UISensorRow(parent, sensor, positionTracker));
+                uiSensorConfigRows.add(new UISensorConfigRow(parent, sensor, positionTracker));
             }
         }
 
@@ -34,10 +34,6 @@ public class UIZoneRow extends UIObject {
     }
 
     public void draw(){
-
-        for(UISensorRow sensorRow : uiSensorRows){
-            sensorRow.draw();
-        }
-
+        // Do nothing
     }
 }

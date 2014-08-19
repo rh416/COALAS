@@ -64,7 +64,7 @@ public class PWCInterfacePayloadNodeConfiguration extends PWCInterfaceEventPaylo
                     // Detect the type of sensor
                     for(Sensor.SensorType sensorType : Sensor.SensorType.values()){
                         if((charCode & 0x1F) == (sensorType.getBitmask() + zoneNum)){      // Bitmask = OxC -> 11111 (as we only care about
-                            tmpSensors.add(new Sensor(sensorType));           //            the first 5 bits ie xxx?????)
+                            tmpSensors.add(new Sensor(sensorType));           //            the first 5 bits)
                             System.out.println(sensorType.name());
                             break;
                         }
@@ -74,7 +74,7 @@ public class PWCInterfacePayloadNodeConfiguration extends PWCInterfaceEventPaylo
             }
 
             // Create a new instance of a zone
-            Zone tmpZone = new Zone(zoneNum, tmpPosition, tmpOrientation);
+            Zone tmpZone = new Zone(node, zoneNum, tmpPosition, tmpOrientation);
             // Add the sensors to the zone too
             tmpZone.setSensors(tmpSensors);
 

@@ -4,14 +4,14 @@ import g4p_controls.GButton;
 import g4p_controls.GConstants;
 import g4p_controls.GEvent;
 import g4p_controls.GTextArea;
+import shapes.JShape;
+import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 import uk.ac.kent.coalas.pwc.gui.hardware.Node;
 import uk.ac.kent.coalas.pwc.gui.hardware.Zone;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
-import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 import uk.ac.kent.coalas.pwc.gui.ui.UINode;
 
 import java.awt.*;
-import java.io.InputStream;
 import java.util.EnumMap;
 
 /**
@@ -19,8 +19,8 @@ import java.util.EnumMap;
  */
 public class OverviewFrame extends WheelchairGUIFrame {
 
-    GButton btnScanBus;
-    GTextArea txtScanResults;
+    private GButton btnScanBus;
+    private GTextArea txtScanResults;
 
     private EnumMap<Zone.Position, UINode> uiNodes = new EnumMap<Zone.Position, UINode>(Zone.Position.class);
 
@@ -32,7 +32,7 @@ public class OverviewFrame extends WheelchairGUIFrame {
     public OverviewFrame(int theWidth, int theHeight, int xPos, int yPos) {
 
         super(theWidth, theHeight, xPos, yPos);
-        setTitle("Wheelchair Overview");
+        setTitle(s("overview_title"));
 
         // Create nodes for display
         for(Zone.Position position : Zone.Position.values()){
@@ -49,7 +49,7 @@ public class OverviewFrame extends WheelchairGUIFrame {
 
         Font logFont = new Font("Monospace", Font.PLAIN, 10);
 
-        btnScanBus = new GButton(this, 130, 130, 60, 60, "ScanBus");
+        btnScanBus = new GButton(this, 130, 130, 60, 60, s("scan_bus"));
         btnScanBus.addEventHandler(this, "handleButtonEvents");
 
         txtScanResults = new GTextArea(this, 20, 350, 280, 80, GConstants.SCROLLBARS_VERTICAL_ONLY);
@@ -89,10 +89,11 @@ public class OverviewFrame extends WheelchairGUIFrame {
 
                 // If the node is connected, request its configuration so that we can display its status
                 if(eventNode.isConnectedToBus()){
-                    eventNode.requestNodeConfiguration();
+                    eventNode.requestConfiguration();
                 } else {
+                    // Otherwise, print to the log that the node was not found
                     if(txtScanResults != null) {
-                        txtScanResults.appendText("Node " + eventNode.getId() + " is not connected to the bus\n");
+                        txtScanResults.appendText(String.format(s("node_not_connected"), eventNode.getId()) + "\n");
                     }
                 }
                 break;
@@ -105,19 +106,13 @@ public class OverviewFrame extends WheelchairGUIFrame {
                 UINode uiNode = uiNodes.get(eventNode.getZone(1).getPosition());
                 if(uiNode != null){
                     uiNode.setDataNode(eventNode);
-                } else {
-                    console("uiNode was null");
                 }
         }
     }
 
     public void handleButtonEvents(GButton button, GEvent event){
 
-        console("Button event");
-
         if(button == btnScanBus){
-
-            console("Scan button event");
 
             PWCInterface pwcI = parent.getChairInterface();
 

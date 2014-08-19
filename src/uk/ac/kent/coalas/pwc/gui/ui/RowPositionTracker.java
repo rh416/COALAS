@@ -1,7 +1,6 @@
 package uk.ac.kent.coalas.pwc.gui.ui;
 
-import uk.ac.kent.coalas.pwc.gui.ui.UISensorRow;
-import uk.ac.kent.coalas.pwc.gui.ui.UIZoneRow;
+import g4p_controls.GAbstractControl;
 
 /**
  * Created by rm538 on 18/08/2014.
@@ -25,11 +24,16 @@ public class RowPositionTracker {
         this.rowPositionX += amount;
     }
 
+    public void incrementXPosition(GAbstractControl control, int padding){
+
+        incrementXPosition((int) control.getWidth() + padding);
+    }
+
     public void incrementYPosition(Class<?> clazz){
 
-        if(UIZoneRow.class.equals(clazz)){
+        if(UIZoneConfigRow.class.equals(clazz)){
             rowPositionY += 10;
-        } else if(UISensorRow.class.equals(clazz)){
+        } else if(UISensorConfigRow.class.equals(clazz)){
             rowPositionY += 30;
         }
     }

@@ -9,6 +9,7 @@ import shapes.JShape;
 import shapes.JShapeAdapter;
 import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 import uk.ac.kent.coalas.pwc.gui.frames.ConfigurationFrame;
+import uk.ac.kent.coalas.pwc.gui.frames.OverviewFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.WheelchairGUIFrame;
 import uk.ac.kent.coalas.pwc.gui.hardware.Node;
 import uk.ac.kent.coalas.pwc.gui.hardware.Zone;
@@ -109,7 +110,7 @@ public class UINode extends UIObject {
 
         for(int i = 0; i < Node.MAX_ZONES; i++){
             thisZone = node.getZone(i + 1);
-            this.uiZones.add(i, new UIZone(parent, thisZone.getPosition(), thisZone.getOrientation()));
+            this.uiZones.add(i, new UIZone(parent, thisZone));
         }
     }
 
@@ -130,9 +131,9 @@ public class UINode extends UIObject {
         @Override
         public void shapePressed(JShape shape){
 
-            if((dataNode != null) && dataNode.isConnectedToBus()) {
+            if(dataNode != null && dataNode.isConnectedToBus()){
                 ConfigurationFrame configFrame = (ConfigurationFrame) parent.getMainApp().addNewFrame(WheelchairGUI.FrameId.CONFIG,
-                                                                                                    new ConfigurationFrame(parent));
+                        new ConfigurationFrame(parent));
                 configFrame.setConfigNode(dataNode);
             }
         }

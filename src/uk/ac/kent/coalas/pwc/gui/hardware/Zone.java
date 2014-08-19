@@ -40,6 +40,7 @@ public class Zone {
         public int getAngle(){ return this.angle; }
     }
 
+    private Node parentNode;
     private int zoneNum;
     private Position position;
     private Orientation orientation;
@@ -51,11 +52,17 @@ public class Zone {
         return new ArrayList<Sensor>();
     }
 
-    public Zone(int zoneNumber, Position position, Orientation orientation){
+    public Zone(Node parentNode, int zoneNumber, Position position, Orientation orientation){
 
+        this.parentNode = parentNode;
         zoneNum = zoneNumber;
         this.position = position;
         this.orientation = orientation;
+    }
+
+    public Node getParentNode(){
+
+        return parentNode;
     }
 
     public Orientation getOrientation(){

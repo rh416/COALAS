@@ -7,7 +7,7 @@ import uk.ac.kent.coalas.pwc.gui.hardware.Sensor;
 /**
  * Created by rm538 on 14/08/2014.
  */
-public class UISensorRow extends UIObject {
+public class UISensorConfigRow extends UIObject {
 
     private WheelchairGUIFrame parent;
     private Sensor srcSensor;
@@ -17,7 +17,7 @@ public class UISensorRow extends UIObject {
     private GDropList DropListSeparation, DropListDataInterpretation, DropListMode;
     private GTextField TextThreshold;
 
-    public UISensorRow(WheelchairGUIFrame parent, Sensor sensor, RowPositionTracker positionTracker){
+    public UISensorConfigRow(WheelchairGUIFrame parent, Sensor sensor, RowPositionTracker positionTracker){
 
         this.parent = parent;
         this.srcSensor = sensor;
@@ -37,37 +37,36 @@ public class UISensorRow extends UIObject {
 
         LabelSensor = new GLabel(parent, pt.getX(), pt.getY() + 3, 35, 15, sensorLabel);
 
-        pt.incrementXPosition(35);
+        pt.incrementXPosition(LabelSensor, 0);
 
         DropListSeparation = new GDropList(parent, pt.getX(), pt.getY(), 65, 120);
         DropListSeparation.setItems(new String[]{"Separate", "Fused"}, 0);
         DropListSeparation.addEventHandler(this, "handleDropListEvents");
 
-        pt.incrementXPosition(70);
+        pt.incrementXPosition(DropListSeparation, 5);
 
-        DropListDataInterpretation = new GDropList(parent, pt.getX(), pt.getY(), 65, 120);
+        DropListDataInterpretation = new GDropList(parent, pt.getX(), pt.getY(), 70, 120);
         DropListDataInterpretation.setItems(new String[]{"Disabled", "Raw", "cm", "Threshold"}, 0);
         DropListDataInterpretation.addEventHandler(this, "handleDropListEvents");
 
-        pt.incrementXPosition(70);
+        pt.incrementXPosition(DropListDataInterpretation, 5);
 
         TextThreshold = new GTextField(parent, pt.getX(), pt.getY(), 30, 15);
+        TextThreshold.addEventHandler(this, "handleTextEvents");
 
-        pt.incrementXPosition(35);
+        pt.incrementXPosition(TextThreshold, 5);
 
         if(srcSensor.getType() == Sensor.SensorType.ULTRASONIC) {
-            DropListMode = new GDropList(parent, pt.getX(), pt.getY(), 75, 120);
+            DropListMode = new GDropList(parent, pt.getX(), pt.getY(), 80, 120);
             DropListMode.setItems(new String[]{"Continuous", "Pulsed"}, 0);
             DropListMode.addEventHandler(this, "handleDropListEvents");
         }
 
 
-        positionTracker.incrementYPosition(UISensorRow.class);
+        positionTracker.incrementYPosition(UISensorConfigRow.class);
     }
 
     public void handleDropListEvents(GDropList list, GEvent event){
-
-        System.out.println("Event: " + event);
 
         if(event == GEvent.SELECTED){
             if(list == DropListSeparation){
@@ -77,13 +76,21 @@ public class UISensorRow extends UIObject {
             } else if (list == DropListMode){
 
             }
-            list.setLocalColorScheme(GConstants.YELLOW_SCHEME);
+            list.setLocalColorScheme(GConstants.GOLD_SCHEME);
         }
     }
 
+    public void handleTextEvents(GTextField textField, GEvent event){
+
+        System.out.println(event);
+
+        if(event == GEvent.CHANGED){
+            textField.setLocalColorScheme(GConstants.GOLD_SCHEME);
+        }
+
+    }
+
     public void draw(){
-
-
-
+        // Do nothing
     }
 }

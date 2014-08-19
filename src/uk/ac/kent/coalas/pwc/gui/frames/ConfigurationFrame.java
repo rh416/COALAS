@@ -8,7 +8,7 @@ import uk.ac.kent.coalas.pwc.gui.hardware.Node;
 import uk.ac.kent.coalas.pwc.gui.hardware.Zone;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEvent;
 import uk.ac.kent.coalas.pwc.gui.ui.RowPositionTracker;
-import uk.ac.kent.coalas.pwc.gui.ui.UIZoneRow;
+import uk.ac.kent.coalas.pwc.gui.ui.UIZoneConfigRow;
 
 import java.util.ArrayList;
 
@@ -24,7 +24,7 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
 
     private RowPositionTracker positionTracker = new RowPositionTracker(5, 80);
 
-    private ArrayList<UIZoneRow> uiZoneRows = new ArrayList<UIZoneRow>();
+    private ArrayList<UIZoneConfigRow> uiZoneConfigRows = new ArrayList<UIZoneConfigRow>();
 
 
 
@@ -68,7 +68,7 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
         for(int i = 0; i < Node.MAX_ZONES; i++){
             Zone zone = node.getZone(i + 1);
             if(zone.getPosition() != Zone.Position.UNKNOWN){
-                uiZoneRows.add(new UIZoneRow(this, zone, positionTracker));
+                uiZoneConfigRows.add(new UIZoneConfigRow(this, zone, positionTracker));
             }
         }
 
@@ -78,8 +78,10 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
     private void setConfigAppearance(){
 
         if(node != null){
+            String windowTitle = "Configure Node #" + node.getId();
+            getFrame().setTitle(windowTitle);
             if(ConfigNodeTitle != null){
-                ConfigNodeTitle.setText("Configure Node #" + node.getId());
+                ConfigNodeTitle.setText(windowTitle);
             }
         }
     }

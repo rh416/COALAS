@@ -1,9 +1,11 @@
 package uk.ac.kent.coalas.pwc.gui.ui;
 
-import processing.core.PApplet;
 import shapes.JShape;
 import shapes.JShapeAdapter;
 import shapes.JTriangle;
+import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
+import uk.ac.kent.coalas.pwc.gui.frames.DiagnosticsFrame;
+import uk.ac.kent.coalas.pwc.gui.frames.WheelchairGUIFrame;
 import uk.ac.kent.coalas.pwc.gui.hardware.Zone;
 
 import java.awt.*;
@@ -16,27 +18,30 @@ import static uk.ac.kent.coalas.pwc.gui.hardware.Zone.*;
 public class UIZone extends UIObject {
 
     public static int ZONE_COLOUR = 0x80F87217;
-    public static int ZONE_COLOUR_HOVER = 0xFFF87217;
+    public static int ZONE_COLOUR_HIGHLIGHT = 0xFFF87217;
     public static int ZONE_INDICATOR_LENGTH = 60;
     public static int ZONE_INDICATOR_WIDTH = 60;
 
-    private PApplet parent;
-    private Orientation orientation;
+    private WheelchairGUIFrame parent;
+    private Zone dataZone;
 
     private JTriangle zoneIndicator;
 
     private int dx, dy;
 
-    public UIZone(PApplet parent, Position position, Orientation orientation){
+    public UIZone(WheelchairGUIFrame parent, Zone zone) {
 
         this.parent = parent;
-        this.orientation = orientation;
+        this.dataZone = zone;
+
+        Position position = zone.getPosition();
+        Orientation orientation = zone.getOrientation();
 
         Point basePosition = UIObject.getCenterFromPosition(position);
         double angleInRads = Math.toRadians(orientation.getAngle());
 
         dx = (int) (UINode.NODE_WIDTH / 2d) * (int) Math.round(Math.sin(angleInRads));
-        dy = (-1) * (int) (UINode.NODE_HEIGHT / 2d) *(int) Math.round(Math.cos(angleInRads));
+        dy = (-1) * (int) (UINode.NODE_HEIGHT / 2d) * (int) Math.round(Math.cos(angleInRads));
 
         dx = 0;
         dy = 0;
@@ -56,32 +61,52 @@ public class UIZone extends UIObject {
         zoneIndicator = new JTriangle(parent, x1, y1, x2, y2, x3, y3);
         zoneIndicator.setFillColour(ZONE_COLOUR);
         zoneIndicator.setBorderWidth(0);
-        zoneIndicator.addShapeListener(new ZoneShapeListener(this));
+        zoneIndicator.addShapeListener(new ZoneShapeListener());
     }
 
-    public void draw(){
+    public void draw() {
         zoneIndicator.draw();
     }
 
-    public class ZoneShapeListener extends JShapeAdapter{
+    public class ZoneShapeListener extends JShapeAdapter {
 
-        private UIZone parent;
+        @Override
+        public void shapeEntered(JShape shape) {
 
-        public ZoneShapeListener(UIZone parent){
-
-            this.parent = parent;
+            shape.setFillColour(ZONE_COLOUR_HIGHLIGHT);
         }
 
         @Override
-        public void shapeEntered(JShape shape){
+        public void shapeExited(JShape shape) {
 
-            shape.setFillColour(ZONE_COLOUR_HOVER);
+            DiagnosticsFrame diagnosticsFrame = (DiagnosticsFrame) parent.getMainApp().getFrame(WheelchairGUI.FrameId.DIAGNOSTICS);
+
+            if(diagnosticsFrame != null && !diagnosticsFrame.isZoneBeingMonitored(dataZone)) {
+                shape.setFillColour(ZONE_COLOUR);
+            }
         }
 
         @Override
-        public void shapeExited(JShape shape){
+        public void shapePressed(JShape shape) {
 
-            shape.setFillColour(ZONE_COLOUR);
+            DiagnosticsFrame diagnosticsFrame = (DiagnosticsFrame) parent.getMainApp().getFrame(WheelchairGUI.FrameId.DIAGNOSTICS);
+
+            if (diagnosticsFrame == null || diagnosticsFrame.finished) {
+                int w = parent.width;
+                int h = parent.height;
+                int x = parent.getFrame().getX() - w - 10;
+                int y = parent.getFrame().getY();
+                diagnosticsFrame = (DiagnosticsFrame) parent.getMainApp().addNewFrame(WheelchairGUI.FrameId.DIAGNOSTICS, new DiagnosticsFrame(w, h, x, y));
+            } else {
+                if(diagnosticsFrame.isZoneBeingMonitored(dataZone)){
+                    diagnosticsFrame.stopMonitoringZone(dataZone);
+                    shape.setFillColour(ZONE_COLOUR);
+                } else{
+                    diagnosticsFrame.monitorZone(dataZone);
+                    shape.setFillColour(ZONE_COLOUR_HIGHLIGHT);
+                }
+            }
         }
     }
 }
+

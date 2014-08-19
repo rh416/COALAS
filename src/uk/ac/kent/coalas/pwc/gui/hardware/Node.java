@@ -9,7 +9,7 @@ import java.util.ArrayList;
  */
 public class Node {
 
-    public static int MAX_ZONES = 3;
+    public static final int MAX_ZONES = 3;
 
     private PWCInterface chairInterface;
     private int id;
@@ -24,7 +24,7 @@ public class Node {
 
         // Each node has a maximum of 3 zones - lets create some empty ones ready for use later
         for(int i = 0; i < MAX_ZONES; i++){
-            zones.add(i, new Zone(i+1, Zone.Position.UNKNOWN, Zone.Orientation.UNKNOWN));
+            zones.add(i, new Zone(this, i+1, Zone.Position.UNKNOWN, Zone.Orientation.UNKNOWN));
         }
     }
 
@@ -94,17 +94,17 @@ public class Node {
         chairInterface.sendCommand("&" + String.valueOf(getId()) + "C" + configString);
     }
 
-    public void requestNodeConfiguration(){
+    public void requestConfiguration(){
 
         chairInterface.sendCommand("&" + String.valueOf(getId()) + "R");
     }
 
-    public void requestNodeCurrentData(){
+    public void requestCurrentData(){
 
         chairInterface.sendCommand("&" + String.valueOf(getId()) + "D");
     }
 
-    public void requestNodeDataFormat(){
+    public void requestDataFormat(){
 
         chairInterface.sendCommand("&" + String.valueOf(getId()) + "F");
     }

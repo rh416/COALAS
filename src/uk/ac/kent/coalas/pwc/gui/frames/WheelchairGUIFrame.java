@@ -11,6 +11,7 @@ import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ResourceBundle;
 
 // the ControlFrame class extends PApplet, so we
 // are creating a new processing applet inside a
@@ -41,11 +42,13 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
         containingFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent windowEvent) {
+                dispose();
                 containingFrame.dispose();
             }
         });
 
         containingFrame.setVisible(true);
+
         this.init();
     }
 
@@ -76,6 +79,11 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
     public WheelchairGUI getMainApp(){
 
         return parent;
+    }
+
+    public String s(String stringName){
+
+        return WheelchairGUI.Strings.getString(stringName);
     }
 
     public void console(String s){
