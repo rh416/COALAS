@@ -1,5 +1,9 @@
 package uk.ac.kent.coalas.pwc.gui.hardware;
 
+import uk.ac.kent.coalas.pwc.gui.ui.UISensorDataRow;
+
+import java.util.Random;
+
 /**
  * Created by rm538 on 11/08/2014.
  */
@@ -8,14 +12,20 @@ public class Sensor {
     private SensorType sensorType;
     private SensorDataFormat dataFormat = SensorDataFormat.UNKNOWN;
     private SensorDataInterpretation dataInterpretation = SensorDataInterpretation.UNKNOWN;
-    private boolean faulty;
-    private short currentValue;
+    private boolean faulty = false;
+    private short currentValue = 0;
 
     public static enum SensorType {
-        ULTRASONIC(4), INFRARED(8), FUSED(12);
+        ULTRASONIC("US", 4), INFRARED("IR", 8), FUSED("F", 12); //, ADDITIONAL_SENSOR_TYPE(16);
 
+        private final String name;
         private final int bitmask;
-        private SensorType(final int code){ this.bitmask = code; }
+        private SensorType(final String name, final int code){
+            this.name = name;
+            this.bitmask = code;
+
+        }
+        public String getName(){ return this.name; }
         public int getBitmask(){ return this.bitmask; }
     }
 
@@ -33,13 +43,16 @@ public class Sensor {
     }
 
     public static enum SensorDataInterpretation{
-        UNKNOWN('u'), CM('c'), RAW('r'), THRESHOLD('t');
+        UNKNOWN('u', "__"), CM('c', "cm"), RAW('r', "raw"), THRESHOLD('t', "T");
 
         private final char representation;
-        private SensorDataInterpretation(final char representation){
+        private final String suffix;
+        private SensorDataInterpretation(final char representation, final String suffix){
             this.representation = representation;
+            this.suffix = suffix;
         }
         public char getRepresentation(){ return this.representation; }
+        public String getSuffix(){ return this.suffix; }
     }
 
     public static SensorDataFormat getDataFormatFromCharacter(char dataFormatChar){

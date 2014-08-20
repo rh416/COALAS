@@ -1,5 +1,6 @@
 package uk.ac.kent.coalas.pwc.gui.ui;
 
+import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 import uk.ac.kent.coalas.pwc.gui.hardware.Zone;
 
 import java.awt.*;

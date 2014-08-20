@@ -48,12 +48,21 @@ public class PWCInterface {
         sendCommand("V");
     }
 
+    public boolean isAvailable(){
+
+        return commsProvider.isAvailable();
+    }
+
     public void sendCommand(String command){
 
         command += EOL;
 
         if(commsProvider != null){
-            commsProvider.write(command);
+            if(commsProvider.isAvailable()) {
+                commsProvider.write(command);
+            } else{
+                throw new PWCInterfaceException("Communication provider is not available");
+            }
         } else {
             throw new PWCInterfaceException("No valid communication provider supplied");
         }

@@ -9,10 +9,8 @@ import java.util.HashMap;
 public class Zone {
 
     public static enum Position{
-        UNKNOWN(""),
-        FRONT_CENTRE("F"), BACK_CENTRE("B"), LEFT_CENTRE("L"), RIGHT_CENTRE("R"),
-            FRONT_LEFT_CORNER("1"), FRONT_RIGHT_CORNER("2"),
-            BACK_RIGHT_CORNER("3"), BACK_LEFT_CORNER("4");
+        UNKNOWN(""), FRONT_CENTRE("F"), BACK_CENTRE("B"), LEFT_CENTRE("L"), RIGHT_CENTRE("R"),
+        FRONT_LEFT_CORNER("1"), FRONT_RIGHT_CORNER("2"), BACK_RIGHT_CORNER("3"), BACK_LEFT_CORNER("4");
 
         private final String code;
         private Position(final String code){ this.code = code; }
@@ -46,11 +44,6 @@ public class Zone {
     private Orientation orientation;
     private ArrayList<Sensor> sensors;
     private HashMap<Integer, Integer> sensorByType = new HashMap<Integer, Integer>();
-
-    public static ArrayList<Sensor> decodeSensorString(String sensorString){
-
-        return new ArrayList<Sensor>();
-    }
 
     public Zone(Node parentNode, int zoneNumber, Position position, Orientation orientation){
 

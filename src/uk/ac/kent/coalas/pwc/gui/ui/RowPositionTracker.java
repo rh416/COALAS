@@ -29,13 +29,19 @@ public class RowPositionTracker {
         incrementXPosition((int) control.getWidth() + padding);
     }
 
-    public void incrementYPosition(Class<?> clazz){
+    public void incrementXPosition(XIncrementer incrementer){
 
-        if(UIZoneConfigRow.class.equals(clazz)){
-            rowPositionY += 10;
-        } else if(UISensorConfigRow.class.equals(clazz)){
-            rowPositionY += 30;
-        }
+        incrementXPosition(incrementer.incrementX());
+    }
+
+    public void incrementYPosition(int amount){
+
+        this.rowPositionY += amount;
+    }
+
+    public void incrementYPosition(YIncrementer incrementer){
+
+        incrementYPosition(incrementer.incrementY());
     }
 
     public int getX(){
@@ -56,5 +62,15 @@ public class RowPositionTracker {
     public void resetY(){
 
         this.rowPositionY = initialY;
+    }
+
+    public interface XIncrementer {
+        public int incrementX();
+
+    }
+
+    public interface YIncrementer {
+        public int incrementY();
+
     }
 }

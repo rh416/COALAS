@@ -58,6 +58,7 @@ public class PWCInterfacePayloadNodeDataFormat extends PWCInterfaceEventPayload 
                 throw new PWCInterfaceParseException("Format string identifies a non-existing sensor: " + formatStr.substring(0,sensorFormatStrLength));
             }
 
+            node.setDataFormatKnown(true);
             formatStr = formatStr.substring(sensorFormatStrLength);
         }
     }

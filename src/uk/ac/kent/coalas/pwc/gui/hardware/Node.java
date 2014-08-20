@@ -16,6 +16,7 @@ public class Node {
     private ArrayList<Zone> zones = new ArrayList<Zone>(MAX_ZONES);
     private ArrayList<Integer> sensorDataOrder = new ArrayList<Integer>();
     private boolean connected = false;
+    private boolean dataFormatKnown = true; // TODO: Change this to false for production
 
     public Node(PWCInterface charInterface, int nodeId){
 
@@ -72,6 +73,16 @@ public class Node {
 
         int zoneNumberMasked = zoneNumber  & 0x3; // Bitmask = Ox3 -> 11 (as we only want to get the first 2 bits)
         return zones.get(zoneNumberMasked - 1);
+    }
+
+    public boolean isDataFormatKnown(){
+
+        return dataFormatKnown;
+    }
+
+    public void setDataFormatKnown(boolean dataFormatKnown){
+
+        this.dataFormatKnown = dataFormatKnown;
     }
 
     public void setZone(int zoneNumber, Zone newZone){

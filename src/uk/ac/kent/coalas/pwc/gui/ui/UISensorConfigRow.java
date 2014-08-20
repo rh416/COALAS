@@ -7,7 +7,7 @@ import uk.ac.kent.coalas.pwc.gui.hardware.Sensor;
 /**
  * Created by rm538 on 14/08/2014.
  */
-public class UISensorConfigRow extends UIObject {
+public class UISensorConfigRow extends UIObject implements RowPositionTracker.YIncrementer {
 
     private WheelchairGUIFrame parent;
     private Sensor srcSensor;
@@ -63,7 +63,7 @@ public class UISensorConfigRow extends UIObject {
         }
 
 
-        positionTracker.incrementYPosition(UISensorConfigRow.class);
+        positionTracker.incrementYPosition(this);
     }
 
     public void handleDropListEvents(GDropList list, GEvent event){
@@ -92,5 +92,10 @@ public class UISensorConfigRow extends UIObject {
 
     public void draw(){
         // Do nothing
+    }
+
+    @Override
+    public int incrementY() {
+        return 20;
     }
 }

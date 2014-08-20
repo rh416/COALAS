@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /**
  * Created by rm538 on 14/08/2014.
  */
-public class UIZoneConfigRow extends UIObject {
+public class UIZoneConfigRow extends UIObject implements RowPositionTracker.YIncrementer {
 
     private WheelchairGUIFrame parent;
     private Zone srcZone;
@@ -30,10 +30,15 @@ public class UIZoneConfigRow extends UIObject {
             }
         }
 
-        positionTracker.incrementYPosition(this.getClass());
+        positionTracker.incrementYPosition(this);
     }
 
     public void draw(){
         // Do nothing
+    }
+
+    @Override
+    public int incrementY() {
+        return 30;
     }
 }

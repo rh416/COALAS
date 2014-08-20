@@ -63,9 +63,8 @@ public class PWCInterfacePayloadNodeConfiguration extends PWCInterfaceEventPaylo
                     int charCode = (int)c;
                     // Detect the type of sensor
                     for(Sensor.SensorType sensorType : Sensor.SensorType.values()){
-                        if((charCode & 0x1F) == (sensorType.getBitmask() + zoneNum)){      // Bitmask = OxC -> 11111 (as we only care about
+                        if((charCode & 0x1F) == (sensorType.getBitmask() + zoneNum)){      // Bitmask = 0x1F -> 11111 (as we only care about
                             tmpSensors.add(new Sensor(sensorType));           //            the first 5 bits)
-                            System.out.println(sensorType.name());
                             break;
                         }
                     }

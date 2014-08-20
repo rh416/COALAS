@@ -65,6 +65,11 @@ public class UIZone extends UIObject {
     }
 
     public void draw() {
+
+        if(parent.getMainApp().getFrame(WheelchairGUI.FrameId.DIAGNOSTICS) == null){
+            zoneIndicator.setFillColour(ZONE_COLOUR);
+        }
+
         zoneIndicator.draw();
     }
 
@@ -81,7 +86,12 @@ public class UIZone extends UIObject {
 
             DiagnosticsFrame diagnosticsFrame = (DiagnosticsFrame) parent.getMainApp().getFrame(WheelchairGUI.FrameId.DIAGNOSTICS);
 
-            if(diagnosticsFrame != null && !diagnosticsFrame.isZoneBeingMonitored(dataZone)) {
+            // If the diagnostics frame is not visible, the zone cannot be being monitored, so reset the zone colour
+            if(diagnosticsFrame == null){
+                shape.setFillColour(ZONE_COLOUR);
+
+            // Otherwise, if the frame does exist, check whether or not this particular zone is being monitored. If not, reset the colour
+            } else if(!diagnosticsFrame.isZoneBeingMonitored(dataZone)) {
                 shape.setFillColour(ZONE_COLOUR);
             }
         }
@@ -91,20 +101,20 @@ public class UIZone extends UIObject {
 
             DiagnosticsFrame diagnosticsFrame = (DiagnosticsFrame) parent.getMainApp().getFrame(WheelchairGUI.FrameId.DIAGNOSTICS);
 
-            if (diagnosticsFrame == null || diagnosticsFrame.finished) {
+            if (diagnosticsFrame == null) {
                 int w = parent.width;
                 int h = parent.height;
                 int x = parent.getFrame().getX() - w - 10;
                 int y = parent.getFrame().getY();
                 diagnosticsFrame = (DiagnosticsFrame) parent.getMainApp().addNewFrame(WheelchairGUI.FrameId.DIAGNOSTICS, new DiagnosticsFrame(w, h, x, y));
-            } else {
-                if(diagnosticsFrame.isZoneBeingMonitored(dataZone)){
-                    diagnosticsFrame.stopMonitoringZone(dataZone);
-                    shape.setFillColour(ZONE_COLOUR);
-                } else{
-                    diagnosticsFrame.monitorZone(dataZone);
-                    shape.setFillColour(ZONE_COLOUR_HIGHLIGHT);
-                }
+            }
+
+            if(diagnosticsFrame.isZoneBeingMonitored(dataZone)){
+                diagnosticsFrame.stopMonitoringZone(dataZone);
+                shape.setFillColour(ZONE_COLOUR);
+            } else{
+                diagnosticsFrame.monitorZone(dataZone);
+                shape.setFillColour(ZONE_COLOUR_HIGHLIGHT);
             }
         }
     }

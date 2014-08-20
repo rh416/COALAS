@@ -69,6 +69,13 @@ public class OverviewFrame extends WheelchairGUIFrame {
 
     }
 
+    public void log(String logStr){
+
+        if(txtScanResults != null) {
+            txtScanResults.appendText(logStr + "\n");
+        }
+    }
+
     @Override
     public void onPWCInterfaceEvent(PWCInterfaceEvent e) {
 
@@ -92,9 +99,7 @@ public class OverviewFrame extends WheelchairGUIFrame {
                     eventNode.requestConfiguration();
                 } else {
                     // Otherwise, print to the log that the node was not found
-                    if(txtScanResults != null) {
-                        txtScanResults.appendText(String.format(s("node_not_connected"), eventNode.getId()) + "\n");
-                    }
+                    log(String.format(s("node_not_connected"), eventNode.getId()));
                 }
                 break;
 
@@ -116,29 +121,33 @@ public class OverviewFrame extends WheelchairGUIFrame {
 
             PWCInterface pwcI = parent.getChairInterface();
 
-            // Scan the bus for any nodes
-            for(int i = 1; i < 10; i++){
-                pwcI.getNode(i).checkExistsOnBus();
+            if(pwcI.isAvailable()) {
+
+                // Scan the bus for any nodes
+                for (int i = 1; i < 10; i++) {
+                    pwcI.getNode(i).checkExistsOnBus();
+                }
+
+
+                // Simulate commands from the chair
+                pwcI.parse("S1:Y");
+                pwcI.parse("S2:Y");
+                pwcI.parse("S4:Y");
+                pwcI.parse("S5:Y");
+
+                pwcI.parse("S3:N");
+                pwcI.parse("S6:N");
+                pwcI.parse("S7:N");
+                pwcI.parse("S8:N");
+                pwcI.parse("S9:N");
+
+                pwcI.parse("C1:1gIE,1hu,1aO.");
+                pwcI.parse("C2:3cI,3eF,3bG.");
+                pwcI.parse("C4:FaE,FbJ.");
+                pwcI.parse("C5:RbIE,RcJ,RdG.");
+            } else {
+                log("Wheelchair Interface is not connected");
             }
-
-
-
-            // Simulate commands from the chair
-            pwcI.parse("S1:Y");
-            pwcI.parse("S2:Y");
-            pwcI.parse("S4:Y");
-            pwcI.parse("S5:Y");
-
-            pwcI.parse("S3:N");
-            pwcI.parse("S6:N");
-            pwcI.parse("S7:N");
-            pwcI.parse("S8:N");
-            pwcI.parse("S9:N");
-
-            pwcI.parse("C1:1gIE,1hu,1aO.");
-            pwcI.parse("C2:3cI,3eF,3bG.");
-            pwcI.parse("C4:FaE,FbJ.");
-            pwcI.parse("C5:RbIE,RcJ,RdG.");
         }
     }
 }

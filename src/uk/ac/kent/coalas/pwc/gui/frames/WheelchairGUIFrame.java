@@ -57,7 +57,7 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
         frameRate(25);
         smooth();
 
-        G4P.setGlobalColorScheme(GConstants.BLUE_SCHEME);
+        G4P.setGlobalColorScheme(WheelchairGUI.DEFAULT_COLOUR_SCHEME);
 
     }
 

@@ -7,6 +7,7 @@ import processing.core.PFont;
 import processing.serial.Serial;
 
 import uk.ac.kent.coalas.pwc.gui.frames.ConfigurationFrame;
+import uk.ac.kent.coalas.pwc.gui.frames.DiagnosticsFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.OverviewFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.WheelchairGUIFrame;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
@@ -33,6 +34,8 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
 
     public static final int MAX_NODES = 9;
 
+    public static final int DEFAULT_COLOUR_SCHEME = GConstants.BLUE_SCHEME;
+
     // Store references to any frame we create
     private EnumMap<FrameId, WheelchairGUIFrame> frames = new EnumMap<FrameId, WheelchairGUIFrame>(FrameId.class);
 
@@ -56,7 +59,7 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
 
     private BufferedReader SystemIn = new BufferedReader(new InputStreamReader(System.in));
 
-    private Serial DueSerialPort, DXBusSerialPort;
+    private Serial DueSerialPort = null;
 
     // Use this interface for debubgging using the console I/O
     private PWCInterface DueWheelchairInterface = new PWCInterface(this, new PWCConsoleCommunicationProvider());
@@ -67,6 +70,8 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
     public void setup() {
         size(300, 300);
         noSmooth();
+
+        G4P.setGlobalColorScheme(DEFAULT_COLOUR_SCHEME);
 
         DueSerialPortList = new GDropList(this, 25, 25, 100, 150, 4);
         DueSerialPortList.setItems(Serial.list(), 0);
@@ -127,7 +132,13 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
 
     public WheelchairGUIFrame getFrame(FrameId frameId){
 
-        return frames.get(frameId);
+        WheelchairGUIFrame frame = frames.get(frameId);
+
+        if(frame != null && frame.finished){
+            return null;
+        } else {
+            return frame;
+        }
     }
 
     private String timestamp(){
@@ -246,6 +257,11 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
     public class PWCConsoleCommunicationProvider implements PWCInterfaceCommunicationProvider{
 
         @Override
+        public boolean isAvailable() {
+            return true;
+        }
+
+        @Override
         public void write(String command){
 
             System.out.print(command);
@@ -253,6 +269,16 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
     }
 
     public class PWCDueSerialCommunicationProvider implements PWCInterfaceCommunicationProvider {
+
+        @Override
+        public boolean isAvailable() {
+
+            if(DueSerialPort == null){
+                return false;
+            } else{
+                return DueSerialPort.port.isOpened();
+            }
+        }
 
         @Override
         public void write(String command) {
