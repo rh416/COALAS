@@ -43,4 +43,9 @@ public abstract class UIObject {
 
         return new Point(0, 0);
     }
+
+    protected String s(String stringName){
+
+        return WheelchairGUI.s(stringName);
+    }
 }
