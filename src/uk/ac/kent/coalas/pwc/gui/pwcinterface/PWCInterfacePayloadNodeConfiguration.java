@@ -8,25 +8,26 @@ import java.util.ArrayList;
 
 /**
  * Created by rm538 on 06/08/2014.
+ *
+ * A class representing the payload for a node configuration event from the Interface
+ *
  */
 public class PWCInterfacePayloadNodeConfiguration extends PWCInterfaceEventPayload {
 
-    private Node node;
-
     public PWCInterfacePayloadNodeConfiguration(PWCInterface chairInterface, String response) throws Exception{
 
-        super(response);
+        super(chairInterface, response);
 
-        int nodeId = Integer.parseInt(response.substring(0, 1));
-        node = chairInterface.getNode(nodeId);
+        int nodeId = Integer.parseInt(response.substring(1, 2));
+        Node node = getResponseNodeFromId(nodeId);
 
         // Check that the response ends with a '.'
         if(! ".".equals(response.substring(response.length() - 1))){
-            throw new PWCInterfaceParseException("Response format is invalid");
+            throw new PWCInterfaceParseException(s("parse_exception_format_invalid"));
         }
 
-        // Get the response minus the first 2 characters and the last character
-        String configStr = response.substring(2, response.length() - 1);
+        // Get the response minus the first 3 characters and the last character
+        String configStr = response.substring(3, response.length() - 1);
 
         // Each Zone's configuration is separated by a ',' - so break the string up
         String[] configItems = configStr.split(",");
@@ -82,13 +83,5 @@ public class PWCInterfacePayloadNodeConfiguration extends PWCInterfaceEventPaylo
 
             zoneNum++;
         }
-
-
-
-    }
-
-    public Node getNode(){
-
-        return node;
     }
 }

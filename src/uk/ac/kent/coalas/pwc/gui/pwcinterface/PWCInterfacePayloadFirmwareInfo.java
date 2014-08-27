@@ -1,9 +1,10 @@
 package uk.ac.kent.coalas.pwc.gui.pwcinterface;
 
-import uk.ac.kent.coalas.pwc.gui.hardware.Node;
-
 /**
  * Created by rm538 on 06/08/2014.
+ *
+ * A class representing the payload for a firmware information event from the Interface
+ *
  */
 public class PWCInterfacePayloadFirmwareInfo extends PWCInterfaceEventPayload {
 
@@ -11,9 +12,9 @@ public class PWCInterfacePayloadFirmwareInfo extends PWCInterfaceEventPayload {
 
     public PWCInterfacePayloadFirmwareInfo(PWCInterface chairInterface, String response) throws Exception{
 
-        super(response);
+        super(chairInterface, response);
 
-        version = response.substring(1);
+        version = response.substring(2);
     }
 
     public String getVersion(){

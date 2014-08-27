@@ -6,20 +6,21 @@ import uk.ac.kent.coalas.pwc.gui.hardware.Zone;
 
 /**
  * Created by rm538 on 06/08/2014.
+ *
+ * A class representing the payload for a node data format event from the Interface
+ *
  */
 public class PWCInterfacePayloadNodeDataFormat extends PWCInterfaceEventPayload {
 
-    private Node node;
-
     public PWCInterfacePayloadNodeDataFormat(PWCInterface chairInterface, String response) throws Exception{
 
-        super(response);
+        super(chairInterface, response);
 
-        int nodeId = Integer.parseInt(response.substring(0, 1));
-        node = chairInterface.getNode(nodeId);
+        int nodeId = Integer.parseInt(response.substring(1, 2));
+        Node node = getResponseNodeFromId(nodeId);
 
-        // Get the response minus the first 2 characters
-        String formatStr = response.substring(2);
+        // Get the response minus the first 3 characters
+        String formatStr = response.substring(3);
 
         // Clear the sensor data order for this node
         node.clearSensorDataRequestList();
@@ -48,6 +49,10 @@ public class PWCInterfacePayloadNodeDataFormat extends PWCInterfaceEventPayload 
             }
 
             currentZone = node.getZone(sensorId);   // No need to apply bitmask here, as it is handled within the getter
+            if(currentZone == null){
+                throw new PWCInterfaceParseException(s("parse_exception_invalid_zone"));
+            }
+
             currentSensor = currentZone.getSensorByTypeBitmask(sensorId);
 
             if (currentSensor != null) {
@@ -55,16 +60,11 @@ public class PWCInterfacePayloadNodeDataFormat extends PWCInterfaceEventPayload 
                 currentSensor.setDataInterpretation(currentSensorInterpretation);
                 node.addSensorToDataRequestList(sensorId);
             } else {
-                throw new PWCInterfaceParseException("Format string identifies a non-existing sensor: " + formatStr.substring(0,sensorFormatStrLength));
+                throw new PWCInterfaceParseException(String.format(s("parse_exception_invalid_sensor"), formatStr.substring(0,sensorFormatStrLength)));
             }
 
             node.setDataFormatKnown(true);
             formatStr = formatStr.substring(sensorFormatStrLength);
         }
-    }
-
-    public Node getNode(){
-
-        return node;
     }
 }

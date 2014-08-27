@@ -8,22 +8,23 @@ import java.util.regex.Pattern;
 
 /**
  * Created by rm538 on 06/08/2014.
+ *
+ * A class representing the payload for a current sensor data event from the Interface
+ *
  */
 public class PWCInterfacePayloadNodeCurrentData extends PWCInterfaceEventPayload {
-
-    private Node node;
 
     private static Pattern faultySensorPattern = Pattern.compile("^(U-{0,7}).*$");
 
     public PWCInterfacePayloadNodeCurrentData(PWCInterface chairInterface, String response) throws Exception{
 
-        super(response);
+        super(chairInterface, response);
 
-        int nodeId = Integer.parseInt(response.substring(0, 1));
-        node = chairInterface.getNode(nodeId);
+        int nodeId = Integer.parseInt(response.substring(1, 2));
+        Node node = getResponseNodeFromId(nodeId);
 
         // Get the response minus the first 2 characters
-        String dataStr = response.substring(2);
+        String dataStr = response.substring(3);
 
         Sensor currentSensor;
         int dataLength;
@@ -43,7 +44,7 @@ public class PWCInterfacePayloadNodeCurrentData extends PWCInterfaceEventPayload
             } else {
                 dataLength = currentSensor.getDataFormat().getCharLength();
                 if(dataStr.length() < dataLength){
-                    throw new PWCInterfaceParseException("Response is too short - the given data type expects " + dataLength + "characters");
+                    throw new PWCInterfaceParseException(String.format(s("parse_exception_too_short_for_type"), dataLength));
                 }
                 currentSensorData = dataStr.substring(0, dataLength);
                 currentSensor.parseDataString(currentSensorData);
@@ -54,15 +55,10 @@ public class PWCInterfacePayloadNodeCurrentData extends PWCInterfaceEventPayload
                 dataStr = dataStr.substring(dataLength);
             } else {
                 // Otherwise, throw an exception
-                throw new PWCInterfaceParseException("Response is too short - data has not been returned for all sensors");
+                throw new PWCInterfaceParseException(s("parse_exception_too_short_sensor_missing"));
             }
 
             faultySensorMatcher.reset();                    // Reset to allow reuse in the next loop
         }
-    }
-
-    public Node getNode(){
-
-        return node;
     }
 }
