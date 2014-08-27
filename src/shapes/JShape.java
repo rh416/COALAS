@@ -191,6 +191,14 @@ public abstract class JShape
   {
     this.borderWidth = borderWidth;
   }
+
+    /** Returns whether or not the cursor is hovering over the shape.
+     * @return True if cursor is hovering over the shape
+     */
+    public boolean isMouseOver()
+    {
+        return this.isInside;
+    }
     
   /** Resets the appearance of the shape to its default colours and border width.
     */
