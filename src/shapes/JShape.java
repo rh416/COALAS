@@ -1,9 +1,10 @@
 package shapes;
 
 import processing.core.PApplet;
+import processing.event.*;
+import processing.event.Event;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
 
 /** Represents any shape that can be drawn on screen and inform listeners that it 
@@ -47,7 +48,8 @@ public abstract class JShape
     setDefaultAppearance(); 
     isInside = false;
     isMouseDown = false;
-    parent.registerMouseEvent(this);
+    //parent.registerMouseEvent(this);
+      parent.registerMethod("mouseEvent", this);
   }
   
   // ---------------------- Methods -----------------------
@@ -83,12 +85,12 @@ public abstract class JShape
 
     // Once a mouse button is held down, testing for mouse release and dragging
     // is independent of whether mouse is inside or outside shape.
-    if (e.getID() == MouseEvent.MOUSE_RELEASED)
+    if (e.getAction() == MouseEvent.RELEASE)
     {
       isMouseDown = false;
     }
     
-    if ((isMouseDown) && (e.getID() == MouseEvent.MOUSE_DRAGGED))
+    if ((isMouseDown) && (e.getAction() == MouseEvent.DRAG))
     {
       int mouseDx = mouseX-oldMouseX;
       int mouseDy = mouseY-oldMouseY;
@@ -116,7 +118,7 @@ public abstract class JShape
         }
       }
 
-      if (e.getID() == MouseEvent.MOUSE_PRESSED)
+      if (e.getAction() == MouseEvent.PRESS)
       {
           if (isMouseDown == false)
           {
@@ -130,7 +132,7 @@ public abstract class JShape
             ((JShapeListener)i.next()).shapePressed(this);
           }
       }   
-      else if (e.getID() == MouseEvent.MOUSE_RELEASED)
+      else if (e.getAction() == MouseEvent.RELEASE)
       {
           Iterator i = shapeListeners.iterator();
           while (i.hasNext())
