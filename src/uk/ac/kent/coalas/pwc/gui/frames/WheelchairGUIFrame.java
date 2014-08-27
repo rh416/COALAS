@@ -1,7 +1,5 @@
 package uk.ac.kent.coalas.pwc.gui.frames;
 
-import controlP5.ControlListener;
-import controlP5.ControlP5;
 import g4p_controls.G4P;
 import g4p_controls.GConstants;
 import processing.core.PApplet;
@@ -22,6 +20,8 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
     private final Frame containingFrame;
 
     private int frameWidth, frameHeight;
+
+    public boolean CLICK_EVENT_STOPPED;
 
     public WheelchairGUIFrame(WheelchairGUIFrame copyFrame){
 

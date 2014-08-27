@@ -38,10 +38,11 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
         super(width, height, xPos, yPos);
     }
 
-    public void setup() {
-        super.setup();
+    @Override
+    public void init() {
+        super.init();
 
-        btnPress = new GButton((PApplet)this, 50, 400, 200, 20, "Send Configuration to Chair");
+        btnPress = new GButton((PApplet)this, 50, 400, 200, 20, s("send_config_to_chair"));
         btnPress.addEventHandler(this, "handleButtonEvents");
 
         ConfigNodeTitle = new GLabel(this, 25, 25, 270, 40);
@@ -51,7 +52,6 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
 
     @Override
     public void draw() {
-
         background(255);
     }
 
@@ -78,11 +78,9 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
     private void setConfigAppearance(){
 
         if(node != null){
-            String windowTitle = "Configure Node #" + node.getId();
+            String windowTitle = String.format(s("title_config"), node.getId());
             getFrame().setTitle(windowTitle);
-            if(ConfigNodeTitle != null){
-                ConfigNodeTitle.setText(windowTitle);
-            }
+            ConfigNodeTitle.setText(windowTitle);
         }
     }
 

@@ -4,8 +4,6 @@ import g4p_controls.GButton;
 import g4p_controls.GConstants;
 import g4p_controls.GEvent;
 import g4p_controls.GTextArea;
-import shapes.JShape;
-import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 import uk.ac.kent.coalas.pwc.gui.hardware.Node;
 import uk.ac.kent.coalas.pwc.gui.hardware.Zone;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
@@ -13,6 +11,7 @@ import uk.ac.kent.coalas.pwc.gui.ui.UINode;
 
 import java.awt.*;
 import java.util.EnumMap;
+import java.util.LinkedList;
 
 /**
  * Created by rm538 on 06/08/2014.
@@ -24,6 +23,8 @@ public class OverviewFrame extends WheelchairGUIFrame {
 
     private EnumMap<Zone.Position, UINode> uiNodes = new EnumMap<Zone.Position, UINode>(Zone.Position.class);
 
+    private LinkedList<String> logQueue = new LinkedList<String>();
+
     public OverviewFrame(WheelchairGUIFrame copyFrame){
 
         super(copyFrame);
@@ -32,7 +33,7 @@ public class OverviewFrame extends WheelchairGUIFrame {
     public OverviewFrame(int theWidth, int theHeight, int xPos, int yPos) {
 
         super(theWidth, theHeight, xPos, yPos);
-        setTitle(s("overview_title"));
+        setTitle(s("title_overview"));
 
         // Create nodes for display
         for(Zone.Position position : Zone.Position.values()){
@@ -61,6 +62,12 @@ public class OverviewFrame extends WheelchairGUIFrame {
     @Override
     public void draw() {
 
+        CLICK_EVENT_STOPPED = false;
+
+        while(logQueue.peekFirst() != null){
+            txtScanResults.appendText(logQueue.removeFirst() + "\n");
+        }
+
         background(255);
 
         for(UINode uiNode : uiNodes.values()){
@@ -69,24 +76,21 @@ public class OverviewFrame extends WheelchairGUIFrame {
 
     }
 
-    public void log(String logStr){
+    public synchronized void logToScreen(String logStr){
 
-        if(txtScanResults != null) {
-            txtScanResults.appendText(logStr + "\n");
-        }
+        logQueue.add(logStr);
     }
 
     @Override
     public void onPWCInterfaceEvent(PWCInterfaceEvent e) {
 
+        PWCInterface chairInterface = e.getChairInterface();
         PWCInterfaceEvent.EventType eventType = e.getType();
         PWCInterfaceEventPayload payload = e.getPayload();
 
         Node eventNode;
 
         String eType = eventType.name();
-
-        console("Got event: " + eType);
 
         switch(e.getType()){
 
@@ -96,10 +100,10 @@ public class OverviewFrame extends WheelchairGUIFrame {
 
                 // If the node is connected, request its configuration so that we can display its status
                 if(eventNode.isConnectedToBus()){
-                    eventNode.requestConfiguration();
+                    chairInterface.requestNodeConfiguration(eventNode);
                 } else {
-                    // Otherwise, print to the log that the node was not found
-                    log(String.format(s("node_not_connected"), eventNode.getId()));
+                    // Otherwise, print to the onscreen log that the node was not found
+                    logToScreen(String.format(s("node_not_connected"), eventNode.getId()));
                 }
                 break;
 
@@ -112,6 +116,12 @@ public class OverviewFrame extends WheelchairGUIFrame {
                 if(uiNode != null){
                     uiNode.setDataNode(eventNode);
                 }
+
+                break;
+
+            case ERROR:
+                PWCInterfacePayloadError errorPayload = (PWCInterfacePayloadError)payload;
+                logToScreen(s("error_occurred_check_log"));
         }
     }
 
@@ -125,7 +135,7 @@ public class OverviewFrame extends WheelchairGUIFrame {
 
                 // Scan the bus for any nodes
                 for (int i = 1; i < 10; i++) {
-                    pwcI.getNode(i).checkExistsOnBus();
+                    pwcI.checkNodeExistsOnBus(i);
                 }
 
 
@@ -146,7 +156,7 @@ public class OverviewFrame extends WheelchairGUIFrame {
                 pwcI.parse("C4:FaE,FbJ.");
                 pwcI.parse("C5:RbIE,RcJ,RdG.");
             } else {
-                log("Wheelchair Interface is not connected");
+                logToScreen("Wheelchair Interface is not connected");
             }
         }
     }

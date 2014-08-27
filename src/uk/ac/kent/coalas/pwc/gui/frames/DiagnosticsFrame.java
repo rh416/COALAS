@@ -4,14 +4,16 @@ import g4p_controls.*;
 import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 import uk.ac.kent.coalas.pwc.gui.hardware.Node;
 import uk.ac.kent.coalas.pwc.gui.hardware.Zone;
+import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterface;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEvent;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEventPayload;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfacePayloadNodeDataFormat;
 import uk.ac.kent.coalas.pwc.gui.ui.RowPositionTracker;
 import uk.ac.kent.coalas.pwc.gui.ui.UIZoneDataRow;
 
-import java.awt.font.TextAttribute;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,22 +22,21 @@ import java.util.regex.Pattern;
  */
 public class DiagnosticsFrame extends WheelchairGUIFrame {
 
-    private ArrayList<Zone> monitoredZones;
-    private ArrayList<UIZoneDataRow> zoneDataRows;
-    public static int updatePeriod = 500;
-    public static int lastUpdateTime = 0;
-
     private static int MAX_Y_POSITION = 400;
-
     public static int SCALE_MAX = 2000;
 
+    // Don't set any default values here!! For some reason they get wiped out??
+    private List<Zone> monitoredZones;
+    private List<UIZoneDataRow> zoneDataRows;
     private int defaultUpdatePeriodOption = 2;
     private String[] updatePeriodOptions;
+    private int updatePeriod;
+    private int lastUpdateTime;
 
     private RowPositionTracker positionTracker = new RowPositionTracker(20, 40);
 
-    private Pattern updatePeriodRegex = Pattern.compile("^([0-9]*)(ms|s)$");      // Use this regex to extract the number from the update period option
-    private Pattern scaleValueRegex = Pattern.compile("^[0-9]*(\\.[0-9]*)?$");    // Use this regex to validate the scale value entered
+    private Pattern updatePeriodRegex;
+    private Pattern scaleValueRegex;
 
     private GButton btnUpdatePause;
     private GDropList dropListUpdateRate;
@@ -57,34 +58,36 @@ public class DiagnosticsFrame extends WheelchairGUIFrame {
     public void init(){
         super.init();
 
-        zoneDataRows = new ArrayList<UIZoneDataRow>();
+        setTitle(s("title_diagnostics"));
 
-        monitoredZones = new ArrayList<Zone>((WheelchairGUI.MAX_NODES + 1) * Node.MAX_ZONES);
+        // As these lists can be altered from external threads, they must be synchronized
+        zoneDataRows = Collections.synchronizedList(new ArrayList<UIZoneDataRow>());
+        monitoredZones = Collections.synchronizedList(new ArrayList<Zone>((WheelchairGUI.MAX_NODES + 1) * Node.MAX_ZONES));
+
+        lastUpdateTime = 0;
 
         for(int i = 0; i < (WheelchairGUI.MAX_NODES + 1) * Node.MAX_ZONES; i++){
             monitoredZones.add(i, null);
         }
 
+        updatePeriodRegex = Pattern.compile("^([0-9]*)(ms|s)$");      // Use this regex to extract the number from the update period option
+        scaleValueRegex = Pattern.compile("^[0-9]*(\\.[0-9]*)?$");    // Use this regex to validate the scale value entered
+
         btnUpdatePause = new GButton(this, 10, 10, 100, 30, s("pause"));
         btnUpdatePause.addEventHandler(this, "handleButtonEvents");
 
+        defaultUpdatePeriodOption = 4;
         updatePeriodOptions = new String[]{"100ms", "200ms", "500ms", "1s", "2s", "5s"};
 
         dropListUpdateRate = new GDropList(this, 120, 10, 100, 150);
         dropListUpdateRate.setItems(updatePeriodOptions, defaultUpdatePeriodOption);
         dropListUpdateRate.addEventHandler(this, "handleDropListEvents");
+        handleDropListEvents(dropListUpdateRate, GEvent.SELECTED);
 
         txtScaleMax = new GTextField(this, 230, 10, 80, 30);
         txtScaleMax.setText(String.valueOf(SCALE_MAX));
         txtScaleMax.addEventHandler(this, "handleTextFieldEvents");
 
-
-    }
-
-    @Override
-    public void setup() {
-
-        super.setup();
         initDataOutput();
     }
 
@@ -94,12 +97,16 @@ public class DiagnosticsFrame extends WheelchairGUIFrame {
 
         positionTracker.resetY();
 
-        if(!updatePaused && millis() - lastUpdateTime > updatePeriod){
+        // Update the sensor data if the view is not paused and updatePeriod milliseconds has elapsed since last update
+        if(!updatePaused && (updatePeriod > 0) && (millis() - lastUpdateTime > updatePeriod)){
             updateSensorData();
         }
 
+        // Iterate through all monitored zones and output their data
         for(UIZoneDataRow zoneRow : zoneDataRows){
             zoneRow.draw();
+
+            // If we have reached the bottom of the window, show a warning that too many zones are being monitored
             if(positionTracker.getY() > MAX_Y_POSITION){
                 noStroke();
                 fill(255);
@@ -135,6 +142,7 @@ public class DiagnosticsFrame extends WheelchairGUIFrame {
     @Override
     public void onPWCInterfaceEvent(PWCInterfaceEvent e) {
 
+        PWCInterface chairInterface = e.getChairInterface();
         PWCInterfaceEvent.EventType type = e.getType();
         PWCInterfaceEventPayload payload = e.getPayload();
 
@@ -144,9 +152,9 @@ public class DiagnosticsFrame extends WheelchairGUIFrame {
             case NODE_DATA_FORMAT:
                 PWCInterfacePayloadNodeDataFormat formatPayload = (PWCInterfacePayloadNodeDataFormat) payload;
                 // Get that node...
-                Node node = formatPayload.getNode();
+                Node eventNode = formatPayload.getNode();
                 // ... and request its data
-                node.requestCurrentData();
+                chairInterface.requestNodeCurrentData(eventNode);
                 break;
         }
 
@@ -163,20 +171,22 @@ public class DiagnosticsFrame extends WheelchairGUIFrame {
                 if(zone.getParentNode() != previousNode){
                     previousNode = zone.getParentNode();
 
+                    PWCInterface chairInterface = parent.getChairInterface();
+
                     // Do we know how this node expects to receive data?
                     if(previousNode.isDataFormatKnown()) {
                         // If we do, request some data
-                        previousNode.requestCurrentData();
+                        chairInterface.requestNodeCurrentData(previousNode);
                     } else {
                         // If not, request the data format - there's no point requesting data otherwise
-                        previousNode.requestDataFormat();
+                        chairInterface.requestNodeDataFormat(previousNode);
                     }
                 }
             }
         }
 
         // Keep track of the last time this function was called so that we can update the information at the correct rate
-        // lastUpdateTime = millis();       TODO: Uncomment this line for production
+        lastUpdateTime = millis();
     }
 
     public void monitorZone(Zone zone){
@@ -274,6 +284,6 @@ public class DiagnosticsFrame extends WheelchairGUIFrame {
 
         Matcher scaleValueMatcher = scaleValueRegex.matcher(scaleValue);
 
-        return scaleValueMatcher.find();
+        return scaleValueMatcher.find() && (Integer.parseInt(scaleValue) > 0);
     }
 }
