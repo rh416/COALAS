@@ -136,6 +136,8 @@ public class UINode extends UIObject {
                         new ConfigurationFrame(parent));
                 configFrame.setConfigNode(dataNode);
             }
+            // Use this to stop the click event handle in UIZone from opening up a Diagnostics window
+            parent.CLICK_EVENT_STOPPED = true;
         }
     }
 }
