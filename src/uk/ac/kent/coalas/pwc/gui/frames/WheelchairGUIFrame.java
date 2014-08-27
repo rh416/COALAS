@@ -2,6 +2,7 @@ package uk.ac.kent.coalas.pwc.gui.frames;
 
 import g4p_controls.G4P;
 import g4p_controls.GConstants;
+import org.apache.log4j.Logger;
 import processing.core.PApplet;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceListener;
 import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
@@ -9,7 +10,7 @@ import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ResourceBundle;
+import java.util.MissingResourceException;
 
 // the ControlFrame class extends PApplet, so we
 // are creating a new processing applet inside a
@@ -20,6 +21,8 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
     private final Frame containingFrame;
 
     private int frameWidth, frameHeight;
+
+    protected Logger log = Logger.getLogger(this.getClass());
 
     public boolean CLICK_EVENT_STOPPED;
 

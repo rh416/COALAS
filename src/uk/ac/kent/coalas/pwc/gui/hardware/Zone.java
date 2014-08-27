@@ -38,12 +38,23 @@ public class Zone {
         public int getAngle(){ return this.angle; }
     }
 
+    public static enum SensorSeparation{
+        FUSED('F'), SEPARATE('S');
+
+        private final char code;
+        private SensorSeparation(final char code){
+            this.code = code;
+        }
+        public char getCode(){ return this.code; }
+    }
+
     private Node parentNode;
     private int zoneNumber;
     private Position position;
     private Orientation orientation;
     private ArrayList<Sensor> sensors;
     private HashMap<Integer, Integer> sensorByType = new HashMap<Integer, Integer>();
+    private SensorSeparation sensorSeparation = SensorSeparation.SEPARATE;  // Sensors are separate by default
 
     public Zone(Node parentNode, int zoneNumber, Position position, Orientation orientation){
 
@@ -78,6 +89,11 @@ public class Zone {
         return getSensorByTypeBitmask(sensorType.getBitmask() + getZoneNumber());
     }
 
+    public SensorSeparation getSensorSeparation(){
+
+        return this.sensorSeparation;
+    }
+
     public Sensor getSensorByTypeBitmask(int typeBitmask){
 
         int checkZoneNum = typeBitmask & 0x3;   // Bitmask = 0x3  -> 11 (as we need to get the 1st and second bits)
@@ -101,7 +117,15 @@ public class Zone {
         int index = 0;
         for(Sensor sensor : sensors){
             sensorByType.put(sensor.getType().getBitmask(), index);
+            if(sensor.getType() == Sensor.SensorType.FUSED){
+                setSeparation(SensorSeparation.FUSED);
+            }
             index++;
         }
+    }
+
+    public void setSeparation(SensorSeparation sensorSeparation){
+
+        this.sensorSeparation = sensorSeparation;
     }
 }

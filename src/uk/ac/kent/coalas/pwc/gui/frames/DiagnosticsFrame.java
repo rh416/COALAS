@@ -240,7 +240,6 @@ public class DiagnosticsFrame extends WheelchairGUIFrame {
                         newUpdatePeriod = newUpdatePeriod * 1000;
                     }
                     updatePeriod = newUpdatePeriod;
-                    console(updatePeriod);
                 }
             }
         }
@@ -268,6 +267,7 @@ public class DiagnosticsFrame extends WheelchairGUIFrame {
                     if(isScaleValueValid(scaleVal)){
                         // If so, use it!
                         SCALE_MAX = Integer.parseInt(scaleVal);
+                        log.info("Scale set to : " + SCALE_MAX);
                     } else {
                         // Otherwise, reset the field value back to what it was
                         textField.setText(String.valueOf(SCALE_MAX));

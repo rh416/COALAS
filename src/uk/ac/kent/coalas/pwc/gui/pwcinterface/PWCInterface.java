@@ -13,7 +13,6 @@ public class PWCInterface {
     private PWCInterfaceListener listener;
     private PWCInterfaceCommunicationProvider commsProvider;
     private ArrayList<Node> nodes = new ArrayList<Node>(10);
-    char EOL = '\n';
 
     private Map<PWCInterfaceRequestIdentifier, PWCInterfaceRequest> requests = new HashMap<PWCInterfaceRequestIdentifier, PWCInterfaceRequest>();
 
@@ -155,7 +154,7 @@ public class PWCInterface {
      */
     public void checkNodeExistsOnBus(int nodeId){
 
-        sendCommand(PWCInterfaceEvent.EventType.BUS_SCAN, nodeId, "&%dS");
+        sendCommand(PWCInterfaceEvent.EventType.BUS_SCAN, nodeId, "%dS");
     }
 
 
@@ -182,7 +181,7 @@ public class PWCInterface {
      */
     public void configureNodeSensors(int nodeId, String configString){
 
-        sendCommand(PWCInterfaceEvent.EventType.NODE_CONFIGURATION, nodeId, "&%dC" + configString);
+        sendCommand(PWCInterfaceEvent.EventType.NODE_CONFIGURATION, nodeId, "%dC" + configString);
     }
 
 
@@ -207,7 +206,7 @@ public class PWCInterface {
      */
     public void requestNodeConfiguration(int nodeId){
 
-        sendCommand(PWCInterfaceEvent.EventType.NODE_CONFIGURATION, nodeId, "&%dR");
+        sendCommand(PWCInterfaceEvent.EventType.NODE_CONFIGURATION, nodeId, "%dR");
     }
 
 
@@ -232,7 +231,7 @@ public class PWCInterface {
      */
     public void requestNodeCurrentData(int nodeId){
 
-        sendCommand(PWCInterfaceEvent.EventType.NODE_CURRENT_DATA, nodeId, "&%dD");
+        sendCommand(PWCInterfaceEvent.EventType.NODE_CURRENT_DATA, nodeId, "%dD");
     }
 
 
@@ -257,7 +256,7 @@ public class PWCInterface {
      */
     public void requestNodeDataFormat(int nodeId){
 
-        sendCommand(PWCInterfaceEvent.EventType.NODE_DATA_FORMAT, nodeId, "&%dF");
+        sendCommand(PWCInterfaceEvent.EventType.NODE_DATA_FORMAT, nodeId, "%dF");
     }
 
 
@@ -289,7 +288,7 @@ public class PWCInterface {
     public void setNodeThresholds(int nodeId, int zone1Threshold, int zone2Threshold, int zone3Threshold){
 
         sendCommand(PWCInterfaceEvent.EventType.NODE_THRESHOLDS,
-                nodeId, "&%dT" +
+                nodeId, "%dT" +
                         intTo12BitHex(zone1Threshold) +
                         intTo12BitHex(zone2Threshold) +
                         intTo12BitHex(zone3Threshold));
@@ -321,7 +320,7 @@ public class PWCInterface {
     public void setNodeUltrasoundMode(int nodeId, UltrasoundMode mode){
 
         char modeStr = mode.getCharCode();
-        sendCommand(PWCInterfaceEvent.EventType.NODE_MODE, nodeId, "&%dM" + modeStr);
+        sendCommand(PWCInterfaceEvent.EventType.NODE_MODE, nodeId, "%dM" + modeStr);
     }
 
 
@@ -348,14 +347,21 @@ public class PWCInterface {
      */
     private void sendCommand(PWCInterfaceEvent.EventType type, int nodeId, String command){
 
-        command += EOL;
-
         if(commsProvider != null){
             if(commsProvider.isAvailable()) {
                 // Record this request
                 addRequestToRequestList(type, nodeId);
-                String commandToSend = String.format(command, nodeId);
-                log.info("Command Sent :" + commandToSend);
+                /* Build the command to send the firmware - this includes:
+                    &   - command indicator
+                    #   - command type id (Enum Oridinal - allows us to recover which type of request was called.
+                                            Should NOT be stored long term - ie could change at next compile)
+                    &   - command indicator
+                    #   - Node ID
+                    A-Z - command
+                    ... - any command parameters
+                                             */
+                String commandToSend = "&" + type.ordinal() + "&" + String.format(command, nodeId);
+                log.info("Command sent :" + commandToSend);
                 commsProvider.write(commandToSend);
             } else{
                 throw new PWCInterfaceException("Communication provider is not available");
@@ -390,6 +396,8 @@ public class PWCInterface {
      * @param response    The response from the chair
      */
     public void parse(String response) {
+
+        log.info("Response received: " + response);
 
         // Get first character to determine response type
         char firstChar = response.charAt(0);
@@ -472,6 +480,7 @@ public class PWCInterface {
         // Remove the past event using the identifier created above
         requests.remove(identifier);
 
+        log.info("Event Dispatched: " + event.getType());
 
         // Send the event out to the listener, if one has been specified
         if(listener != null) {

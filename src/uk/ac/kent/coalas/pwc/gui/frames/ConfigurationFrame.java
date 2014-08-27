@@ -1,9 +1,8 @@
 package uk.ac.kent.coalas.pwc.gui.frames;
 
-import g4p_controls.GButton;
-import g4p_controls.GEvent;
-import g4p_controls.GLabel;
+import g4p_controls.*;
 import processing.core.PApplet;
+import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 import uk.ac.kent.coalas.pwc.gui.hardware.Node;
 import uk.ac.kent.coalas.pwc.gui.hardware.Zone;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEvent;
@@ -19,12 +18,23 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
 
     private Node node;
 
-    private GButton btnPress;
+    private GButton btnConfigureChair;
+    private GButton btnCancelConfig;
     private GLabel ConfigNodeTitle;
 
-    private RowPositionTracker positionTracker = new RowPositionTracker(5, 80);
+    private RowPositionTracker positionTracker = new RowPositionTracker(15, 60);
 
     private ArrayList<UIZoneConfigRow> uiZoneConfigRows = new ArrayList<UIZoneConfigRow>();
+
+
+    public static void highlightChangedField(GAbstractControl field, Object originalValue, Object newValue){
+
+        if(newValue.equals(originalValue)){
+            field.setLocalColorScheme(WheelchairGUI.DEFAULT_COLOUR_SCHEME);
+        } else {
+            field.setLocalColorScheme(GConstants.GOLD_SCHEME);
+        }
+    }
 
 
 
@@ -42,10 +52,13 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
     public void init() {
         super.init();
 
-        btnPress = new GButton((PApplet)this, 50, 400, 200, 20, s("send_config_to_chair"));
-        btnPress.addEventHandler(this, "handleButtonEvents");
+        btnConfigureChair = new GButton((PApplet)this, 60, 350, 200, 30, s("send_config_to_chair"));
+        btnConfigureChair.addEventHandler(this, "handleButtonEvents");
 
-        ConfigNodeTitle = new GLabel(this, 25, 25, 270, 40);
+        btnCancelConfig = new GButton((PApplet)this, 110, 400, 100, 30, s("cancel_config"));
+        btnCancelConfig.addEventHandler(this, "handleButtonEvents");
+
+        ConfigNodeTitle = new GLabel(this, 0, 10, width, 40);
 
         setConfigAppearance();
     }
@@ -72,6 +85,8 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
             }
         }
 
+        btnConfigureChair.moveTo(btnConfigureChair.getX(), positionTracker.getY());
+
         setConfigAppearance();
     }
 
@@ -86,7 +101,7 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
 
     public void handleButtonEvents(GButton button, GEvent event){
 
-        console("Event");
+        log.debug("Button event");
     }
 
 }

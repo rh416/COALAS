@@ -100,7 +100,11 @@ public class OverviewFrame extends WheelchairGUIFrame {
 
                 // If the node is connected, request its configuration so that we can display its status
                 if(eventNode.isConnectedToBus()){
+                    // Get the configuration so that it can be displayed to the user
                     chairInterface.requestNodeConfiguration(eventNode);
+
+                    // Get the response format so that the interpretation of the sensors data is known
+                    chairInterface.requestNodeDataFormat(eventNode);
                 } else {
                     // Otherwise, print to the onscreen log that the node was not found
                     logToScreen(String.format(s("node_not_connected"), eventNode.getId()));

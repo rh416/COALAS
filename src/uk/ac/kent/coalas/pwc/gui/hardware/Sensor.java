@@ -43,7 +43,8 @@ public class Sensor {
     }
 
     public static enum SensorDataInterpretation{
-        UNKNOWN('u', "__"), CM('c', "cm"), RAW('r', "raw"), THRESHOLD('t', "T");
+        // UNKNOWN MUST BE FIRST! The rest don't matter
+        UNKNOWN('u', " - "), DISABLED('0', "D"), CM('c', "cm"), RAW('r', "raw"), THRESHOLD('1', "T");
 
         private final char representation;
         private final String suffix;

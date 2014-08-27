@@ -6,6 +6,8 @@ import processing.core.PApplet;
 
 import processing.serial.Serial;
 
+import sun.security.krb5.Config;
+import uk.ac.kent.coalas.pwc.gui.frames.ConfigurationFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.OverviewFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.WheelchairGUIFrame;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
@@ -97,6 +99,7 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
 
         WindowXPosition += WindowWidth + WindowXOffset;
         addNewFrame(FrameId.OVERVIEW, new OverviewFrame(WindowWidth, WindowHeight, WindowXPosition, WindowYPosition));
+        addNewFrame(FrameId.CONFIG, new ConfigurationFrame(WindowWidth, WindowHeight, WindowXPosition, WindowYPosition));
     }
 
     public void draw() {
@@ -120,6 +123,10 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
             pwcI.parse("C2:3cI,3eF,3bG.");
             pwcI.parse("C4:FaE,FbJ.");
             pwcI.parse("C5:RbIE,RcJ,RdG.");
+
+
+            ConfigurationFrame configFrame = (ConfigurationFrame)getFrame(FrameId.CONFIG);
+            configFrame.setConfigNode(getChairInterface().getNode(1));
         }
 
         while(logQueue.peekFirst() != null){
@@ -191,8 +198,6 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
 
         // Uncomment this line for detailed logging - will be a lot of data if Diagnostics window is used
         logToScreen(timestamp() + " - " + e.getPayload().getResponse());
-
-        log.info(e.getPayload().getResponse());
 
         // Handle any specific events we want to here
         switch(e.getType()){
@@ -275,6 +280,10 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
         DueSerialControlButton.setText(s("connect"));
     }
 
+    public void handleTextEvents(GEditableTextControl textControl, GEvent event){
+        // Do nothing - this stops the G4P library sending messages to the console about missing event handlers
+    }
+
 
 
 
@@ -302,7 +311,7 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
         @Override
         public void write(String command){
 
-            System.out.print(command);
+            //System.out.println(command);
         }
     }
 
@@ -321,7 +330,16 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
         @Override
         public void write(String command) {
 
-            DueSerialPort.write(command);
+            DueSerialPort.write(command + '\n');
+        }
+    }
+
+    public static String firstCharUpperCase(String inString){
+
+        if(inString.length() > 0){
+            return Character.toUpperCase(inString.charAt(0)) + inString.substring(1).toLowerCase();
+        } else {
+            return inString;
         }
     }
 }
