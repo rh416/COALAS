@@ -39,7 +39,7 @@ public class Zone {
     }
 
     private Node parentNode;
-    private int zoneNum;
+    private int zoneNumber;
     private Position position;
     private Orientation orientation;
     private ArrayList<Sensor> sensors;
@@ -48,7 +48,7 @@ public class Zone {
     public Zone(Node parentNode, int zoneNumber, Position position, Orientation orientation){
 
         this.parentNode = parentNode;
-        zoneNum = zoneNumber;
+        this.zoneNumber = zoneNumber;
         this.position = position;
         this.orientation = orientation;
     }
@@ -70,7 +70,7 @@ public class Zone {
 
     public int getZoneNumber(){
 
-        return zoneNum;
+        return zoneNumber;
     }
 
     public Sensor getSensorByType(Sensor.SensorType sensorType){
