@@ -1,28 +1,23 @@
 package uk.ac.kent.coalas.pwc.gui;
 
 import g4p_controls.*;
+import org.apache.log4j.Logger;
 import processing.core.PApplet;
 
-import processing.core.PFont;
 import processing.serial.Serial;
 
-import uk.ac.kent.coalas.pwc.gui.frames.ConfigurationFrame;
-import uk.ac.kent.coalas.pwc.gui.frames.DiagnosticsFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.OverviewFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.WheelchairGUIFrame;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
 
-import javax.annotation.Resource;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by rm538 on 05/08/2014.
@@ -33,6 +28,8 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
     public static enum FrameId {USER, OVERVIEW, CONFIG, DIAGNOSTICS}
 
     public static final int MAX_NODES = 9;
+
+    public static final boolean ENABLE_LOGGING = true;
 
     public static final int DEFAULT_COLOUR_SCHEME = GConstants.BLUE_SCHEME;
 
@@ -51,11 +48,16 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
     //public static Locale CurrentLocale = new Locale("fr", "FR");
     public static ResourceBundle Strings = ResourceBundle.getBundle("uk.ac.kent.coalas.pwc.gui.locale/Strings", CurrentLocale);
 
-    public Font defaultLabelFont = new Font("Arial", Font.PLAIN, 12);
-
     private GDropList DueSerialPortList;
     private GButton DueSerialControlButton;
-    private GLabel DueInfoLabel;
+    private GTextArea InterfaceLogArea;
+
+    private String DueSerialInfo;
+
+    private LinkedList<String> logQueue = new LinkedList<String>();
+
+    private DateFormat timestampFormatShort = new SimpleDateFormat("HH:mm:ss");
+    private DateFormat timestampFormatLong = new SimpleDateFormat("YYYY/MM/dd - HH:mm:ss");
 
     private BufferedReader SystemIn = new BufferedReader(new InputStreamReader(System.in));
 
@@ -67,51 +69,70 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
     // Use this interface for communication with a Due running Diagnostics / Config Firmware
     //private PWCInterface DueWheelchairInterface = new PWCInterface(this, new PWCDueSerialCommunicationProvider());
 
-    public void setup() {
-        size(300, 300);
+
+    public static void main(String args[]) {
+        PApplet.main("uk.ac.kent.coalas.pwc.gui.WheelchairGUI");
+    }
+
+    private static Logger log = Logger.getLogger(WheelchairGUI.class);
+
+    public void setup(){
+        size(WindowWidth, WindowHeight);
         noSmooth();
 
         G4P.setGlobalColorScheme(DEFAULT_COLOUR_SCHEME);
 
         DueSerialPortList = new GDropList(this, 25, 25, 100, 150, 4);
-        DueSerialPortList.setItems(Serial.list(), 0);
+        //DueSerialPortList.setItems(Serial.list(), 0);
+        DueSerialPortList.setItems(new String[]{"one", "two", "three"}, 0);
 
-        DueSerialControlButton = new GButton(this, 175, 25, 100, 30, s("connect"));
+        DueSerialControlButton = new GButton(this, 195, 25, 100, 30, s("connect"));
 
-        DueInfoLabel = new GLabel(this, 25, 100, 200, 30);
-        DueInfoLabel.setFont(defaultLabelFont);
+        Font logFont = new Font("Monospace", Font.PLAIN, 10);
 
-        //addNewFrame(FrameId.USER, new ConfigurationFrame(WindowWidth, WindowHeight, WindowXPosition, WindowYPosition));
+        InterfaceLogArea = new GTextArea(this, 25, 120, 275, 340, GConstants.SCROLLBARS_VERTICAL_ONLY);
+        //InterfaceLogArea.setTextEditEnabled(false);
+        InterfaceLogArea.setFont(logFont);
+        InterfaceLogArea.setLocalColorScheme(GConstants.SCHEME_8);
+
         WindowXPosition += WindowWidth + WindowXOffset;
         addNewFrame(FrameId.OVERVIEW, new OverviewFrame(WindowWidth, WindowHeight, WindowXPosition, WindowYPosition));
-        WindowXPosition += WindowWidth + WindowXOffset;
-        //addNewFrame(FrameId.DIAGNOSTICS, new DiagnosticsFrame(WindowWidth, WindowHeight, WindowXPosition, WindowYPosition));
-        WindowXPosition += WindowWidth + WindowXOffset;
-
-
-        PWCInterface pwcI = getChairInterface();
-
-        // Simulate commands from the chair
-        pwcI.parse("S1:Y");
-        pwcI.parse("S2:Y");
-        pwcI.parse("S4:Y");
-        pwcI.parse("S5:Y");
-
-        pwcI.parse("S3:N");
-        pwcI.parse("S6:N");
-        pwcI.parse("S7:N");
-        pwcI.parse("S8:N");
-        pwcI.parse("S9:N");
-
-        pwcI.parse("C1:1gIE,1hu,1aO.");
-        pwcI.parse("C2:3cI,3eF,3bG.");
-        pwcI.parse("C4:FaE,FbJ.");
-        pwcI.parse("C5:RbIE,RcJ,RdG.");
     }
 
     public void draw() {
 
+        if(frameCount == 1){
+            PWCInterface pwcI = getChairInterface();
+
+            // Simulate commands from the chair
+            pwcI.parse("S1:Y");
+            pwcI.parse("S2:Y");
+            pwcI.parse("S4:Y");
+            pwcI.parse("S5:Y");
+
+            pwcI.parse("S3:N");
+            pwcI.parse("S6:N");
+            pwcI.parse("S7:N");
+            pwcI.parse("S8:N");
+            pwcI.parse("S9:N");
+
+            pwcI.parse("C1:1gIE,1hu,1aO.");
+            pwcI.parse("C2:3cI,3eF,3bG.");
+            pwcI.parse("C4:FaE,FbJ.");
+            pwcI.parse("C5:RbIE,RcJ,RdG.");
+        }
+
+        while(logQueue.peekFirst() != null){
+            InterfaceLogArea.appendText(logQueue.removeFirst() + "\n");
+        }
+
         background(255);    // Make sure this is here, otherwise controls won't work properly
+
+        if(DueSerialInfo != null) {
+            fill(100);
+            textSize(11);
+            text(DueSerialInfo, 25, 70, 295, 110);
+        }
 
         try {
             if(SystemIn.ready()) {
@@ -141,9 +162,18 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
         }
     }
 
+    private String timestamp(boolean longFormat){
+
+        if(longFormat){
+            return timestampFormatLong.format(new Date());
+        } else {
+            return timestampFormatShort.format(new Date());
+        }
+    }
+
     private String timestamp(){
 
-        return new Timestamp(new Date().getTime()).toString();
+        return timestamp(false);
     }
 
     public PWCInterface getChairInterface(){
@@ -151,8 +181,18 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
         return DueWheelchairInterface;
     }
 
+    private synchronized void logToScreen(String logString){
+
+        logQueue.add(logString);
+    }
+
     @Override
     public void onPWCInterfaceEvent(PWCInterfaceEvent e) {
+
+        // Uncomment this line for detailed logging - will be a lot of data if Diagnostics window is used
+        logToScreen(timestamp() + " - " + e.getPayload().getResponse());
+
+        log.info(e.getPayload().getResponse());
 
         // Handle any specific events we want to here
         switch(e.getType()){
@@ -160,7 +200,8 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
             case ERROR:
                 PWCInterfacePayloadError errorPayload = (PWCInterfacePayloadError)e.getPayload();
                 Exception err = errorPayload.getException();
-                println(errorPayload.getResponse() + ": " + err.getClass().getName() + ":" + err.getMessage());
+
+                logToScreen(timestamp() + " - " + errorPayload.getErrorMessage());
 
                 StringWriter sw = new StringWriter();
                 err.printStackTrace(new PrintWriter(sw));
@@ -171,23 +212,20 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
 
             case FIRMWARE_INFO:
                 PWCInterfacePayloadFirmwareInfo firmwareInfo = (PWCInterfacePayloadFirmwareInfo) e.getPayload();
-                DueInfoLabel.setText(String.format(s("firmware_response"), firmwareInfo.getVersion()));
+                DueSerialInfo = String.format(s("firmware_response"), firmwareInfo.getVersion());
                 break;
 
             default:
-                println(e.getType().name());
-                //LogTextArea.setText(LogTextArea.getText() + timestamp() + " - " + e.getType().name() + "\n");
-                break;
+                logToScreen(timestamp() + " - " + e.getType());
         }
 
         // When we get an event from the PWC Interface, forward it to all the other frames so that they can handle it
         for(WheelchairGUIFrame frame : frames.values()){
             frame.onPWCInterfaceEvent(e);
         }
-
     }
 
-    public String s(String stringName){
+    public static String s(String stringName){
 
         return Strings.getString(stringName);
     }
@@ -218,15 +256,15 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
 
                     // Change button label for disconnection
                     button.setText(s("disconnect"));
-                    DueInfoLabel.setText(s("connection_check"));
+                    DueSerialInfo = s("connection_check");
                     DueWheelchairInterface.getVersion();
                 } catch (RuntimeException e){
-                    DueInfoLabel.setText("Error: " + e.getMessage());
+                    DueSerialInfo = "Error: " + e.getMessage();
                 }
             } else {
                 // Otherwise we are trying to disconnect, so don't recreate connection but we need to change the button label
                 button.setText(s("connect"));
-                DueInfoLabel.setText(s("connection_end"));
+                DueSerialInfo = s("connection_end");
             }
         }
     }
