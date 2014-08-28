@@ -141,6 +141,7 @@ public class Sensor {
 
     /**
      * Get the sensor's current value, as given by the last response from the chair.
+     *
      * Calling this method DOES NOT automatically request new data from the chair - this should be done
      * by calling requestNodeCurrentData on an instance of PWCInterface
      *
