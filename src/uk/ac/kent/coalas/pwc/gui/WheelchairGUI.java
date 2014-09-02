@@ -6,8 +6,8 @@ import processing.core.PApplet;
 
 import processing.serial.Serial;
 
-import sun.security.krb5.Config;
 import uk.ac.kent.coalas.pwc.gui.frames.ConfigurationFrame;
+import uk.ac.kent.coalas.pwc.gui.frames.JoystickMonitorFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.OverviewFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.WheelchairGUIFrame;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
@@ -27,13 +27,19 @@ import java.util.*;
 public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
 
     // Ensure that we refer to different frames consistently
-    public static enum FrameId {USER, OVERVIEW, CONFIG, DIAGNOSTICS}
+    public static enum FrameId {USER, OVERVIEW, CONFIG, DIAGNOSTICS, JOYSTICK}
 
     public static final int MAX_NODES = 9;
 
     public static final boolean ENABLE_LOGGING = true;
 
     public static final int DEFAULT_COLOUR_SCHEME = GConstants.BLUE_SCHEME;
+    public static final int ERROR_COLOUR_SCHEME = GConstants.SCHEME_9;
+    public static final int HIGHLIGHT_COLOUR_SCHEME = GConstants.GOLD_SCHEME;
+    public static final int SUCCESS_COLOUR_SCHEME = GConstants.GREEN_SCHEME;
+
+    public static final int PANEL_COLOUR_SCHEME = GConstants.SCHEME_10;
+    public static final int CONSOLE_COLOUR_SCHEME = GConstants.SCHEME_8;
 
     // Store references to any frame we create
     private EnumMap<FrameId, WheelchairGUIFrame> frames = new EnumMap<FrameId, WheelchairGUIFrame>(FrameId.class);
@@ -44,14 +50,14 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
     private int WindowYPosition = 100;
     private int WindowXOffset = 10;
 
-    private static int DUE_BAUD_RATE = 9600;        // Must match the baud rate set in the DUE firmware.
+    private static int DUE_BAUD_RATE = 115200;        // Must match the baud rate set in the DUE firmware.
 
     public static Locale CurrentLocale = new Locale("en", "GB");
     //public static Locale CurrentLocale = new Locale("fr", "FR");
     public static ResourceBundle Strings = ResourceBundle.getBundle("uk.ac.kent.coalas.pwc.gui.locale/Strings", CurrentLocale);
 
     private GDropList DueSerialPortList;
-    private GButton DueSerialControlButton;
+    private GButton btnDueSerialControlButton, btnJoystickMonitorLaunch;
     private GTextArea InterfaceLogArea;
 
     private String DueSerialInfo;
@@ -66,10 +72,10 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
     private Serial DueSerialPort = null;
 
     // Use this interface for debubgging using the console I/O
-    private PWCInterface DueWheelchairInterface = new PWCInterface(this, new PWCConsoleCommunicationProvider());
+    //private PWCInterface DueWheelchairInterface = new PWCInterface(this, new PWCConsoleCommunicationProvider());
     //
     // Use this interface for communication with a Due running Diagnostics / Config Firmware
-    //private PWCInterface DueWheelchairInterface = new PWCInterface(this, new PWCDueSerialCommunicationProvider());
+    private PWCInterface DueWheelchairInterface = new PWCInterface(this, new PWCDueSerialCommunicationProvider());
 
 
     public static void main(String args[]) {
@@ -79,23 +85,25 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
     private static Logger log = Logger.getLogger(WheelchairGUI.class);
 
     public void setup(){
+        frame.setTitle("COALAS Wheelchair Configuration UI");
         size(WindowWidth, WindowHeight);
         noSmooth();
 
         G4P.setGlobalColorScheme(DEFAULT_COLOUR_SCHEME);
 
         DueSerialPortList = new GDropList(this, 25, 25, 100, 150, 4);
-        //DueSerialPortList.setItems(Serial.list(), 0);
-        DueSerialPortList.setItems(new String[]{"one", "two", "three"}, 0);
+        DueSerialPortList.setItems(Serial.list(), 0);
 
-        DueSerialControlButton = new GButton(this, 195, 25, 100, 30, s("connect"));
+        btnDueSerialControlButton = new GButton(this, 195, 25, 100, 30, s("connect"));
 
         Font logFont = new Font("Monospace", Font.PLAIN, 10);
 
-        InterfaceLogArea = new GTextArea(this, 25, 120, 275, 340, GConstants.SCROLLBARS_VERTICAL_ONLY);
+        InterfaceLogArea = new GTextArea(this, 25, 120, 275, 290, GConstants.SCROLLBARS_VERTICAL_ONLY);
         //InterfaceLogArea.setTextEditEnabled(false);
         InterfaceLogArea.setFont(logFont);
-        InterfaceLogArea.setLocalColorScheme(GConstants.SCHEME_8);
+        InterfaceLogArea.setLocalColorScheme(CONSOLE_COLOUR_SCHEME);
+
+        btnJoystickMonitorLaunch = new GButton(this, 25, 430, 275, 30, s("launch_joystick_monitor"));
 
         WindowXPosition += WindowWidth + WindowXOffset;
         addNewFrame(FrameId.OVERVIEW, new OverviewFrame(WindowWidth, WindowHeight, WindowXPosition, WindowYPosition));
@@ -108,21 +116,21 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
             PWCInterface pwcI = getChairInterface();
 
             // Simulate commands from the chair
-            pwcI.parse("S1:Y");
-            pwcI.parse("S2:Y");
-            pwcI.parse("S4:Y");
-            pwcI.parse("S5:Y");
-
-            pwcI.parse("S3:N");
-            pwcI.parse("S6:N");
-            pwcI.parse("S7:N");
-            pwcI.parse("S8:N");
-            pwcI.parse("S9:N");
-
-            pwcI.parse("C1:1gIE,1hu,1aO.");
-            pwcI.parse("C2:3cI,3eF,3bG.");
-            pwcI.parse("C4:FaE,FbJ.");
-            pwcI.parse("C5:RbIE,RcJ,RdG.");
+//            pwcI.parse("S1:Y");
+//            pwcI.parse("S2:Y");
+//            pwcI.parse("S4:Y");
+//            pwcI.parse("S5:Y");
+//
+//            pwcI.parse("S3:N");
+//            pwcI.parse("S6:N");
+//            pwcI.parse("S7:N");
+//            pwcI.parse("S8:N");
+//            pwcI.parse("S9:N");
+//
+//            pwcI.parse("C1:1gIE,1hu,1aO.");
+//            pwcI.parse("C2:3cI,3eF,3bG.");
+//            pwcI.parse("C4:FaE,FbJ.");
+//            pwcI.parse("C5:RbIE,RcJ,RdG.");
 
 
             ConfigurationFrame configFrame = (ConfigurationFrame)getFrame(FrameId.CONFIG);
@@ -144,7 +152,7 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
         try {
             if(SystemIn.ready()) {
                 String line = SystemIn.readLine();
-                DueWheelchairInterface.parse(line);
+                DueWheelchairInterface.buffer(line);
             }
         } catch (Exception e){
             println(e.getMessage());
@@ -220,6 +228,14 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
                 DueSerialInfo = String.format(s("firmware_response"), firmwareInfo.getVersion());
                 break;
 
+            case TIMEOUT:
+                PWCInterfacePayloadTimeout timeoutInfo = (PWCInterfacePayloadTimeout) e.getPayload();
+                // Check if the timeout is related to getting the version information
+                if(timeoutInfo.getRequest().getType() == PWCInterfaceEvent.EventType.FIRMWARE_INFO){
+                    DueSerialInfo = String.format(s("firmware_timeout"), DueSerialPortList.getSelectedText());
+                }
+                break;
+
             default:
                 logToScreen(timestamp() + " - " + e.getType());
         }
@@ -237,13 +253,17 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
 
     public void serialEvent(Serial port){
 
-        // Send the input to the interface to parsed
-        DueWheelchairInterface.parse(port.readString());
+        try {
+            // Send the input to the interface to be buffered
+            DueWheelchairInterface.buffer(port.readString());
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void handleButtonEvents(GButton button, GEvent event){
 
-        if(button == DueSerialControlButton && event == GEvent.CLICKED) {
+        if(button == btnDueSerialControlButton && event == GEvent.CLICKED) {
             String portName = DueSerialPortList.getSelectedText();
 
             // Close the serial port if it is already active
@@ -271,18 +291,28 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
                 button.setText(s("connect"));
                 DueSerialInfo = s("connection_end");
             }
+        } else if(button == btnJoystickMonitorLaunch){
+            addNewFrame(FrameId.JOYSTICK, new JoystickMonitorFrame(WindowWidth, WindowHeight, WindowXPosition, WindowYPosition));
         }
     }
 
     public void handleDropListEvents(GDropList list, GEvent event){
 
         // Reset the connect button to ease changing port
-        DueSerialControlButton.setText(s("connect"));
+        btnDueSerialControlButton.setText(s("connect"));
     }
 
     public void handleTextEvents(GEditableTextControl textControl, GEvent event){
         // Do nothing - this stops the G4P library sending messages to the console about missing event handlers
     }
+
+
+
+    public void handlePanelEvents(GPanel panel, GEvent event){
+        // Do nothing - this stops the G4P library sending messages to the console about missing event handlers
+    }
+
+
 
 
 
