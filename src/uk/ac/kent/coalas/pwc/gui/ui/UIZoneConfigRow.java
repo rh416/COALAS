@@ -3,6 +3,7 @@ package uk.ac.kent.coalas.pwc.gui.ui;
 import g4p_controls.GDropList;
 import g4p_controls.GEvent;
 import g4p_controls.GLabel;
+import g4p_controls.GPanel;
 import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 import uk.ac.kent.coalas.pwc.gui.frames.ConfigurationFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.WheelchairGUIFrame;
@@ -19,6 +20,7 @@ public class UIZoneConfigRow extends UIObject implements RowPositionTracker.YInc
     private WheelchairGUIFrame parent;
     private Zone srcZone;
     private RowPositionTracker positionTracker;
+    private GPanel parentPanel;
 
     GLabel zoneLabel;
     GDropList sensorSeparation;
@@ -27,11 +29,12 @@ public class UIZoneConfigRow extends UIObject implements RowPositionTracker.YInc
 
     private ArrayList<UISensorConfigRow> uiSensorConfigRows = new ArrayList<UISensorConfigRow>();
 
-    public UIZoneConfigRow(WheelchairGUIFrame parent, Zone srcZone, RowPositionTracker positionTracker){
+    public UIZoneConfigRow(WheelchairGUIFrame parent, Zone srcZone, RowPositionTracker positionTracker, GPanel parentPanel){
 
         this.parent = parent;
         this.srcZone = srcZone;
         this.positionTracker = positionTracker;
+        this.parentPanel = parentPanel;
 
         positionTracker.resetX();
 
@@ -58,20 +61,19 @@ public class UIZoneConfigRow extends UIObject implements RowPositionTracker.YInc
         sensorSeparation.setItems(sensorSeparationOptions, selectedSeparationIndex);
         sensorSeparation.addEventHandler(this, "handleDropListEvents");
 
+        parentPanel.addControl(zoneLabel);
+        parentPanel.addControl(sensorSeparation);
+
         positionTracker.incrementYPosition(this);
 
         for(Sensor.SensorType type : Sensor.SensorType.values()){
             Sensor sensor = srcZone.getSensorByType(type);
             if(sensor != null){
-                uiSensorConfigRows.add(new UISensorConfigRow(parent, sensor, positionTracker));
+                uiSensorConfigRows.add(new UISensorConfigRow(parent, sensor, positionTracker, parentPanel));
             }
         }
 
-        positionTracker.incrementYPosition(this);
-    }
-
-    public void draw(){
-        // Do nothing
+        positionTracker.incrementYPosition(10);
     }
 
     public void handleDropListEvents(GDropList list, GEvent event){
@@ -83,6 +85,35 @@ public class UIZoneConfigRow extends UIObject implements RowPositionTracker.YInc
             }
         }
 
+    }
+
+    public String validateAndReturnResponse(){
+
+        int selectedIndex = sensorSeparation.getSelectedIndex();
+
+        // Reset the field to the correct colour
+        handleDropListEvents(sensorSeparation, GEvent.SELECTED);
+
+        // Check that a valid option has been selected
+        if(selectedIndex == 0){
+            sensorSeparation.setLocalColorScheme(WheelchairGUI.ERROR_COLOUR_SCHEME);
+            return null;
+        }
+
+        Zone.SensorSeparation selectedSeparation = Zone.SensorSeparation.values()[selectedIndex - 1];
+        String response = String.valueOf(selectedSeparation.getCode());
+        String sensorResponse;
+
+        for(UISensorConfigRow sensorConfigRow : uiSensorConfigRows){
+            sensorResponse = sensorConfigRow.validateAndReturnResponse();
+            if(sensorResponse == null){
+                return null;
+            } else {
+                response += sensorResponse;
+            }
+        }
+
+        return response;
     }
 
     @Override

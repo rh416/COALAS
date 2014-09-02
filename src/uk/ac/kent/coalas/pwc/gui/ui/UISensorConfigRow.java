@@ -14,17 +14,19 @@ public class UISensorConfigRow extends UIObject implements RowPositionTracker.YI
     private WheelchairGUIFrame parent;
     private Sensor srcSensor;
     private RowPositionTracker positionTracker;
+    private GPanel parentPanel;
 
     private GLabel LabelSensor;
     private GDropList DropListDataInterpretation;
 
     private  String[] dataInterpretationOptions;
 
-    public UISensorConfigRow(WheelchairGUIFrame parent, Sensor sensor, RowPositionTracker positionTracker){
+    public UISensorConfigRow(WheelchairGUIFrame parent, Sensor sensor, RowPositionTracker positionTracker, GPanel parentPanel){
 
         this.parent = parent;
         this.srcSensor = sensor;
         this.positionTracker = positionTracker;
+        this.parentPanel = parentPanel;
 
         RowPositionTracker pt = positionTracker;
 
@@ -65,10 +67,30 @@ public class UISensorConfigRow extends UIObject implements RowPositionTracker.YI
         DropListDataInterpretation.setItems(dataInterpretationOptions, selectedInterpretationIndex);
         DropListDataInterpretation.addEventHandler(this, "handleDropListEvents");
 
+        parentPanel.addControl(LabelSensor);
+        parentPanel.addControl(DropListDataInterpretation);
+
         pt.incrementXPosition(DropListDataInterpretation, 5);
 
 
         positionTracker.incrementYPosition(this);
+    }
+
+    public String validateAndReturnResponse(){
+
+        int selectedIndex = DropListDataInterpretation.getSelectedIndex();
+
+        // Reset the field to the correct colour
+        handleDropListEvents(DropListDataInterpretation, GEvent.SELECTED);
+
+        // Check that a valid option has been selected
+        if(selectedIndex == 0){
+            DropListDataInterpretation.setLocalColorScheme(WheelchairGUI.ERROR_COLOUR_SCHEME);
+            return null;
+        }
+
+        Sensor.SensorDataInterpretation sensorDataInterpretation = Sensor.SensorDataInterpretation.values()[selectedIndex];
+        return String.valueOf(sensorDataInterpretation.getRepresentation()).toUpperCase();
     }
 
     public void handleDropListEvents(GDropList list, GEvent event){
@@ -79,20 +101,6 @@ public class UISensorConfigRow extends UIObject implements RowPositionTracker.YI
                 ConfigurationFrame.highlightChangedField(list, selectedInterpretation, srcSensor.getDataInterpretation());
             }
         }
-    }
-
-    public void handleTextEvents(GTextField textField, GEvent event){
-
-        System.out.println(event);
-
-        if(event == GEvent.CHANGED){
-            textField.setLocalColorScheme(GConstants.GOLD_SCHEME);
-        }
-
-    }
-
-    public void draw(){
-        // Do nothing
     }
 
     @Override
