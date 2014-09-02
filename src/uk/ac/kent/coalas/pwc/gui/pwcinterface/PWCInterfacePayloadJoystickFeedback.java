@@ -1,0 +1,54 @@
+package uk.ac.kent.coalas.pwc.gui.pwcinterface;
+
+import uk.ac.kent.coalas.pwc.gui.hardware.JoystickPosition;
+
+/**
+ * Created by rm538 on 21/08/2014.
+ *
+ * A class representing the payload for Joystick data from the Interface
+ *
+ */
+public class PWCInterfacePayloadJoystickFeedback extends PWCInterfaceEventPayload {
+
+    private static int parseJoystickValue(String inString){
+
+        int pos =  Integer.parseInt(inString) - 100;    // This is necessary to undo the addition of 100 to values before being sent out
+                                                        // which is required to ensure that all values are sent as 3 digits
+
+        // Now map the position to the 0(min) - 128(neutral) - 255(max) range
+        return map(pos, 0, 255, -100, 100);
+    }
+
+    private static int map(int x, int in_min, int in_max, int out_min, int out_max)
+    {
+        return (x - in_min) * (out_max - out_min + 1) / (in_max - in_min + 1) + out_min;
+    }
+
+    private JoystickPosition inputPosition;
+    private JoystickPosition outputPosition;
+
+    public PWCInterfacePayloadJoystickFeedback(PWCInterface chairInterface, String response) {
+
+        super(chairInterface, response);
+
+        // Get Joystick position for input
+        int inTurn = parseJoystickValue(response.substring(2, 5));
+        int inSpeed = parseJoystickValue(response.substring(5, 8));
+        inputPosition = new JoystickPosition(inTurn, inSpeed);
+
+        // Get Joystick position for output
+        int outTurn = parseJoystickValue(response.substring(8, 11));
+        int outSpeed = parseJoystickValue(response.substring(11, 14));
+        outputPosition = new JoystickPosition(outTurn, outSpeed);
+    }
+
+    public JoystickPosition getInputPosition(){
+
+        return inputPosition;
+    }
+
+    public JoystickPosition getOutputPosition(){
+
+        return outputPosition;
+    }
+}

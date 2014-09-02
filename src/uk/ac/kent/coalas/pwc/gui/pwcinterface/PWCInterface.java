@@ -16,6 +16,8 @@ public class PWCInterface {
 
     private Map<PWCInterfaceRequestIdentifier, PWCInterfaceRequest> requests = new HashMap<PWCInterfaceRequestIdentifier, PWCInterfaceRequest>();
 
+    private String buffer = "";
+
     private Thread TimeoutCheck = new Thread(){
 
         public void run(){
@@ -353,14 +355,14 @@ public class PWCInterface {
                 addRequestToRequestList(type, nodeId);
                 /* Build the command to send the firmware - this includes:
                     &   - command indicator
-                    #   - command type id (Enum Oridinal - allows us to recover which type of request was called.
+                    #   - command type id (Enum Ordinal - allows us to recover which type of request was called.
                                             Should NOT be stored long term - ie could change at next compile)
                     &   - command indicator
                     #   - Node ID
                     A-Z - command
                     ... - any command parameters
-                                             */
-                String commandToSend = "&" + type.ordinal() + "&" + String.format(command, nodeId);
+                */
+                String commandToSend = String.format("&%02d&", type.ordinal()) + String.format(command, nodeId);
                 log.info("Command sent :" + commandToSend);
                 commsProvider.write(commandToSend);
             } else{
@@ -390,6 +392,28 @@ public class PWCInterface {
 
 
 
+
+    public void buffer(String inString){
+
+        // Append the input to the current buffer
+        buffer += inString;
+        log.info("Buffer: " + buffer);
+
+        // If the last character is a newline or carriage return, parse the buffer
+        char lastChar = buffer.charAt(buffer.length() - 1);
+        if(lastChar == '\n' || lastChar == '\r'){
+            // Trim any whitespace from the buffer string
+            buffer = buffer.trim();
+            // If the buffer is not empty, parse it
+            if(!buffer.isEmpty()) {
+                parse(buffer);
+            }
+            // Clear the buffer
+            buffer = "";
+        }
+    }
+
+
     /**
      * Method used to parse a response from the chair and dispatch the appropriate event
      *
@@ -407,6 +431,10 @@ public class PWCInterface {
 
         try {
             switch (firstChar) {
+
+                // Ignore lines that start with an underscore _
+                case '_':
+                    return;
 
                 // Version information from the firmware
                 case 'V':
@@ -448,10 +476,30 @@ public class PWCInterface {
                     type = PWCInterfaceEvent.EventType.NACK;
                     payload = new PWCInterfacePayloadAckNack(this, response);
                     break;
+
+                // Detect Joystick position data
+                case 'J':
+                    type = PWCInterfaceEvent.EventType.JOYSTICK_FEEDBACK;
+                    payload = new PWCInterfacePayloadJoystickFeedback(this, response);
+                    break;
+
+                /*
+                case 'CUSTOM_CHARACTER':
+                    type = PWCInterfaceEvent.EventType.CUSTOM_TYPE
+                    payload = new PWCInterfacePayloadCUSTOMPAYLOAD extends PWCInterfaceEventPayload
+                    break;
+
+                    Then handle this type in onPWCInterfaceEvent of the window expecting data
+
+                 */
             }
         }catch(Exception e){
             type = PWCInterfaceEvent.EventType.ERROR;
             payload= new PWCInterfacePayloadError(this, response, e);
+        }
+
+        if(payload == null){
+            payload = new PWCInterfacePayloadUnknown(this, response);
         }
 
         dispatchPWCInterfaceEvent(new PWCInterfaceEvent(this, type, payload));
@@ -467,17 +515,24 @@ public class PWCInterface {
 
         // Find the request in the request list that relates to this response
         PWCInterfaceEvent.EventType eventType = event.getType();
-        Node eventNode = event.getPayload().getNode();
-        int nodeId = 0;
+        PWCInterfaceEvent.EventType identifierType = eventType;
 
-        // Get the specific Node Id, if a node was given - otherwise use the default value of 0
-        if(eventNode != null){
-            nodeId = eventNode.getId();
+        // If the event is an ACK or NACK, we need to get the original request's type in order to identify it properly
+        if(eventType == PWCInterfaceEvent.EventType.ACK || eventType == PWCInterfaceEvent.EventType.NACK){
+            PWCInterfacePayloadAckNack payload = (PWCInterfacePayloadAckNack) event.getPayload();
+            identifierType = payload.getRequest().getType();
         }
 
-        PWCInterfaceRequestIdentifier identifier = new PWCInterfaceRequestIdentifier(eventType, nodeId);
+        Node identifierNode = event.getPayload().getNode();
+        int identifierNodeId = 0;
 
-        // Remove the past event using the identifier created above
+        // Get the specific Node Id, if a node was given - otherwise use the default value of 0
+        if(identifierNode != null){
+            identifierNodeId = identifierNode.getId();
+        }
+
+        // Remove the past event using an identifier made up of the EventType and Node ID
+        PWCInterfaceRequestIdentifier identifier = new PWCInterfaceRequestIdentifier(identifierType, identifierNodeId);
         requests.remove(identifier);
 
         log.info("Event Dispatched: " + event.getType());

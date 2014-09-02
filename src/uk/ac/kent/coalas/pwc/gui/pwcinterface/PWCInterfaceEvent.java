@@ -8,7 +8,8 @@ package uk.ac.kent.coalas.pwc.gui.pwcinterface;
 public class PWCInterfaceEvent {
 
     public static enum EventType {ERROR, UNKNOWN, FIRMWARE_INFO, BUS_SCAN, ACK, NACK, TIMEOUT,
-        NODE_CURRENT_DATA, NODE_CONFIGURATION, NODE_DATA_FORMAT, NODE_THRESHOLDS, NODE_MODE }
+        NODE_CURRENT_DATA, NODE_CONFIGURATION, NODE_DATA_FORMAT, NODE_THRESHOLDS, NODE_MODE,
+        JOYSTICK_FEEDBACK}
 
     private PWCInterface chairInterface;
     private EventType type;
