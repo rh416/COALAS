@@ -19,6 +19,9 @@ import java.util.ArrayList;
 
 /**
  * Created by rm538 on 13/08/2014.
+ *
+ * A class that handles drawing a representation of a Node to the UI
+ *
  */
 public class UINode extends UIObject {
 
@@ -66,38 +69,41 @@ public class UINode extends UIObject {
         nodeIdentifierFont = parent.createFont("Arial", 10, true);
     }
 
+    @Override
     public void draw(){
 
+        // Set the default colour
         nodeIndicator.setFillColour(NODE_COLOUR_NOT_ON_BUS);
 
-        if(dataNode != null) {
-            if(dataNode.isConnectedToBus()) {
-                if(mouseOverNode){
-                    nodeIndicator.setFillColour(NODE_COLOUR_HIGHLIGHT);
-                } else {
-                    nodeIndicator.setFillColour(NODE_COLOUR_ON_BUS);
-                }
+        // Check if the dataNode has been set and is connected to the bus
+        if(dataNode != null && dataNode.isConnectedToBus()) {
+            // Set the colour, depending on whether or not this Node is being hovered over
+            if(mouseOverNode){
+                nodeIndicator.setFillColour(NODE_COLOUR_HIGHLIGHT);
+            } else {
+                nodeIndicator.setFillColour(NODE_COLOUR_ON_BUS);
+            }
 
-                for (UIZone zone : uiZones) {
-                    zone.draw();
-                }
+            // Draw all the zones within the Node
+            for (UIZone zone : uiZones) {
+                zone.draw();
             }
         }
 
         // Draw the node indicator square
         nodeIndicator.draw();
 
-        if(dataNode != null) {
-            if(dataNode.isConnectedToBus()) {
-                // Draw the circle which will contain the node identifier
-                nodeIdentifier.draw();
+        // Check again whether the dataNode has been set and is connected to the bus - this won't change from before but
+        //      nodeIndicator.draw() needs to be called these two code blocks
+        if(dataNode != null && dataNode.isConnectedToBus()) {
+            // Draw the circle which will contain the node identifier
+            nodeIdentifier.draw();
 
-                // Draw the node identifier
-                parent.textFont(nodeIdentifierFont);
-                parent.fill(0);                          // Make the text black
-                parent.textAlign(PConstants.CENTER, PConstants.CENTER);
-                parent.text(dataNode.getId(), xCenterPos, yCenterPos - 1);  // -1 used to position text more centrally vertically
-            }
+            // Draw the node identifier
+            parent.textFont(nodeIdentifierFont);
+            parent.fill(0);                          // Make the text black
+            parent.textAlign(PConstants.CENTER, PConstants.CENTER);
+            parent.text(dataNode.getId(), xCenterPos, yCenterPos - 1);  // -1 used to position text more centrally vertically
         }
     }
 

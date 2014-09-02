@@ -64,6 +64,7 @@ public class UIZone extends UIObject {
         zoneIndicator.addShapeListener(new ZoneShapeListener());
     }
 
+    @Override
     public void draw() {
 
         // If the diagnostics window is closed and the cursor is not over this zone, set the colour to default

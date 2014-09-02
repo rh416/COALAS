@@ -7,10 +7,13 @@ import java.awt.*;
 
 /**
  * Created by rm538 on 13/08/2014.
+ *
+ * A base class that handles drawing a representation of a different hardware and data to the UI
+ *
  */
 public abstract class UIObject {
 
-    public abstract void draw();
+    public void draw(){}
 
     public static Point getCenterFromPosition(Zone.Position position){
 
