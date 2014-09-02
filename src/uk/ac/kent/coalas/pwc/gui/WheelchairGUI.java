@@ -282,6 +282,12 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
                     // Change button label for disconnection
                     button.setText(s("disconnect"));
                     DueSerialInfo = s("connection_check");
+
+                    // Pause for a moment to give the Serial port time to open fully
+                    try{
+                        Thread.sleep(250);
+                    } catch (InterruptedException e){}
+
                     DueWheelchairInterface.getVersion();
                 } catch (RuntimeException e){
                     DueSerialInfo = "Error: " + e.getMessage();
