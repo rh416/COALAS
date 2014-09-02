@@ -453,6 +453,7 @@ public class PWCInterface {
                     payload = new PWCInterfacePayloadBusScan(this, response);
                     break;
 
+                // Result from requesting node data format
                 case 'F':
                     type = PWCInterfaceEvent.EventType.NODE_DATA_FORMAT;
                     payload = new PWCInterfacePayloadNodeDataFormat(this, response);
@@ -465,7 +466,7 @@ public class PWCInterface {
                     break;
 
                 // Detect Acks from the node
-                case 'A':
+                case 'Y':
                     type = PWCInterfaceEvent.EventType.ACK;
                     payload = new PWCInterfacePayloadAckNack(this, response);
                     break;
