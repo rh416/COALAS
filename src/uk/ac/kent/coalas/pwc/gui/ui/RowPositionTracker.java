@@ -39,6 +39,11 @@ public class RowPositionTracker {
         this.rowPositionY += amount;
     }
 
+    public void incrementYPosition(GAbstractControl control, int padding){
+
+        incrementYPosition((int) control.getHeight() + padding);
+    }
+
     public void incrementYPosition(YIncrementer incrementer){
 
         incrementYPosition(incrementer.incrementY());
@@ -62,6 +67,16 @@ public class RowPositionTracker {
     public void resetY(){
 
         this.rowPositionY = initialY;
+    }
+
+    public void setX(int newX){
+
+        this.rowPositionX = newX;
+    }
+
+    public void setY(int newY){
+
+        this.rowPositionY = newY;
     }
 
     public interface XIncrementer {
