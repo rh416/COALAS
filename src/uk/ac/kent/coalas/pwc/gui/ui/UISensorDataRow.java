@@ -36,6 +36,7 @@ public class UISensorDataRow extends UIObject implements RowPositionTracker.YInc
         this.sensor = sensor;
     }
 
+    @Override
     public void draw(){
 
         // If the sensor that this row relates to doesn't exist, quit
