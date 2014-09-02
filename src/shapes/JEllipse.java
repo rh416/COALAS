@@ -52,4 +52,16 @@ public class JEllipse extends JShape
     myEllipse.x +=dx;
     myEllipse.y +=dy;
   }
+
+    /**
+     * Move the ellipse to the given position
+     * @param x Where to move the centre of the ellipse to in the x-direction
+     * @param y Where to move the centre of the ellipse to in the y-direction
+     */
+    public void moveTo(float x, float y){
+
+        // As the ellipse use top-left positioning, we must account for that
+        myEllipse.x = x - myEllipse.width / 2;
+        myEllipse.y = y - myEllipse.height / 2;
+    }
 }
