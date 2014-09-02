@@ -53,7 +53,7 @@ public class PWCInterfacePayloadNodeDataFormat extends PWCInterfaceEventPayload 
                 throw new PWCInterfaceParseException(s("parse_exception_invalid_zone"));
             }
 
-            currentSensor = currentZone.getSensorByTypeBitmask(sensorId);
+            currentSensor = currentZone.getSensorById(sensorId);
 
             if (currentSensor != null) {
                 currentSensor.setDataFormat(currentSensorFormat);
