@@ -28,7 +28,7 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
 
     public WheelchairGUIFrame(WheelchairGUIFrame copyFrame){
 
-        this(copyFrame.width, copyFrame.height, copyFrame.getFrame().getX(), copyFrame.getFrame().getY());
+        this(copyFrame.getFrame().getWidth(), copyFrame.getFrame().getHeight(), copyFrame.getFrame().getX(), copyFrame.getFrame().getY());
     }
 
     public WheelchairGUIFrame(int theWidth, int theHeight, int xPos, int yPos) {
