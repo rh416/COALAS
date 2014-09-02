@@ -156,7 +156,7 @@ public class PWCInterface {
      */
     public void checkNodeExistsOnBus(int nodeId){
 
-        sendCommand(PWCInterfaceEvent.EventType.BUS_SCAN, nodeId, "%dS");
+        sendCommand(PWCInterfaceEvent.EventType.BUS_SCAN, nodeId, "S%d");
     }
 
 
@@ -183,7 +183,7 @@ public class PWCInterface {
      */
     public void configureNodeSensors(int nodeId, String configString){
 
-        sendCommand(PWCInterfaceEvent.EventType.NODE_CONFIGURATION, nodeId, "%dC" + configString);
+        sendCommand(PWCInterfaceEvent.EventType.NODE_CONFIGURATION, nodeId, "C%d" + configString);
     }
 
 
@@ -208,7 +208,7 @@ public class PWCInterface {
      */
     public void requestNodeConfiguration(int nodeId){
 
-        sendCommand(PWCInterfaceEvent.EventType.NODE_CONFIGURATION, nodeId, "%dR");
+        sendCommand(PWCInterfaceEvent.EventType.NODE_CONFIGURATION, nodeId, "R%d");
     }
 
 
@@ -233,7 +233,7 @@ public class PWCInterface {
      */
     public void requestNodeCurrentData(int nodeId){
 
-        sendCommand(PWCInterfaceEvent.EventType.NODE_CURRENT_DATA, nodeId, "%dD");
+        sendCommand(PWCInterfaceEvent.EventType.NODE_CURRENT_DATA, nodeId, "D%d");
     }
 
 
@@ -258,7 +258,7 @@ public class PWCInterface {
      */
     public void requestNodeDataFormat(int nodeId){
 
-        sendCommand(PWCInterfaceEvent.EventType.NODE_DATA_FORMAT, nodeId, "%dF");
+        sendCommand(PWCInterfaceEvent.EventType.NODE_DATA_FORMAT, nodeId, "F%d");
     }
 
 
@@ -290,7 +290,7 @@ public class PWCInterface {
     public void setNodeThresholds(int nodeId, int zone1Threshold, int zone2Threshold, int zone3Threshold){
 
         sendCommand(PWCInterfaceEvent.EventType.NODE_THRESHOLDS,
-                nodeId, "%dT" +
+                nodeId, "T%d" +
                         intTo12BitHex(zone1Threshold) +
                         intTo12BitHex(zone2Threshold) +
                         intTo12BitHex(zone3Threshold));
@@ -322,7 +322,7 @@ public class PWCInterface {
     public void setNodeUltrasoundMode(int nodeId, UltrasoundMode mode){
 
         char modeStr = mode.getCharCode();
-        sendCommand(PWCInterfaceEvent.EventType.NODE_MODE, nodeId, "%dM" + modeStr);
+        sendCommand(PWCInterfaceEvent.EventType.NODE_MODE, nodeId, "M%d" + modeStr);
     }
 
 
