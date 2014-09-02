@@ -14,7 +14,7 @@ public class PWCInterfacePayloadTimeout extends PWCInterfaceEventPayload{
 
     public PWCInterfacePayloadTimeout(PWCInterface chairInterface, PWCInterfaceRequest request){
 
-        super(chairInterface, String.format("Request timed out - Type: %1$s - Node: %2$d", request.getType(), request.getNode().getId()));
+        super(chairInterface, String.format("Request timed out - Type: %1$s", request.getType()));
         this.request = request;
 
         Node timeoutNode = getNode();
