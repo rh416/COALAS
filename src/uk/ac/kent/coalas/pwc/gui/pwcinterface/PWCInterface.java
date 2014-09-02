@@ -397,7 +397,6 @@ public class PWCInterface {
 
         // Append the input to the current buffer
         buffer += inString;
-        log.info("Buffer: " + buffer);
 
         // If the last character is a newline or carriage return, parse the buffer
         char lastChar = buffer.charAt(buffer.length() - 1);
