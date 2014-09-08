@@ -7,14 +7,17 @@ import java.util.*;
 
 /**
  * Created by rm538 on 06/08/2014.
+ *
  */
 public class PWCInterface {
 
-    private PWCInterfaceListener listener;
+    private ArrayList<PWCInterfaceListener> listeners = new ArrayList<>();
     private PWCInterfaceCommunicationProvider commsProvider;
-    private ArrayList<Node> nodes = new ArrayList<Node>(10);
+    private ArrayList<Node> nodes = new ArrayList<>(10);
 
-    private Map<PWCInterfaceRequestIdentifier, PWCInterfaceRequest> requests = new HashMap<PWCInterfaceRequestIdentifier, PWCInterfaceRequest>();
+    private LinkedList<String> commandQueue = new LinkedList<>();
+
+    private Map<PWCInterfaceRequestIdentifier, PWCInterfaceRequest> requests = new HashMap<>();
 
     private String buffer = "";
 
@@ -34,12 +37,28 @@ public class PWCInterface {
 
     };
 
+    private Thread CommandSender = new Thread(){
+
+        public void run(){
+
+            while(!Thread.currentThread().isInterrupted()){
+                sendNextCommand();
+                try{
+                    Thread.sleep(TIME_BETWEEN_COMMANDS_MS);
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+
     public final Node ALL_NODES;
 
     private static Logger log = Logger.getLogger(PWCInterface.class);
 
     public final int DEFAULT_TIMEOUT_SECS = 5;
     public final int TIME_BETWEEN_TIMEOUT_CHECKS_MS = 500;
+    public final int TIME_BETWEEN_COMMANDS_MS = 100;
 
 
     /**
@@ -97,9 +116,8 @@ public class PWCInterface {
         public char getCharCode(){ return this.charCode; }
     }
 
-    public PWCInterface(PWCInterfaceListener listener, PWCInterfaceCommunicationProvider commsProvider){
+    public PWCInterface(PWCInterfaceCommunicationProvider commsProvider){
 
-        this.listener = listener;
         this.commsProvider = commsProvider;
 
         // Init nodes array - chair has a max of 9 so lets create them
@@ -112,6 +130,19 @@ public class PWCInterface {
 
         // Start the thread which will keep an eye on timeouts
         TimeoutCheck.start();
+
+        // Start the thread to handle sending commands
+        CommandSender.start();
+    }
+
+    public void registerListener(PWCInterfaceListener listener){
+
+        this.listeners.add(listener);
+    }
+
+    public void unregisterListener(PWCInterfaceListener listener){
+
+        listeners.remove(listener);
     }
 
     public Node getNode(int nodeId){
@@ -131,7 +162,7 @@ public class PWCInterface {
      */
     public void getVersion(){
 
-        sendCommand(PWCInterfaceEvent.EventType.FIRMWARE_INFO, 0, "V");
+        bufferCommand(PWCInterfaceEvent.EventType.FIRMWARE_INFO, 0, "V");
     }
 
 
@@ -156,7 +187,7 @@ public class PWCInterface {
      */
     public void checkNodeExistsOnBus(int nodeId){
 
-        sendCommand(PWCInterfaceEvent.EventType.BUS_SCAN, nodeId, "S%d");
+        bufferCommand(PWCInterfaceEvent.EventType.BUS_SCAN, nodeId, "S%d");
     }
 
 
@@ -176,14 +207,14 @@ public class PWCInterface {
     /**
      * Configure a node on the RS-485 bus
      *
-     * Immediately returns void, but will initiate a TODO: NODE_CONFIGURATION event when the chair responds
+     * Immediately returns void, but will initiate an ACK event when the chair responds
      *
      * @param nodeId        The ID of a Node which is to have its presence on the bus checked
      * @param configString  A string defining the Node's new configuration (see Documentation)
      */
     public void configureNodeSensors(int nodeId, String configString){
 
-        sendCommand(PWCInterfaceEvent.EventType.NODE_CONFIGURATION, nodeId, "C%d" + configString);
+        bufferCommand(PWCInterfaceEvent.EventType.NODE_CONFIGURATION, nodeId, "C%d" + configString);
     }
 
 
@@ -208,7 +239,7 @@ public class PWCInterface {
      */
     public void requestNodeConfiguration(int nodeId){
 
-        sendCommand(PWCInterfaceEvent.EventType.NODE_CONFIGURATION, nodeId, "R%d");
+        bufferCommand(PWCInterfaceEvent.EventType.NODE_CONFIGURATION, nodeId, "R%d");
     }
 
 
@@ -233,7 +264,7 @@ public class PWCInterface {
      */
     public void requestNodeCurrentData(int nodeId){
 
-        sendCommand(PWCInterfaceEvent.EventType.NODE_CURRENT_DATA, nodeId, "D%d");
+        bufferCommand(PWCInterfaceEvent.EventType.NODE_CURRENT_DATA, nodeId, "D%d");
     }
 
 
@@ -258,14 +289,14 @@ public class PWCInterface {
      */
     public void requestNodeDataFormat(int nodeId){
 
-        sendCommand(PWCInterfaceEvent.EventType.NODE_DATA_FORMAT, nodeId, "F%d");
+        bufferCommand(PWCInterfaceEvent.EventType.NODE_DATA_FORMAT, nodeId, "F%d");
     }
 
 
     /**
      * Set the sensor thresholds for each Zone in a node on the RS-485 bus
      *
-     * Immediately returns void, but will initiate a TODO: NODE_THRESHOLDS event when the chair responds
+     * Immediately returns void, but will initiate an ACK event when the chair responds
      *
      * @param node              The Node whose zone thresholds are to be set
      * @param zone1Threshold    The distance threshold for Zone 1
@@ -280,7 +311,7 @@ public class PWCInterface {
     /**
      * Set the sensor thresholds for each Zone in a node on the RS-485 bus
      *
-     * Immediately returns void, but will initiate a TODO: NODE_THRESHOLDS event when the chair responds
+     * Immediately returns void, but will initiate an ACK event when the chair responds
      *
      * @param nodeId            The ID of a Node whose zone thresholds are to be set
      * @param zone1Threshold    The distance threshold for Zone 1
@@ -289,7 +320,7 @@ public class PWCInterface {
      */
     public void setNodeThresholds(int nodeId, int zone1Threshold, int zone2Threshold, int zone3Threshold){
 
-        sendCommand(PWCInterfaceEvent.EventType.NODE_THRESHOLDS,
+        bufferCommand(PWCInterfaceEvent.EventType.NODE_THRESHOLDS,
                 nodeId, "T%d" +
                         intTo12BitHex(zone1Threshold) +
                         intTo12BitHex(zone2Threshold) +
@@ -300,7 +331,7 @@ public class PWCInterface {
     /**
      * Set the mode for the ultrasound sensors on a node on the RS-485 bus
      *
-     * Immediately returns void, but will initiate a TODO: NODE_MODE event when the chair responds
+     * Immediately returns void, but will initiate an ACK event when the chair responds
      *
      * @param node    The Node whose ultrasound mode is to be set
      * @param mode    The ultrasound mode to be set
@@ -314,7 +345,7 @@ public class PWCInterface {
     /**
      * Set the mode for the ultrasound sensors on a node on the RS-485 bus
      *
-     * Immediately returns void, but will initiate a TODO: NODE_MODE event when the chair responds
+     * Immediately returns void, but will initiate an ACK event when the chair responds
      *
      * @param nodeId  The ID of a Node whose ultrasound mode is to be set
      * @param mode    The ultrasound mode to be set
@@ -322,7 +353,7 @@ public class PWCInterface {
     public void setNodeUltrasoundMode(int nodeId, UltrasoundMode mode){
 
         char modeStr = mode.getCharCode();
-        sendCommand(PWCInterfaceEvent.EventType.NODE_MODE, nodeId, "M%d" + modeStr);
+        bufferCommand(PWCInterfaceEvent.EventType.NODE_MODE, nodeId, "M%d" + modeStr);
     }
 
 
@@ -347,7 +378,7 @@ public class PWCInterface {
      *
      * @param command   The command to be sent to the chair
      */
-    private void sendCommand(PWCInterfaceEvent.EventType type, int nodeId, String command){
+    private void bufferCommand(PWCInterfaceEvent.EventType type, int nodeId, String command){
 
         if(commsProvider != null){
             if(commsProvider.isAvailable()) {
@@ -363,13 +394,22 @@ public class PWCInterface {
                     ... - any command parameters
                 */
                 String commandToSend = String.format("&%02d&", type.ordinal()) + String.format(command, nodeId);
-                log.info("Command sent :" + commandToSend);
-                commsProvider.write(commandToSend);
+                commandQueue.add(commandToSend);
             } else{
                 throw new PWCInterfaceException("Communication provider is not available");
             }
         } else {
             throw new PWCInterfaceException("No valid communication provider supplied");
+        }
+    }
+
+    private void sendNextCommand(){
+
+        if(commandQueue.peekFirst() != null) {
+            String commandToSend = commandQueue.removeFirst();
+
+            log.info("Command sent :" + commandToSend);
+            commsProvider.write(commandToSend);
         }
     }
 
@@ -402,13 +442,15 @@ public class PWCInterface {
         char lastChar = buffer.charAt(buffer.length() - 1);
         if(lastChar == '\n' || lastChar == '\r'){
             // Trim any whitespace from the buffer string
-            buffer = buffer.trim();
-            // If the buffer is not empty, parse it
-            if(!buffer.isEmpty()) {
-                parse(buffer);
-            }
-            // Clear the buffer
+            String tempBuffer = buffer.trim();
+
+            // Clear the buffer (needs to be called before parsing - not exactly sure why!?)
             buffer = "";
+
+            // If the buffer is not empty, parse it
+            if(!tempBuffer.isEmpty()) {
+                parse(tempBuffer);
+            }
         }
     }
 
@@ -537,8 +579,8 @@ public class PWCInterface {
 
         log.info("Event Dispatched: " + event.getType());
 
-        // Send the event out to the listener, if one has been specified
-        if(listener != null) {
+        // Send the event out to any registered listener
+        for(PWCInterfaceListener listener : listeners){
             listener.onPWCInterfaceEvent(event);
         }
     }
