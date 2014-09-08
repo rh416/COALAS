@@ -10,9 +10,6 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-// the ControlFrame class extends PApplet, so we
-// are creating a new processing applet inside a
-// new frame with a controlP5 object loaded
 public abstract class WheelchairGUIFrame extends PApplet implements PWCInterfaceListener {
 
     protected WheelchairGUI parent;
