@@ -121,7 +121,7 @@ public class UIZone extends UIObject {
                 if (diagnosticsFrame == null) {
                     int w = parent.width;
                     int h = parent.height;
-                    int x = parent.getFrame().getX() - w - 10;
+                    int x = parent.getFrame().getX() + w + 10;
                     int y = parent.getFrame().getY();
                     diagnosticsFrame = (DiagnosticsFrame) parent.getMainApp().addNewFrame(WheelchairGUI.FrameId.DIAGNOSTICS, new DiagnosticsFrame(w, h, x, y));
                 }
