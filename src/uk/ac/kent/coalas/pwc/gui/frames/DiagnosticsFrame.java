@@ -23,12 +23,12 @@ import java.util.regex.Pattern;
 public class DiagnosticsFrame extends WheelchairGUIFrame {
 
     private static int MAX_Y_POSITION = 400;
-    public static int SCALE_MAX = 2000;
+    public static int SCALE_MAX = 500;
 
     // Don't set any default values here!! For some reason they get wiped out??
     private List<Zone> monitoredZones;
     private List<UIZoneDataRow> zoneDataRows;
-    private int defaultUpdatePeriodOption = 2;
+    private int defaultUpdatePeriodOption;
     private String[] updatePeriodOptions;
     private int updatePeriod;
     private int lastUpdateTime;
@@ -76,7 +76,7 @@ public class DiagnosticsFrame extends WheelchairGUIFrame {
         btnUpdatePause = new GButton(this, 10, 10, 100, 30, s("pause"));
         btnUpdatePause.addEventHandler(this, "handleButtonEvents");
 
-        defaultUpdatePeriodOption = 4;
+        defaultUpdatePeriodOption = 2;
         updatePeriodOptions = new String[]{"100ms", "200ms", "500ms", "1s", "2s", "5s"};
 
         dropListUpdateRate = new GDropList(this, 120, 10, 100, 150);
