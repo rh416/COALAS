@@ -33,6 +33,7 @@ public class UINode extends UIObject {
 
     public static int NODE_COLOUR_NOT_ON_BUS = 0xFFCCCCCC;
     public static int NODE_COLOUR_ON_BUS = 0xFF00FF00;
+    public static int NODE_COLOUR_TIMEOUT = 0xFFFF0000;
     public static int NODE_COLOUR_HIGHLIGHT = 0xFFF0FFF0;
 
     private WheelchairGUIFrame parent;
@@ -77,16 +78,21 @@ public class UINode extends UIObject {
 
         // Check if the dataNode has been set and is connected to the bus
         if(dataNode != null && dataNode.isConnectedToBus()) {
-            // Set the colour, depending on whether or not this Node is being hovered over
-            if(mouseOverNode){
-                nodeIndicator.setFillColour(NODE_COLOUR_HIGHLIGHT);
+            // If the node has timed out since it was detected, highlight it
+            if(dataNode.hasTimedOut()){
+                nodeIndicator.setFillColour(NODE_COLOUR_TIMEOUT);
             } else {
-                nodeIndicator.setFillColour(NODE_COLOUR_ON_BUS);
-            }
+                // Otherwise, set the colour, depending on whether or not this Node is being hovered over
+                if (mouseOverNode) {
+                    nodeIndicator.setFillColour(NODE_COLOUR_HIGHLIGHT);
+                } else {
+                    nodeIndicator.setFillColour(NODE_COLOUR_ON_BUS);
+                }
 
-            // Draw all the zones within the Node
-            for (UIZone zone : uiZones) {
-                zone.draw();
+                // Draw all the zones within the Node
+                for (UIZone zone : uiZones) {
+                    zone.draw();
+                }
             }
         }
 
