@@ -35,6 +35,16 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
         frameWidth = theWidth;
         frameHeight = theHeight;
 
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        // Max sure the window is visible on screen
+        xPos = Math.max(xPos, 0);
+        yPos = Math.max(yPos, 0);
+
+        xPos = Math.min(xPos, (int) screenSize.getWidth() - theWidth);
+        yPos = Math.min(yPos,  (int) screenSize.getHeight() - theHeight);
+
+
         containingFrame = new Frame(this.getClass().getName());
         containingFrame.add(this);
         containingFrame.setTitle(this.getClass().getName());
@@ -45,9 +55,11 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
         containingFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent windowEvent) {
+                // Let the main window know we're closing
+                parent.childWindowClosing(WheelchairGUIFrame.this);
+                // Release any objects held in memory
                 dispose();
-                containingFrame.dispose();
-            }
+                containingFrame.dispose();           }
         });
 
         containingFrame.setVisible(true);
@@ -61,7 +73,6 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
         smooth();
 
         G4P.setGlobalColorScheme(WheelchairGUI.DEFAULT_COLOUR_SCHEME);
-
     }
 
     public void setTitle(String title){
@@ -87,39 +98,6 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
     public String s(String stringName){
 
         return WheelchairGUI.Strings.getString(stringName);
-    }
-
-    public void console(String s){
-
-        println(this.getClass().getSimpleName() + " - " + s);
-    }
-
-    public void console(int val){
-        console(String.valueOf(val));
-    }
-
-    public void console(float val){
-        console(String.valueOf(val));
-    }
-
-    public void console(double val){
-        console(String.valueOf(val));
-    }
-
-    public void console(char val){
-        console(String.valueOf(val));
-    }
-
-    public void console(byte val){
-        console(String.valueOf(val));
-    }
-
-    public void console(boolean val){
-        console(String.valueOf(val));
-    }
-
-    public void console(Object val){
-        console(String.valueOf(val));
     }
 
     public abstract void draw();
