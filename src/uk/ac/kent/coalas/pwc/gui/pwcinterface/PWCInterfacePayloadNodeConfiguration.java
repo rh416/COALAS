@@ -21,13 +21,8 @@ public class PWCInterfacePayloadNodeConfiguration extends PWCInterfaceEventPaylo
         int nodeId = Integer.parseInt(response.substring(1, 2));
         Node node = getResponseNodeFromId(nodeId);
 
-        // Check that the response ends with a '.'
-        if(! ".".equals(response.substring(response.length() - 1))){
-            throw new PWCInterfaceParseException(s("parse_exception_format_invalid"));
-        }
-
-        // Get the response minus the first 3 characters and the last character
-        String configStr = response.substring(3, response.length() - 1);
+        // Get the response minus the first 3 characters and up to the terminating .
+        String configStr = response.substring(3, response.indexOf("."));
 
         // Each Zone's configuration is separated by a ',' - so break the string up
         String[] configItems = configStr.split(",");
