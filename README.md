@@ -40,22 +40,17 @@ These instructions assume the use of IntelliJ, but will most likely be similar w
 5. You are now ready to start developing!
 
 ## Publishing ##
-Once development is complete its time to release a runnable application!
+Once development is complete its time to release a runnable application! The following steps outline the process:
 
-In order to do so, Artifacts must be built from the source. They are configured under `File` > `Project Structure` > `Artifacts`.
+1. The first step is to setup the Project's Artifacts. They are configured under `File` > `Project Structure` > `Artifacts`.
+2. Click the green + sign and select `Jar` > `From module with dependencies..`. Set the Main Class to `WheelchairGUI` and click OK.
+3. To build the artifact, select `Build` from the toolbar and click `Build Artifacts`, then `Build`. The artifacts will be exported to a folder called `out / artifacts / sysiass_wheelchair_gui_jar` under the project root folder.
+4. For everything to work properly, the `lib` folder and `run.bat` should also be copied to the output folder.
+5. Finally, the `sysiass_wheelchair_gui_jar` should be zipped and distributed.
 
-Click the green + sign and select `Jar` > `From module with dependencies..`. Set the Main Class to `WheelchairGUI` and click OK.
-
-To build the artifact, select `Build` from the toolbar and click `Build Artifacts`, then `Build`. The artifacts will be exported to a folder called `out / artifacts / sysiass_wheelchair_gui_jar` under the project root folder.
-
-For everything to work properly, the `lib` folder and `run.bat` should also be copied to the output folder.
-
-Finally, the `sysiass_wheelchair_gui_jar` should be zipped and distributed.
+## Running the Program ##
  
- 
- ## Running the Program ##
- 
- Double click `run.bat` (for Windows users) and the application will launch.
+Double click `run.bat` (for Windows users) and the application will launch.
 
 ## Important ##
 If you are trying to use Serial commands and you receive the following error:
