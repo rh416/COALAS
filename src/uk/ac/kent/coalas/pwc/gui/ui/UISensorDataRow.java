@@ -69,11 +69,6 @@ public class UISensorDataRow extends UIObject implements RowPositionTracker.YInc
         } else {
             // Otherwise, calculate the
             barWidthProportion = (double) sensor.getCurrentValue() / (double) DiagnosticsFrame.SCALE_MAX;
-
-            // TODO: Remove before production
-            if(parent.frameCount % 30 == 0) {
-                sensor.parseDataString(String.format("%04x", new Random().nextInt(DiagnosticsFrame.SCALE_MAX)));
-            }
         }
 
         barWidth = BAR_MAX_WIDTH * barWidthProportion;
