@@ -4,6 +4,7 @@ import g4p_controls.GButton;
 import g4p_controls.GConstants;
 import g4p_controls.GEvent;
 import g4p_controls.GTextArea;
+import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 import uk.ac.kent.coalas.pwc.gui.hardware.Node;
 import uk.ac.kent.coalas.pwc.gui.hardware.Zone;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
@@ -54,9 +55,9 @@ public class OverviewFrame extends WheelchairGUIFrame {
         btnScanBus.addEventHandler(this, "handleButtonEvents");
 
         txtScanResults = new GTextArea(this, 20, 350, 280, 80, GConstants.SCROLLBARS_VERTICAL_ONLY);
-        //txtScanResults.setTextEditEnabled(false);
+        txtScanResults.setTextEditEnabled(false);
         txtScanResults.setFont(logFont);
-        txtScanResults.setLocalColorScheme(GConstants.SCHEME_8);
+        txtScanResults.setLocalColorScheme(WheelchairGUI.CONSOLE_COLOUR_SCHEME);
     }
 
     @Override
@@ -129,39 +130,24 @@ public class OverviewFrame extends WheelchairGUIFrame {
         }
     }
 
+    public void scanBus(){
+
+        PWCInterface pwcI = parent.getChairInterface();
+
+        if(pwcI.isAvailable()) {
+            // Scan the bus for any nodes
+            for (int i = 1; i < 10; i++) {
+                pwcI.checkNodeExistsOnBus(i);
+            }
+        } else {
+            logToScreen("Wheelchair Interface is not connected");
+        }
+    }
+
     public void handleButtonEvents(GButton button, GEvent event){
 
         if(button == btnScanBus){
-
-            PWCInterface pwcI = parent.getChairInterface();
-
-            if(pwcI.isAvailable()) {
-
-                // Scan the bus for any nodes
-                for (int i = 1; i < 10; i++) {
-                    pwcI.checkNodeExistsOnBus(i);
-                }
-
-
-                // Simulate commands from the chair
-                pwcI.parse("S1:Y");
-                pwcI.parse("S2:Y");
-                pwcI.parse("S4:Y");
-                pwcI.parse("S5:Y");
-
-                pwcI.parse("S3:N");
-                pwcI.parse("S6:N");
-                pwcI.parse("S7:N");
-                pwcI.parse("S8:N");
-                pwcI.parse("S9:N");
-
-                pwcI.parse("C1:1gIE,1hu,1aO.");
-                pwcI.parse("C2:3cI,3eF,3bG.");
-                pwcI.parse("C4:FaE,FbJ.");
-                pwcI.parse("C5:RbIE,RcJ,RdG.");
-            } else {
-                logToScreen("Wheelchair Interface is not connected");
-            }
+            scanBus();
         }
     }
 }
