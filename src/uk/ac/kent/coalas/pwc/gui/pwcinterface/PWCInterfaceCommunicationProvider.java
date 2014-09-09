@@ -6,5 +6,6 @@ package uk.ac.kent.coalas.pwc.gui.pwcinterface;
 public interface PWCInterfaceCommunicationProvider {
 
     public boolean isAvailable();
+    public void setPWCInterface(PWCInterface pwcInterface);
     public void write(String output);
 }

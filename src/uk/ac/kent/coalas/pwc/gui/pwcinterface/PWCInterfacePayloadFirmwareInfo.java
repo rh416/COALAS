@@ -15,6 +15,8 @@ public class PWCInterfacePayloadFirmwareInfo extends PWCInterfaceEventPayload {
         super(chairInterface, response);
 
         version = response.substring(2);
+
+        chairInterface.setConnected(true);
     }
 
     public String getVersion(){

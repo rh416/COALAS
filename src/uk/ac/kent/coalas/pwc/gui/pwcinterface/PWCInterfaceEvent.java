@@ -9,7 +9,7 @@ public class PWCInterfaceEvent {
 
     public static enum EventType {ERROR, UNKNOWN, FIRMWARE_INFO, BUS_SCAN, ACK, NACK, TIMEOUT,
         NODE_CURRENT_DATA, NODE_CONFIGURATION, NODE_DATA_FORMAT, NODE_THRESHOLDS, NODE_MODE,
-        JOYSTICK_FEEDBACK}
+        JOYSTICK_FEEDBACK, CONNECTED, DISCONNECTED}
 
     private PWCInterface chairInterface;
     private EventType type;

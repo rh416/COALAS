@@ -6,7 +6,6 @@ import processing.core.PApplet;
 
 import processing.serial.Serial;
 
-import uk.ac.kent.coalas.pwc.gui.frames.ConfigurationFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.JoystickMonitorFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.OverviewFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.WheelchairGUIFrame;
@@ -17,7 +16,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -48,8 +46,6 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
     private int WindowWidth = 320;
     private int WindowHeight = 480;
 
-    private static int DUE_BAUD_RATE = 115200;        // Must match the baud rate set in the DUE firmware.
-
     public static Locale CurrentLocale = new Locale("en", "GB");
     //public static Locale CurrentLocale = new Locale("fr", "FR");
     public static ResourceBundle Strings = ResourceBundle.getBundle("uk.ac.kent.coalas.pwc.gui.locale/Strings", CurrentLocale);
@@ -59,24 +55,24 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
     private GTextArea InterfaceLogArea;
 
     private String DueSerialInfo;
+    private int DUE_BAUD_RATE = 115200;        // Must match the baud rate set in the DUE firmware.
 
     private LinkedList<String> logQueue = new LinkedList<String>();
 
     private DateFormat timestampFormatShort = new SimpleDateFormat("HH:mm:ss");
     private DateFormat timestampFormatLong = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss");
 
-    private BufferedReader SystemIn = new BufferedReader(new InputStreamReader(System.in));
-
     private int SerialListUpdateRateMs = 500;
     private long SerialListUpdateLastTime = 0;
 
-    private Serial DueSerialPort = null;
+    private PWCConsoleCommunicationProvider consoleCommsProvider = new PWCConsoleCommunicationProvider();
+    private PWCDueSerialCommunicationProvider serialCommsProvider = new PWCDueSerialCommunicationProvider();
 
     // Use this interface for debubgging using the console I/O
-    private PWCInterface DueWheelchairInterface = new PWCInterface(new PWCConsoleCommunicationProvider());
+    //private PWCInterface DueWheelchairInterface = new PWCInterface(consoleCommsProvider);
     //
     // Use this interface for communication with a Due running Diagnostics / Config Firmware
-    //private PWCInterface DueWheelchairInterface = new PWCInterface(new PWCDueSerialCommunicationProvider());
+    private PWCInterface DueWheelchairInterface = new PWCInterface(serialCommsProvider);
 
 
 
@@ -109,7 +105,8 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
         InterfaceLogArea.setFont(logFont);
         InterfaceLogArea.setLocalColorScheme(CONSOLE_COLOUR_SCHEME);
 
-        btnJoystickMonitorLaunch = new GButton(this, 25, 430, 275, 30, s("launch_joystick_monitor"));
+        btnJoystickMonitorLaunch = new GButton(this, 25, 430, 275, 30, s("launch_joystick_monitor_no_connection"));
+        btnJoystickMonitorLaunch.setEnabled(false);
     }
 
     public void draw() {
@@ -134,14 +131,7 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
             SerialListUpdateLastTime = System.currentTimeMillis();
         }
 
-        try {
-            if(SystemIn.ready()) {
-                String line = SystemIn.readLine();
-                DueWheelchairInterface.buffer(line + '\n');
-            }
-        } catch (Exception e){
-            println(e.getMessage());
-        }
+        consoleCommsProvider.checkInput();
     }
 
     public WheelchairGUIFrame addNewFrame(FrameId id, WheelchairGUIFrame frame){
@@ -239,7 +229,7 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
                 PWCInterfacePayloadError errorPayload = (PWCInterfacePayloadError)e.getPayload();
                 Exception err = errorPayload.getException();
 
-                logToScreen(timestamp() + " - " + errorPayload.getErrorMessage());
+                logToScreen(timestamp() + " - " + err.getMessage());
 
                 StringWriter sw = new StringWriter();
                 err.printStackTrace(new PrintWriter(sw));
@@ -252,6 +242,9 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
                 PWCInterfacePayloadFirmwareInfo firmwareInfo = (PWCInterfacePayloadFirmwareInfo) e.getPayload();
                 DueSerialInfo = String.format(s("firmware_response"), firmwareInfo.getVersion());
 
+                btnJoystickMonitorLaunch.setEnabled(true);
+                btnJoystickMonitorLaunch.setText(s("launch_joystick_monitor"));
+
                 //Open Overview Window
                 int xPos = frame.getX() + frame.getWidth() + 10;
                 int yPos = frame.getY();
@@ -259,11 +252,21 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
                 overview.scanBus();
                 break;
 
+            case CONNECTED:
+                // We have successfully connected - change the button text and re-enable the button
+                btnDueSerialControlButton.setText(s("disconnect"));
+                btnDueSerialControlButton.setEnabled(true);
+                break;
+
+
             case TIMEOUT:
                 PWCInterfacePayloadTimeout timeoutInfo = (PWCInterfacePayloadTimeout) e.getPayload();
                 // Check if the timeout is related to getting the version information
                 if(timeoutInfo.getRequest().getType() == PWCInterfaceEvent.EventType.FIRMWARE_INFO){
                     DueSerialInfo = String.format(s("firmware_timeout"), DueSerialPortList.getSelectedText());
+                    // Reset the button text and re-enable it
+                    btnDueSerialControlButton.setText(s("connect"));
+                    btnDueSerialControlButton.setEnabled(true);
                 }
                 break;
 
@@ -292,30 +295,18 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
         if(button == btnDueSerialControlButton && event == GEvent.CLICKED) {
             String portName = DueSerialPortList.getSelectedText();
 
-            // Close the serial port if it is already active
-            if (DueSerialPort != null) {
-                DueSerialPort.clear();
-                DueSerialPort.stop();
-            }
+            // Disconnect from the serial port
+            serialCommsProvider.disconnect();
 
             // If we are trying to connect
             if(button.getText() == s("connect")){
 
                 try {
-                    // Connect to the serial port
-                    DueSerialPort = new Serial(this, portName, DUE_BAUD_RATE);
-                    log.info("Attempting to connect to PWC on Port: " + portName);
-
-                    // Change button label for disconnection
-                    button.setText(s("disconnect"));
+                    serialCommsProvider.connect(portName, DUE_BAUD_RATE);
+                    // Change button label to show we are trying to connect and disable it
+                    button.setText(s("connecting"));
+                    button.setEnabled(false);
                     DueSerialInfo = s("connection_check");
-
-                    // Pause for a moment to give the Serial port time to open fully
-                    try{
-                        Thread.sleep(250);
-                    } catch (InterruptedException e){}
-
-                    DueWheelchairInterface.getVersion();
                 } catch (RuntimeException e){
                     e.printStackTrace();
                     DueSerialInfo = "Error: " + e.getMessage();
@@ -326,11 +317,24 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
                 // Otherwise we are trying to disconnect, so don't recreate connection but we need to change the button label
                 button.setText(s("connect"));
                 DueSerialInfo = s("connection_end");
+
+                btnJoystickMonitorLaunch.setEnabled(false);
+                btnJoystickMonitorLaunch.setText(s("launch_joystick_monitor_no_connection"));
             }
         } else if(button == btnJoystickMonitorLaunch){
-            int xPos = frame.getX() - frame.getWidth() - 10;
-            int yPos = frame.getY();
-            addNewFrame(FrameId.JOYSTICK, new JoystickMonitorFrame(WindowWidth, WindowHeight, xPos, yPos));
+
+            WheelchairGUIFrame joystickFrame =getFrame(FrameId.JOYSTICK);
+
+            // If the joystick window already exists
+            if(joystickFrame != null){
+                // Select the window and bring it to the front
+                joystickFrame.requestFocus();
+            } else {
+                // Otherwise create the window
+                int xPos = frame.getX() - frame.getWidth() - 10;
+                int yPos = frame.getY();
+                addNewFrame(FrameId.JOYSTICK, new JoystickMonitorFrame(WindowWidth, WindowHeight, xPos, yPos));
+            }
         }
     }
 
@@ -371,9 +375,18 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
 
     public class PWCConsoleCommunicationProvider implements PWCInterfaceCommunicationProvider{
 
+        private PWCInterface pwcInterface = null;
+        private BufferedReader SystemIn = new BufferedReader(new InputStreamReader(System.in));
+
         @Override
         public boolean isAvailable() {
             return true;
+        }
+
+        @Override
+        public void setPWCInterface(PWCInterface pwcInterface){
+
+            this.pwcInterface = pwcInterface;
         }
 
         @Override
@@ -381,24 +394,70 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
 
             //System.out.println(command);
         }
+
+        public void checkInput(){
+
+            try {
+                if(SystemIn.ready()) {
+                    String line = SystemIn.readLine();
+                    pwcInterface.buffer(line + '\n');
+                }
+            } catch (Exception e){
+                println(e.getMessage());
+            }
+        }
     }
 
     public class PWCDueSerialCommunicationProvider implements PWCInterfaceCommunicationProvider {
 
+        private PWCInterface pwcInterface = null;
+        private Serial transportSerialPort = null;
+
         @Override
         public boolean isAvailable() {
 
-            if(DueSerialPort == null){
+            if(transportSerialPort == null){
                 return false;
             } else{
-                return DueSerialPort.port.isOpened();
+                return transportSerialPort.port.isOpened();
             }
         }
 
         @Override
         public void write(String command) {
 
-            DueSerialPort.write(command + '\n');
+            transportSerialPort.write(command + '\n');
+        }
+
+        @Override
+        public void setPWCInterface(PWCInterface pwcInterface){
+
+            this.pwcInterface = pwcInterface;
+        }
+
+        public void connect(String portName, int baudRate){
+
+            // Connect to the serial port
+            transportSerialPort = new Serial(WheelchairGUI.this, portName, DUE_BAUD_RATE);
+            log.info("Attempting to connect to PWC on Port: " + portName);
+
+            // Pause for a moment to give the Serial port time to open fully
+            try{
+                Thread.sleep(250);
+            } catch (InterruptedException e){}
+
+            pwcInterface.getVersion();
+        }
+
+        public void disconnect(){
+
+            // Close the serial port if it is already active
+            if (transportSerialPort != null) {
+                transportSerialPort.clear();
+                transportSerialPort.stop();
+            }
+
+            pwcInterface.disconnect();
         }
     }
 

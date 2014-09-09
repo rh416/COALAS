@@ -14,6 +14,7 @@ public class PWCInterface {
     private ArrayList<PWCInterfaceListener> listeners = new ArrayList<>();
     private PWCInterfaceCommunicationProvider commsProvider;
     private ArrayList<Node> nodes = new ArrayList<>(10);
+    private boolean connected = false;
 
     private LinkedList<String> commandQueue = new LinkedList<>();
 
@@ -119,6 +120,7 @@ public class PWCInterface {
     public PWCInterface(PWCInterfaceCommunicationProvider commsProvider){
 
         this.commsProvider = commsProvider;
+        commsProvider.setPWCInterface(this);
 
         // Init nodes array - chair has a max of 9 so lets create them
         for(int i = 0; i < 9; i++){
@@ -133,6 +135,20 @@ public class PWCInterface {
 
         // Start the thread to handle sending commands
         CommandSender.start();
+    }
+
+    public void setConnected(boolean connected){
+
+        this.connected = connected;
+
+        PWCInterfaceEvent.EventType eventType = (connected ? PWCInterfaceEvent.EventType.CONNECTED : PWCInterfaceEvent.EventType.DISCONNECTED);
+        PWCInterfacePayloadConnectionStatus eventPayload = new PWCInterfacePayloadConnectionStatus(this, connected);
+        dispatchPWCInterfaceEvent(new PWCInterfaceEvent(this, eventType, eventPayload));
+    }
+
+    public void disconnect(){
+
+        setConnected(false);
     }
 
     public void registerListener(PWCInterfaceListener listener){
