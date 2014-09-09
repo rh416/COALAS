@@ -36,7 +36,7 @@ These instructions assume the use of IntelliJ, but will most likely be similar w
     1. Download Processing 2.x to your PC.
     2. Click `File` > `Project Structure`. Under `Libraries` select `Add New Project Library` > `Java` and navigate to the folder where you downloaded Processing 2.x. Select `core/library/core.jar`
     3. Download G4P.
-    4. Go back to `Libraries`, select `Add New Project Library` > `Java` and navigate to the Control5 folder. Select `library/G4P.jar`
+    4. Go back to `Libraries`, select `Add New Project Library` > `Java` and navigate to the G4P folder. Select `library/G4P.jar`
 5. You are now ready to start developing!
 
 ## Publishing ##
