@@ -12,6 +12,10 @@ public class PWCInterfacePayloadJoystickFeedback extends PWCInterfaceEventPayloa
 
     private static int parseJoystickValue(String inString){
 
+        if("   ".equals(inString)){
+            return 0;
+        }
+
         int pos =  Integer.parseInt(inString) - 100;    // This is necessary to undo the addition of 100 to values before being sent out
                                                         // which is required to ensure that all values are sent as 3 digits
 
@@ -30,6 +34,9 @@ public class PWCInterfacePayloadJoystickFeedback extends PWCInterfaceEventPayloa
     public PWCInterfacePayloadJoystickFeedback(PWCInterface chairInterface, String response) {
 
         super(chairInterface, response);
+
+        // Ensure the response is 14 characters long (2 for 'J:' + 12 for the data)
+        response = String.format("%-14s", response);
 
         // Get Joystick position for input
         int inTurn = parseJoystickValue(response.substring(2, 5));
