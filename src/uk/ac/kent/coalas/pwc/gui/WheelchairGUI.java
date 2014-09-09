@@ -348,8 +348,6 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
         // Do nothing - this stops the G4P library sending messages to the console about missing event handlers
     }
 
-
-
     public void handlePanelEvents(GPanel panel, GEvent event){
         // Do nothing - this stops the G4P library sending messages to the console about missing event handlers
     }
