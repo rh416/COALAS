@@ -11,6 +11,7 @@ import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
 import uk.ac.kent.coalas.pwc.gui.ui.UINode;
 
 import java.awt.*;
+import java.awt.event.WindowEvent;
 import java.util.EnumMap;
 import java.util.LinkedList;
 
@@ -127,6 +128,12 @@ public class OverviewFrame extends WheelchairGUIFrame {
             case ERROR:
                 PWCInterfacePayloadError errorPayload = (PWCInterfacePayloadError)payload;
                 logToScreen(s("error_occurred_check_log"));
+                break;
+
+            case DISCONNECTED:
+                // Close the window when the chair is disconnected
+                getFrame().dispatchEvent(new WindowEvent(getFrame(), WindowEvent.WINDOW_CLOSING));
+                break;
         }
     }
 

@@ -7,6 +7,7 @@ import shapes.JRectangle;
 import uk.ac.kent.coalas.pwc.gui.hardware.JoystickPosition;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
 
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 
 /**
@@ -140,6 +141,11 @@ public class JoystickMonitorFrame extends WheelchairGUIFrame {
                 inputPosition = joystickPayload.getInputPosition();
                 outputPosition = joystickPayload.getOutputPosition();
                 setMarkerPositions();
+                break;
+
+            case DISCONNECTED:
+                // Close the window when the chair is disconnected
+                getFrame().dispatchEvent(new WindowEvent(getFrame(), WindowEvent.WINDOW_CLOSING));
                 break;
         }
 

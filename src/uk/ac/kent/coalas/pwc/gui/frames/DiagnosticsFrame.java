@@ -11,6 +11,7 @@ import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfacePayloadNodeDataFormat;
 import uk.ac.kent.coalas.pwc.gui.ui.RowPositionTracker;
 import uk.ac.kent.coalas.pwc.gui.ui.UIZoneDataRow;
 
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -102,20 +103,22 @@ public class DiagnosticsFrame extends WheelchairGUIFrame {
             updateSensorData();
         }
 
-        // Iterate through all monitored zones and output their data
-        for(UIZoneDataRow zoneRow : zoneDataRows){
-            zoneRow.draw();
+        // Iterate through all monitored zones and output their data. Synchronize the list to prevent errors from editing the list from another thread
+        synchronized (zoneDataRows) {
+            for (UIZoneDataRow zoneRow : zoneDataRows) {
+                zoneRow.draw();
 
-            // If we have reached the bottom of the window, show a warning that too many zones are being monitored
-            if(positionTracker.getY() > MAX_Y_POSITION){
-                noStroke();
-                fill(255);
-                rect(0, height - 40, width, 40);
-                textAlign(CENTER);
-                textSize(12);
-                fill(50);
-                text(s("too_many_zones"), width / 2, height - 40);
-                break;
+                // If we have reached the bottom of the window, show a warning that too many zones are being monitored
+                if (positionTracker.getY() > MAX_Y_POSITION) {
+                    noStroke();
+                    fill(255);
+                    rect(0, height - 40, width, 40);
+                    textAlign(CENTER);
+                    textSize(12);
+                    fill(50);
+                    text(s("too_many_zones"), width / 2, height - 40);
+                    break;
+                }
             }
         }
     }
@@ -124,9 +127,12 @@ public class DiagnosticsFrame extends WheelchairGUIFrame {
 
         zoneDataRows.clear();
 
-        for(Zone zone : monitoredZones){
-            if(zone != null){
-                zoneDataRows.add(new UIZoneDataRow(this, zone, positionTracker));
+        //  Synchronize the list to prevent errors from editing the list from another thread
+        synchronized (monitoredZones) {
+            for (Zone zone : monitoredZones) {
+                if (zone != null) {
+                    zoneDataRows.add(new UIZoneDataRow(this, zone, positionTracker));
+                }
             }
         }
     }
@@ -156,6 +162,11 @@ public class DiagnosticsFrame extends WheelchairGUIFrame {
                 // ... and request its data
                 chairInterface.requestNodeCurrentData(eventNode);
                 break;
+
+            case DISCONNECTED:
+                // Close the window when the chair is disconnected
+                getFrame().dispatchEvent(new WindowEvent(getFrame(), WindowEvent.WINDOW_CLOSING));
+                break;
         }
 
     }
@@ -164,22 +175,25 @@ public class DiagnosticsFrame extends WheelchairGUIFrame {
 
         Node previousNode = null;
 
-        for(Zone zone : monitoredZones){
-            if(zone != null){
-                // As this list of zones is ordered by Node then Zone Number, we can use this to only request data
-                // once per Node, even if several Zones are being monitored.
-                if(zone.getParentNode() != previousNode){
-                    previousNode = zone.getParentNode();
+        //  Synchronize the list to prevent errors from editing the list from another thread
+        synchronized (monitoredZones){
+            for(Zone zone : monitoredZones) {
+                if (zone != null) {
+                    // As this list of zones is ordered by Node then Zone Number, we can use this to only request data
+                    // once per Node, even if several Zones are being monitored.
+                    if (zone.getParentNode() != previousNode) {
+                        previousNode = zone.getParentNode();
 
-                    PWCInterface chairInterface = parent.getChairInterface();
+                        PWCInterface chairInterface = parent.getChairInterface();
 
-                    // Do we know how this node expects to receive data?
-                    if(previousNode.isDataFormatKnown()) {
-                        // If we do, request some data
-                        chairInterface.requestNodeCurrentData(previousNode);
-                    } else {
-                        // If not, request the data format - there's no point requesting data otherwise
-                        chairInterface.requestNodeDataFormat(previousNode);
+                        // Do we know how this node expects to receive data?
+                        if (previousNode.isDataFormatKnown()) {
+                            // If we do, request some data
+                            chairInterface.requestNodeCurrentData(previousNode);
+                        } else {
+                            // If not, request the data format - there's no point requesting data otherwise
+                            chairInterface.requestNodeDataFormat(previousNode);
+                        }
                     }
                 }
             }

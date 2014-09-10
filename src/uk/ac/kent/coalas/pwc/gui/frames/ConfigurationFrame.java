@@ -9,6 +9,7 @@ import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
 import uk.ac.kent.coalas.pwc.gui.ui.RowPositionTracker;
 import uk.ac.kent.coalas.pwc.gui.ui.UIZoneConfigRow;
 
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.EnumMap;
 
@@ -103,6 +104,11 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
 
                 // If we are receiving an Ack, that is a good thing - anything else is bad
                 responsePositive = (eventType == PWCInterfaceEvent.EventType.ACK);
+                break;
+
+            case DISCONNECTED:
+                // Close the window when the chair is disconnected
+                getFrame().dispatchEvent(new WindowEvent(getFrame(), WindowEvent.WINDOW_CLOSING));
                 break;
         }
 
