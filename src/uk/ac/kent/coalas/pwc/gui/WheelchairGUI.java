@@ -220,7 +220,7 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
     public void onPWCInterfaceEvent(PWCInterfaceEvent e) {
 
         // Uncomment this line for detailed logging - will be a lot of data if Diagnostics window is used
-        logToScreen(timestamp() + " - " + e.getPayload().getResponse());
+        //logToScreen(timestamp() + " - " + e.getPayload().getResponse());
 
         // Handle any specific events we want to here
         switch(e.getType()){
@@ -231,11 +231,8 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
 
                 logToScreen(timestamp() + " - " + err.getMessage());
 
-                StringWriter sw = new StringWriter();
-                err.printStackTrace(new PrintWriter(sw));
-                String exceptionAsString = sw.toString();
+                err.printStackTrace();
 
-                println(exceptionAsString);
                 break;
 
             case FIRMWARE_INFO:
@@ -269,9 +266,17 @@ public class WheelchairGUI extends PApplet implements PWCInterfaceListener {
                     btnDueSerialControlButton.setEnabled(true);
                 }
                 break;
+        }
 
-            default:
+        // Choose which events we wanted to be shown in the on-screen log - all events are logged to file
+        switch(e.getType()){
+
+            case FIRMWARE_INFO:
+            case BUS_SCAN:
+
                 logToScreen(timestamp() + " - " + e.getType());
+                break;
+
         }
     }
 
