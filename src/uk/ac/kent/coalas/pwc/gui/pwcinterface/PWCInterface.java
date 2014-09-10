@@ -11,7 +11,7 @@ import java.util.*;
  */
 public class PWCInterface {
 
-    private ArrayList<PWCInterfaceListener> listeners = new ArrayList<>();
+    private ArrayList<PWCInterfaceListener> listeners = new ArrayList<PWCInterfaceListener>();
     private PWCInterfaceCommunicationProvider commsProvider;
     private ArrayList<Node> nodes = new ArrayList<>(10);
     private boolean connected = false;
@@ -595,8 +595,9 @@ public class PWCInterface {
 
         log.info("Event Dispatched: " + event.getType());
 
+        ArrayList<PWCInterfaceListener> listenersIterator = new ArrayList<PWCInterfaceListener>(listeners);
         // Send the event out to any registered listener
-        for(PWCInterfaceListener listener : listeners){
+        for (PWCInterfaceListener listener : listenersIterator) {
             listener.onPWCInterfaceEvent(event);
         }
     }
