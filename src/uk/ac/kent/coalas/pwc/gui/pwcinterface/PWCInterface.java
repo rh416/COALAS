@@ -148,7 +148,10 @@ public class PWCInterface {
 
     public void disconnect(){
 
-        setConnected(false);
+        // Only 'DISCONNECT' if the interface is already connected
+        if(connected) {
+            setConnected(false);
+        }
     }
 
     public void registerListener(PWCInterfaceListener listener){
