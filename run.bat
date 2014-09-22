@@ -1,6 +1,6 @@
 @echo off
 
-:: Get the path to the user's Java Installation
+:: Get the path to the user's Java Installation - set the initial values to be blank
 set JRE_PATH=
 set JDK_PATH=
 
@@ -17,7 +17,7 @@ FOR /F "skip=2 tokens=2*" %%A IN ('REG QUERY "HKLM\Software\JavaSoft\Java Develo
 FOR /F "skip=2 tokens=2*" %%A IN ('REG QUERY "HKLM\Software\JavaSoft\Java Development Kit\%CurVer%" /v JavaHome 2^>nul') DO set JDK_PATH=%%B
 
 :: If the JRE Path wasn't found, use the JDK Path
-if [%JRE_PATH%] == [] (
+if "%JRE_PATH%" == "" (
     set JAVA_PATH=%JDK_PATH%
 ) else (
 :: Otherwise, use the JRE Path
@@ -25,8 +25,8 @@ if [%JRE_PATH%] == [] (
 )
 
 :: If we still don't have a path to Java, show an error and stop
-if [%JAVA_PATH] == [] (
-    echo No Java installation found! Please install Java
+if "%JAVA_PATH%" == "" (
+    echo No Java installation found! Please install Java 1.7 or later
     :: Exit the script
     GOTO:EOF
 ) else (
@@ -38,12 +38,12 @@ PATH %PATH%;%JAVA_PATH%\bin\
 :: Detect the version of Java in use (it must be at least 1.7)
 FOR /F tokens^=2-5^ delims^=.-_^" %%j in ('java -fullversion 2^>^&1') do set "JAVA_VERSION=%%j%%k%%l%%m"
 if %JAVA_VERSION% LSS 17000 (
-    echo Please install a Java version 1.7 or later
+    echo Please install Java version 1.7 or later
     :: Exit the script
     GOTO:EOF
     )
 
-:: Detect which version (32 vs 64 bit) of Jav is running
+:: Detect which version (32 vs 64 bit) of Java is running
 
 :: Check for 32-bit Java
 FOR /F "delims=" %%a in ('java -d32 2^>^&1') do set JAVA_RESPONSE_32=%%a
