@@ -28,7 +28,7 @@ This software requires at least version 1.7 of Java to be installed on the machi
 
 ## Installation ##
 Please don't checkout at this time - instructions need to be updated!
-~~These instructions assume the use of IntelliJ, but will most likely be similar whatever IDE you use.
+<del>These instructions assume the use of IntelliJ, but will most likely be similar whatever IDE you use.
 
 1. Checkout the code from the repository: Click `VCS` > `Checkout from Version Control` > `Git` (not GitHub)
 2. Paste in this URL: `http://84.200.70.31/sysiass-wheelchair-configuration-tools/sysiass-wheelchar-gui.git` and click `Clone`
@@ -38,7 +38,7 @@ Please don't checkout at this time - instructions need to be updated!
     2. Click `File` > `Project Structure`. Under `Libraries` select `Add New Project Library` > `Java` and navigate to the folder where you downloaded Processing 2.x. Select `core/library/core.jar`
     3. Download G4P.
     4. Go back to `Libraries`, select `Add New Project Library` > `Java` and navigate to the G4P folder. Select `library/G4P.jar`
-5. You are now ready to start developing!~~
+5. You are now ready to start developing!</del>
 
 ## Publishing ##
 Once development is complete its time to release a runnable application! The following steps outline the process:
