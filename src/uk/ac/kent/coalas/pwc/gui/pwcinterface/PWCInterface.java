@@ -179,9 +179,9 @@ public class PWCInterface {
      *
      * Immediately returns void, but will initiate a FIRMWARE_INFO event when the chair responds
      */
-    public void getVersion(){
+    public void requestVersion(){
 
-        bufferCommand(PWCInterfaceEvent.EventType.FIRMWARE_INFO, 0, "V");
+        bufferCommand(PWCInterfaceEvent.EventType.FIRMWARE_INFO, 0, "I");
     }
 
 
@@ -309,6 +309,31 @@ public class PWCInterface {
     public void requestNodeDataFormat(int nodeId){
 
         bufferCommand(PWCInterfaceEvent.EventType.NODE_DATA_FORMAT, nodeId, "F%d");
+    }
+
+
+    /**
+     * Request the firmware version from a node on the RS-485 bus
+     *
+     * Immediately returns void, but will initiate a NODE_FIRMWARE_INFO event when the chair response
+     *
+     *  @param node         The Node whose firmware version is to be returned
+     */
+    public void requestNodeFirmwareVersion(Node node){
+
+        requestNodeFirmwareVersion(node.getId());
+    }
+
+    /**
+     * Request the firmware version from a node on the RS-485 bus
+     *
+     * Immediately returns void, but will initiate a NODE_FIRMWARE_INFO event when the chair response
+     *
+     *  @param nodeId       The ID of a Node whose firmware version is to be returned
+     */
+    public void requestNodeFirmwareVersion(int nodeId){
+
+        bufferCommand(PWCInterfaceEvent.EventType.NODE_FIRMWARE_INFO, nodeId, "V%d");
     }
 
 
@@ -497,9 +522,15 @@ public class PWCInterface {
                     return;
 
                 // Version information from the firmware
-                case 'V':
+                case 'I':
                     type = PWCInterfaceEvent.EventType.FIRMWARE_INFO;
                     payload = new PWCInterfacePayloadFirmwareInfo(this, response);
+                    break;
+
+                // The version of the firmware running on the specified Node
+                case 'V':
+                    type = PWCInterfaceEvent.EventType.NODE_FIRMWARE_INFO;
+                    payload = new PWCInterfacePayloadNodeFirmwareInfo(this, response);
                     break;
 
                 // Result from requesting node configuration

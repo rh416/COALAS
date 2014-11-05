@@ -19,6 +19,7 @@ public class Node {
     private boolean connected = false;
     private boolean dataFormatKnown = true; // TODO: Change this to false for production
     private boolean hasTimedOut = false;
+    private NodeVersion nodeVersion;
 
     public Node(int nodeId){
 
@@ -106,6 +107,16 @@ public class Node {
     }
 
     /**
+     * Return this Node's firmware version
+     *
+     * @return This Node's firmware version
+     */
+    public NodeVersion getFirmwareVersion(){
+
+        return nodeVersion;
+    }
+
+    /**
      * Get the number of sensors found in this Node.
      *
      * @return The number of sensors in this Node
@@ -174,6 +185,16 @@ public class Node {
     public void setDataFormatKnown(boolean dataFormatKnown){
 
         this.dataFormatKnown = dataFormatKnown;
+    }
+
+    /**
+     * Set the firmware version for this Node
+     *
+     * @param nodeVersion   The Node's Firmware Version
+     */
+    public void setFirmwareVersion(NodeVersion nodeVersion){
+
+        this.nodeVersion = nodeVersion;
     }
 
     /**
