@@ -102,6 +102,9 @@ public class OverviewFrame extends WheelchairGUIFrame {
 
                 // If the node is connected, request its configuration so that we can display its status
                 if(eventNode.isConnectedToBus()){
+                    // Get the node's firmware information
+                    chairInterface.requestNodeFirmwareVersion(eventNode);
+
                     // Get the configuration so that it can be displayed to the user
                     chairInterface.requestNodeConfiguration(eventNode);
 
@@ -132,7 +135,7 @@ public class OverviewFrame extends WheelchairGUIFrame {
 
             case DISCONNECTED:
                 // Close the window when the chair is disconnected
-                getFrame().dispatchEvent(new WindowEvent(getFrame(), WindowEvent.WINDOW_CLOSING));
+                getViewFrame().dispatchEvent(new WindowEvent(getViewFrame(), WindowEvent.WINDOW_CLOSING));
                 break;
         }
     }

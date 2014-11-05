@@ -51,4 +51,9 @@ public abstract class UIObject {
 
         return WheelchairGUI.s(stringName);
     }
+
+    protected WheelchairGUI getMainApplication(){
+
+        return WheelchairGUI.getInstance();
+    }
 }

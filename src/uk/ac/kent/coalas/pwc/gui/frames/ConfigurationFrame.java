@@ -1,7 +1,6 @@
 package uk.ac.kent.coalas.pwc.gui.frames;
 
 import g4p_controls.*;
-import processing.core.PApplet;
 import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 import uk.ac.kent.coalas.pwc.gui.hardware.Node;
 import uk.ac.kent.coalas.pwc.gui.hardware.Zone;
@@ -9,6 +8,7 @@ import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
 import uk.ac.kent.coalas.pwc.gui.ui.RowPositionTracker;
 import uk.ac.kent.coalas.pwc.gui.ui.UIZoneConfigRow;
 
+import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -24,7 +24,7 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
 
     private Node node;
 
-    private GLabel lblConfigNodeTitle;
+    private GLabel lblConfigNodeTitle, lblFirmwareInfo;
     private GButton btnConfigureChair, btnSetMode, btnSetThresholds;
     private GDropList listUltrasoundMode;
     private GLabel lblThreshold1, lblThreshold2, lblThreshold3;
@@ -62,6 +62,10 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
 
         // Create window title
         lblConfigNodeTitle = new GLabel(this, 0, 10, width, 20);
+
+        // Create firmware info label
+        lblFirmwareInfo = new GLabel(this, 5, 10, 60, 20);
+        lblFirmwareInfo.setFont(new Font("Arial", Font.PLAIN, 10));
 
         setConfigAppearance();
     }
@@ -108,7 +112,7 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
 
             case DISCONNECTED:
                 // Close the window when the chair is disconnected
-                getFrame().dispatchEvent(new WindowEvent(getFrame(), WindowEvent.WINDOW_CLOSING));
+                getViewFrame().dispatchEvent(new WindowEvent(getViewFrame(), WindowEvent.WINDOW_CLOSING));
                 break;
         }
 
@@ -148,8 +152,9 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
 
         if(node != null){
             String windowTitle = String.format(s("title_config"), node.getId());
-            getFrame().setTitle(windowTitle);
+            getViewFrame().setTitle(windowTitle);
             lblConfigNodeTitle.setText(windowTitle);
+            lblFirmwareInfo.setText(String.format(s("node_firmware_version"), node.getFirmwareVersion().toString()));
 
             createSensorConfigPanel();
             createThresholdsPanel();

@@ -165,7 +165,7 @@ public class DiagnosticsFrame extends WheelchairGUIFrame {
 
             case DISCONNECTED:
                 // Close the window when the chair is disconnected
-                getFrame().dispatchEvent(new WindowEvent(getFrame(), WindowEvent.WINDOW_CLOSING));
+                getViewFrame().dispatchEvent(new WindowEvent(getViewFrame(), WindowEvent.WINDOW_CLOSING));
                 break;
         }
 

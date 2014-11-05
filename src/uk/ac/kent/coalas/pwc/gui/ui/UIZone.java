@@ -68,7 +68,7 @@ public class UIZone extends UIObject {
     public void draw() {
 
         // If the diagnostics window is closed and the cursor is not over this zone, set the colour to default
-        if(parent.getMainApp().getFrame(WheelchairGUI.FrameId.DIAGNOSTICS) == null && !zoneIndicator.isMouseOver()){
+        if(getMainApplication().getFrame(WheelchairGUI.FrameId.DIAGNOSTICS) == null && !zoneIndicator.isMouseOver()){
             zoneIndicator.setFillColour(ZONE_COLOUR);
         }
 
@@ -80,7 +80,7 @@ public class UIZone extends UIObject {
         @Override
         public void shapeEntered(JShape shape) {
 
-            DiagnosticsFrame diagnosticsFrame = (DiagnosticsFrame) parent.getMainApp().getFrame(WheelchairGUI.FrameId.DIAGNOSTICS);
+            DiagnosticsFrame diagnosticsFrame = (DiagnosticsFrame) getMainApplication().getFrame(WheelchairGUI.FrameId.DIAGNOSTICS);
 
             // If the diagnostics frame is not visible, the zone cannot be being monitored, so use the normal highlight colour
             if(diagnosticsFrame == null){
@@ -97,7 +97,7 @@ public class UIZone extends UIObject {
         @Override
         public void shapeExited(JShape shape) {
 
-            DiagnosticsFrame diagnosticsFrame = (DiagnosticsFrame) parent.getMainApp().getFrame(WheelchairGUI.FrameId.DIAGNOSTICS);
+            DiagnosticsFrame diagnosticsFrame = (DiagnosticsFrame) getMainApplication().getFrame(WheelchairGUI.FrameId.DIAGNOSTICS);
 
             // If the diagnostics frame is not visible, the zone cannot be being monitored, so reset the zone colour
             if(diagnosticsFrame == null){
@@ -116,14 +116,14 @@ public class UIZone extends UIObject {
 
             // Only carry out the following if the click event has been stopped from somewhere else
             if(!parent.CLICK_EVENT_STOPPED) {
-                DiagnosticsFrame diagnosticsFrame = (DiagnosticsFrame) parent.getMainApp().getFrame(WheelchairGUI.FrameId.DIAGNOSTICS);
+                DiagnosticsFrame diagnosticsFrame = (DiagnosticsFrame) getMainApplication().getFrame(WheelchairGUI.FrameId.DIAGNOSTICS);
 
                 if (diagnosticsFrame == null) {
                     int w = parent.width;
                     int h = parent.height;
-                    int x = parent.getFrame().getX() + w + 10;
-                    int y = parent.getFrame().getY();
-                    diagnosticsFrame = (DiagnosticsFrame) parent.getMainApp().addNewFrame(WheelchairGUI.FrameId.DIAGNOSTICS, new DiagnosticsFrame(w, h, x, y));
+                    int x = parent.getViewFrame().getX() + w + 10;
+                    int y = parent.getViewFrame().getY();
+                    diagnosticsFrame = (DiagnosticsFrame) getMainApplication().addNewFrame(WheelchairGUI.FrameId.DIAGNOSTICS, new DiagnosticsFrame(w, h, x, y));
                 }
 
                 if (diagnosticsFrame.isZoneBeingMonitored(dataZone)) {
