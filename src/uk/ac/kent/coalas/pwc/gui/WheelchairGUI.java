@@ -108,8 +108,8 @@ public class WheelchairGUI implements PWCInterfaceListener {
             } catch (Exception ex){
                 // For any errors, report the message back to the console / log file
                 log.error(ex.getMessage());
+                System.exit(1);
             }
-
         }
     }
 
@@ -151,6 +151,9 @@ public class WheelchairGUI implements PWCInterfaceListener {
             for(String port : ports){
                 OutputHeadlessDataLn(port);
             }
+
+            System.exit(0);
+
         } else if(HEADLESS_Mode == HeadlessMode.MONITOR_JOYSTICK){
             if(HEADLESS_ComPort == null){
                 throw new Exception("Please specify the serial port that the chair is connected to");
@@ -219,6 +222,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
                 int outSpeed = joystickFeedback.getOutputPosition().getSpeed();
                 int outTurn = joystickFeedback.getOutputPosition().getTurn();
 
+                // Output the Joystick data as 3 digit number from -100 to +100 for each one of
                 OutputHeadlessDataLn(String.format("%03d%03d%03d%03d", inSpeed, inTurn, inSpeed, inTurn));
             }
         }
