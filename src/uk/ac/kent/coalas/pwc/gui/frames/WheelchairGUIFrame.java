@@ -17,6 +17,7 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
 
     protected WheelchairGUI parent;
     private final Frame containingFrame;
+    private WheelchairGUI.FrameId frameId;
 
     private int frameWidth, frameHeight;
 
@@ -97,6 +98,16 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
     public WheelchairGUI getMainApplication(){
 
         return WheelchairGUI.getInstance();
+    }
+
+    public WheelchairGUI.FrameId getFrameId(){
+
+        return frameId;
+    }
+
+    public void setFrameId(WheelchairGUI.FrameId frameId){
+
+        this.frameId = frameId;
     }
 
     public void handleTextEvents(GEditableTextControl textControl, GEvent event){

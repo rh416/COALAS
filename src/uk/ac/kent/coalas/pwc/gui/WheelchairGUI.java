@@ -181,6 +181,8 @@ public class WheelchairGUI implements PWCInterfaceListener {
         getChairInterface().registerListener(frame);
         // Record that this frame is open
         frames.put(id, frame);
+        // Record this frame's ID
+        frame.setFrameId(id);
         return frame;
     }
 
@@ -197,8 +199,16 @@ public class WheelchairGUI implements PWCInterfaceListener {
 
     public void childWindowClosing(WheelchairGUIFrame frame){
 
+        // Stop receiving events from the Wheelchair Interface
         getChairInterface().unregisterListener(frame);
-        frames.remove(frame);
+        // Remove this frame from the list of open windows
+        frames.remove(frame.getFrameId());
+
+        // If this window was the last one or the main window, close the application
+        if(frames.size() == 0 || frame.getFrameId() == FrameId.MAIN){
+            System.exit(0);
+        }
+
     }
 
     public static PWCInterface getChairInterface(){
