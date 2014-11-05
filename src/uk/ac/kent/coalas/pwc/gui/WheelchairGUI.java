@@ -388,7 +388,9 @@ public class WheelchairGUI implements PWCInterfaceListener {
                 }
             }
 
-            pwcInterface.disconnect();
+            if(pwcInterface != null) {
+                pwcInterface.disconnect();
+            }
         }
     }
 
