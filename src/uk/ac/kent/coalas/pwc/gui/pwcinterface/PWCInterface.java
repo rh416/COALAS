@@ -479,6 +479,11 @@ public class PWCInterface {
 
     public void buffer(String inString){
 
+        // Ignore null strings
+        if(inString == null){
+            return;
+        }
+
         // Append the input to the current buffer
         buffer += inString;
 

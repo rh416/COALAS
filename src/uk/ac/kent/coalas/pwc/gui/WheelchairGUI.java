@@ -59,10 +59,10 @@ public class WheelchairGUI implements PWCInterfaceListener {
     private static PWCDueSerialCommunicationProvider serialCommsProvider = new PWCDueSerialCommunicationProvider();
 
     // Use this interface for debubgging using the console I/O
-    private static PWCInterface DueWheelchairInterface = new PWCInterface(consoleCommsProvider);
+    //private static PWCInterface DueWheelchairInterface = new PWCInterface(consoleCommsProvider);
     //
     // Use this interface for communication with a Due running Diagnostics / Config Firmware
-    //private static PWCInterface DueWheelchairInterface = new PWCInterface(serialCommsProvider);
+    private static PWCInterface DueWheelchairInterface = new PWCInterface(serialCommsProvider);
 
 
     public static void main(String args[]) {
@@ -328,6 +328,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
 
         private PWCInterface pwcInterface = null;
         private SerialPort transportSerialPort = null;
+        StringBuilder buffer = new StringBuilder();
 
         @Override
         public boolean isAvailable() {
@@ -384,8 +385,21 @@ public class WheelchairGUI implements PWCInterfaceListener {
 
                 // Try reading it
                 try {
-                    // Send the input to the interface to be buffered
-                    DueWheelchairInterface.buffer(transportSerialPort.readString());
+                    // Send the input to the interface to be buffered, broken up by new line
+                    byte[] byteBuffer = transportSerialPort.readBytes();
+
+                    if(byteBuffer != null) {
+                        for (byte b : byteBuffer) {
+                            // Add the byte to the buffer
+                            buffer.append((char) b);
+
+                            // If this is the end of a line
+                            if (b == '\r' || b == '\n') {
+                                DueWheelchairInterface.buffer(buffer.toString());
+                                buffer.setLength(0);
+                            }
+                        }
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
