@@ -2,7 +2,7 @@ package uk.ac.kent.coalas.pwc.gui.frames;
 
 import g4p_controls.*;
 import jssc.SerialPortException;
-import processing.serial.Serial;
+import jssc.SerialPortList;
 import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
 
@@ -116,7 +116,7 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
 
     private void updateSerialPortList(int index){
 
-        String[] portList = Serial.list();
+        String[] portList = SerialPortList.getPortNames();
         int validIndex = Math.min(index, portList.length - 1);
 
         String currentSelectedItem = DueSerialPortList.getSelectedText();
