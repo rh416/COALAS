@@ -144,6 +144,8 @@ public class WheelchairGUI implements PWCInterfaceListener {
 
     private static void LaunchHeadlessMode() throws Exception{
 
+        OutputHeadlessDataLn("Wheelchair UI - Headless Mode Started");
+
         if(HEADLESS_Mode == HeadlessMode.LIST_SERIAL_PORTS){
 
             String[] ports = SerialPortList.getPortNames();
@@ -160,7 +162,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
             }
 
             // Connect to the given com port
-            serialCommsProvider.connect(HEADLESS_ComPort, HEADLESS_BaudRate);
+            //serialCommsProvider.connect(HEADLESS_ComPort, HEADLESS_BaudRate);
         }
 
     }
@@ -231,9 +233,10 @@ public class WheelchairGUI implements PWCInterfaceListener {
                 int inTurn = joystickFeedback.getInputPosition().getTurn();
                 int outSpeed = joystickFeedback.getOutputPosition().getSpeed();
                 int outTurn = joystickFeedback.getOutputPosition().getTurn();
+                boolean isAvoidanceEnabled = joystickFeedback.getIsAvoidanceEnabled();
 
                 // Output the Joystick data as 3 digit number from -100 to +100 for each one of
-                OutputHeadlessDataLn(String.format("%03d%03d%03d%03d", inSpeed, inTurn, inSpeed, inTurn));
+                OutputHeadlessDataLn(String.format("%03d%03d%03d%03d%1b", inTurn, inSpeed, outTurn, outSpeed, isAvoidanceEnabled));
             }
         }
 
