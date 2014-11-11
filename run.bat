@@ -60,5 +60,5 @@ if "%JAVA_RESPONSE_32%" == "Please install the desired version." (
 )
 
 :: Run the program
-"java" -Djava.library.path=lib/serial/%PLATFORM%/ -jar sysiass-wheelchair-gui.jar
+java -jar sysiass-wheelchair-gui.jar
 pause

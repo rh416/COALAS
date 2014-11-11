@@ -10,6 +10,8 @@ import uk.ac.kent.coalas.pwc.gui.hardware.JoystickPosition;
  */
 public class PWCInterfacePayloadJoystickFeedback extends PWCInterfaceEventPayload {
 
+    private boolean isAvoidanceEnabled;
+
     private static int parseJoystickValue(String inString){
 
         if("   ".equals(inString)){
@@ -47,6 +49,9 @@ public class PWCInterfacePayloadJoystickFeedback extends PWCInterfaceEventPayloa
         int outTurn = parseJoystickValue(response.substring(8, 11));
         int outSpeed = parseJoystickValue(response.substring(11, 14));
         outputPosition = new JoystickPosition(outTurn, outSpeed);
+
+        // Check whether the last character is set to 1 or 0
+        isAvoidanceEnabled = "1".equals(response.substring(14, 15));
     }
 
     public JoystickPosition getInputPosition(){
@@ -57,5 +62,10 @@ public class PWCInterfacePayloadJoystickFeedback extends PWCInterfaceEventPayloa
     public JoystickPosition getOutputPosition(){
 
         return outputPosition;
+    }
+
+    public boolean getIsAvoidanceEnabled(){
+
+        return isAvoidanceEnabled;
     }
 }

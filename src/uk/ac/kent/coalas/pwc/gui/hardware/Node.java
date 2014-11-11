@@ -116,6 +116,16 @@ public class Node {
         return nodeVersion;
     }
 
+
+    public String getFirmwareVersionString(){
+
+        if(getFirmwareVersion() != null){
+            return getFirmwareVersion().toString();
+        } else {
+            return "??.??";
+        }
+    }
+
     /**
      * Get the number of sensors found in this Node.
      *

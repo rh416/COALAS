@@ -479,6 +479,11 @@ public class PWCInterface {
 
     public void buffer(String inString){
 
+        // Ignore null strings
+        if(inString == null){
+            return;
+        }
+
         // Append the input to the current buffer
         buffer += inString;
 
@@ -508,82 +513,87 @@ public class PWCInterface {
 
         log.info("Response received: " + response);
 
-        // Get first character to determine response type
-        char firstChar = response.charAt(0);
-
         PWCInterfaceEvent.EventType type = PWCInterfaceEvent.EventType.UNKNOWN;
         PWCInterfaceEventPayload payload = null;
 
         try {
-            switch (firstChar) {
 
-                // Ignore lines that start with an underscore _
-                case '_':
-                    return;
+            // Check that the second or third letter is a colon - only valid responses will have a colon as the second character.
+            if(":".equals(response.charAt(1)) || ":".equals(response.charAt(2))) {
 
-                // Version information from the firmware
-                case 'I':
-                    type = PWCInterfaceEvent.EventType.FIRMWARE_INFO;
-                    payload = new PWCInterfacePayloadFirmwareInfo(this, response);
-                    break;
+                // Get first character to determine response type
+                char firstChar = response.charAt(0);
 
-                // The version of the firmware running on the specified Node
-                case 'V':
-                    type = PWCInterfaceEvent.EventType.NODE_FIRMWARE_INFO;
-                    payload = new PWCInterfacePayloadNodeFirmwareInfo(this, response);
-                    break;
+                switch (firstChar) {
 
-                // Result from requesting node configuration
-                case 'C':
-                    type = PWCInterfaceEvent.EventType.NODE_CONFIGURATION;
-                    payload = new PWCInterfacePayloadNodeConfiguration(this, response);
-                    break;
+                    // Ignore lines that start with an underscore _
+                    case '_':
+                        return;
 
-                // Result of scanning whether a node exists or not
-                case 'S':
-                    type = PWCInterfaceEvent.EventType.BUS_SCAN;
-                    payload = new PWCInterfacePayloadBusScan(this, response);
-                    break;
+                    // Version information from the firmware
+                    case 'I':
+                        type = PWCInterfaceEvent.EventType.FIRMWARE_INFO;
+                        payload = new PWCInterfacePayloadFirmwareInfo(this, response);
+                        break;
 
-                // Result from requesting node data format
-                case 'F':
-                    type = PWCInterfaceEvent.EventType.NODE_DATA_FORMAT;
-                    payload = new PWCInterfacePayloadNodeDataFormat(this, response);
-                    break;
+                    // The version of the firmware running on the specified Node
+                    case 'V':
+                        type = PWCInterfaceEvent.EventType.NODE_FIRMWARE_INFO;
+                        payload = new PWCInterfacePayloadNodeFirmwareInfo(this, response);
+                        break;
 
-                // Diagnostic information from sensors
-                case 'D':
-                    type = PWCInterfaceEvent.EventType.NODE_CURRENT_DATA;
-                    payload = new PWCInterfacePayloadNodeCurrentData(this, response);
-                    break;
+                    // Result from requesting node configuration
+                    case 'C':
+                        type = PWCInterfaceEvent.EventType.NODE_CONFIGURATION;
+                        payload = new PWCInterfacePayloadNodeConfiguration(this, response);
+                        break;
 
-                // Detect Acks from the node
-                case 'Y':
-                    type = PWCInterfaceEvent.EventType.ACK;
-                    payload = new PWCInterfacePayloadAckNack(this, response);
-                    break;
+                    // Result of scanning whether a node exists or not
+                    case 'S':
+                        type = PWCInterfaceEvent.EventType.BUS_SCAN;
+                        payload = new PWCInterfacePayloadBusScan(this, response);
+                        break;
 
-                // Detect Nacks from the node
-                case 'N':
-                    type = PWCInterfaceEvent.EventType.NACK;
-                    payload = new PWCInterfacePayloadAckNack(this, response);
-                    break;
+                    // Result from requesting node data format
+                    case 'F':
+                        type = PWCInterfaceEvent.EventType.NODE_DATA_FORMAT;
+                        payload = new PWCInterfacePayloadNodeDataFormat(this, response);
+                        break;
 
-                // Detect Joystick position data
-                case 'J':
-                    type = PWCInterfaceEvent.EventType.JOYSTICK_FEEDBACK;
-                    payload = new PWCInterfacePayloadJoystickFeedback(this, response);
-                    break;
+                    // Diagnostic information from sensors
+                    case 'D':
+                        type = PWCInterfaceEvent.EventType.NODE_CURRENT_DATA;
+                        payload = new PWCInterfacePayloadNodeCurrentData(this, response);
+                        break;
 
-                /*
-                case 'CUSTOM_CHARACTER':
-                    type = PWCInterfaceEvent.EventType.CUSTOM_TYPE
-                    payload = new PWCInterfacePayloadCUSTOMPAYLOAD extends PWCInterfaceEventPayload
-                    break;
+                    // Detect Acks from the node
+                    case 'Y':
+                        type = PWCInterfaceEvent.EventType.ACK;
+                        payload = new PWCInterfacePayloadAckNack(this, response);
+                        break;
 
-                    Then handle this type in onPWCInterfaceEvent of the window expecting data
+                    // Detect Nacks from the node
+                    case 'N':
+                        type = PWCInterfaceEvent.EventType.NACK;
+                        payload = new PWCInterfacePayloadAckNack(this, response);
+                        break;
 
-                 */
+                    // Detect Joystick position data
+                    case 'J':
+                        type = PWCInterfaceEvent.EventType.JOYSTICK_FEEDBACK;
+                        payload = new PWCInterfacePayloadJoystickFeedback(this, response);
+                        break;
+
+                    /*
+                    case 'CUSTOM_CHARACTER':
+                        type = PWCInterfaceEvent.EventType.CUSTOM_TYPE
+                        payload = new PWCInterfacePayloadCUSTOMPAYLOAD extends PWCInterfaceEventPayload
+                        break;
+
+                        Then handle this type in onPWCInterfaceEvent of the window expecting data
+
+                     */
+                }
             }
         }catch(Exception e){
             type = PWCInterfaceEvent.EventType.ERROR;

@@ -154,7 +154,7 @@ public class ConfigurationFrame extends WheelchairGUIFrame {
             String windowTitle = String.format(s("title_config"), node.getId());
             getViewFrame().setTitle(windowTitle);
             lblConfigNodeTitle.setText(windowTitle);
-            lblFirmwareInfo.setText(String.format(s("node_firmware_version"), node.getFirmwareVersion().toString()));
+            lblFirmwareInfo.setText(String.format(s("node_firmware_version"), node.getFirmwareVersionString()));
 
             createSensorConfigPanel();
             createThresholdsPanel();

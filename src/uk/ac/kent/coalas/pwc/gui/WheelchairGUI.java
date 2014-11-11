@@ -59,15 +59,17 @@ public class WheelchairGUI implements PWCInterfaceListener {
     private static PWCDueSerialCommunicationProvider serialCommsProvider = new PWCDueSerialCommunicationProvider();
 
     // Use this interface for debubgging using the console I/O
-    private static PWCInterface DueWheelchairInterface = new PWCInterface(consoleCommsProvider);
+    //private static PWCInterface DueWheelchairInterface = new PWCInterface(consoleCommsProvider);
     //
     // Use this interface for communication with a Due running Diagnostics / Config Firmware
-    //private static PWCInterface DueWheelchairInterface = new PWCInterface(serialCommsProvider);
+    private static PWCInterface DueWheelchairInterface = new PWCInterface(serialCommsProvider);
 
+    public static Logger log = null;
 
     public static void main(String args[]) {
 
-        WheelchairGUI.createInstance();
+        // Initialise log
+        log = Logger.getLogger(WheelchairGUI.class);
 
         // If no command line arguments are given, launch the default GUI
         if(args.length == 0 || (args.length == 1 && args[0].trim() == "")) {
@@ -113,19 +115,12 @@ public class WheelchairGUI implements PWCInterfaceListener {
         }
     }
 
-    private static Logger log = Logger.getLogger(WheelchairGUI.class);
-
     public WheelchairGUI(){
 
         // Register this class to receive events from the wheelchair
         DueWheelchairInterface.registerListener(this);
 
         G4P.setGlobalColorScheme(DEFAULT_COLOUR_SCHEME);
-    }
-
-    public static void createInstance(){
-
-        getInstance();
     }
 
     public static WheelchairGUI getInstance(){
@@ -144,6 +139,8 @@ public class WheelchairGUI implements PWCInterfaceListener {
 
     private static void LaunchHeadlessMode() throws Exception{
 
+        OutputHeadlessDataLn("Wheelchair UI - Headless Mode Started");
+
         if(HEADLESS_Mode == HeadlessMode.LIST_SERIAL_PORTS){
 
             String[] ports = SerialPortList.getPortNames();
@@ -160,7 +157,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
             }
 
             // Connect to the given com port
-            serialCommsProvider.connect(HEADLESS_ComPort, HEADLESS_BaudRate);
+            //serialCommsProvider.connect(HEADLESS_ComPort, HEADLESS_BaudRate);
         }
 
     }
@@ -231,9 +228,10 @@ public class WheelchairGUI implements PWCInterfaceListener {
                 int inTurn = joystickFeedback.getInputPosition().getTurn();
                 int outSpeed = joystickFeedback.getOutputPosition().getSpeed();
                 int outTurn = joystickFeedback.getOutputPosition().getTurn();
+                boolean isAvoidanceEnabled = joystickFeedback.getIsAvoidanceEnabled();
 
                 // Output the Joystick data as 3 digit number from -100 to +100 for each one of
-                OutputHeadlessDataLn(String.format("%03d%03d%03d%03d", inSpeed, inTurn, inSpeed, inTurn));
+                OutputHeadlessDataLn(String.format("%03d%03d%03d%03d%1b", inTurn, inSpeed, outTurn, outSpeed, isAvoidanceEnabled));
             }
         }
 
@@ -325,6 +323,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
 
         private PWCInterface pwcInterface = null;
         private SerialPort transportSerialPort = null;
+        StringBuilder buffer = new StringBuilder();
 
         @Override
         public boolean isAvailable() {
@@ -381,8 +380,21 @@ public class WheelchairGUI implements PWCInterfaceListener {
 
                 // Try reading it
                 try {
-                    // Send the input to the interface to be buffered
-                    DueWheelchairInterface.buffer(transportSerialPort.readString());
+                    // Send the input to the interface to be buffered, broken up by new line
+                    byte[] byteBuffer = transportSerialPort.readBytes();
+
+                    if(byteBuffer != null) {
+                        for (byte b : byteBuffer) {
+                            // Add the byte to the buffer
+                            buffer.append((char) b);
+
+                            // If this is the end of a line
+                            if (b == '\r' || b == '\n') {
+                                DueWheelchairInterface.buffer(buffer.toString());
+                                buffer.setLength(0);
+                            }
+                        }
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
