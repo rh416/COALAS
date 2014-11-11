@@ -64,10 +64,12 @@ public class WheelchairGUI implements PWCInterfaceListener {
     // Use this interface for communication with a Due running Diagnostics / Config Firmware
     private static PWCInterface DueWheelchairInterface = new PWCInterface(serialCommsProvider);
 
+    public static Logger log = null;
 
     public static void main(String args[]) {
 
-        WheelchairGUI.createInstance();
+        // Initialise log
+        log = Logger.getLogger(WheelchairGUI.class);
 
         // If no command line arguments are given, launch the default GUI
         if(args.length == 0 || (args.length == 1 && args[0].trim() == "")) {
@@ -113,19 +115,12 @@ public class WheelchairGUI implements PWCInterfaceListener {
         }
     }
 
-    private static Logger log = Logger.getLogger(WheelchairGUI.class);
-
     public WheelchairGUI(){
 
         // Register this class to receive events from the wheelchair
         DueWheelchairInterface.registerListener(this);
 
         G4P.setGlobalColorScheme(DEFAULT_COLOUR_SCHEME);
-    }
-
-    public static void createInstance(){
-
-        getInstance();
     }
 
     public static WheelchairGUI getInstance(){
