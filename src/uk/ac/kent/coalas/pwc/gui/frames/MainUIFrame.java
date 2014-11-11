@@ -67,7 +67,8 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
         InterfaceLogArea.setLocalColorScheme(WheelchairGUI.CONSOLE_COLOUR_SCHEME);
 
         btnJoystickMonitorLaunch = new GButton(this, 25, 430, 275, 30, s("launch_joystick_monitor_no_connection"));
-        btnJoystickMonitorLaunch.setEnabled(false);
+
+        setJoystickMonitorEnabled(false);
     }
 
 
@@ -144,6 +145,18 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
         updateSerialPortList(DueSerialPortList.getSelectedIndex());
     }
 
+    private void setJoystickMonitorEnabled(boolean enabled){
+
+        btnJoystickMonitorLaunch.setEnabled(enabled);
+
+        if(enabled){
+            btnJoystickMonitorLaunch.setText(s("launch_joystick_monitor"));
+        } else {
+            btnJoystickMonitorLaunch.setText(s("launch_joystick_monitor_no_connection"));
+
+        }
+    }
+
     @Override
     public void onPWCInterfaceEvent(PWCInterfaceEvent e) {
 
@@ -167,8 +180,7 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
                 PWCInterfacePayloadFirmwareInfo firmwareInfo = (PWCInterfacePayloadFirmwareInfo) e.getPayload();
                 DueSerialInfo = String.format(s("firmware_response"), firmwareInfo.getVersion());
 
-                btnJoystickMonitorLaunch.setEnabled(true);
-                btnJoystickMonitorLaunch.setText(s("launch_joystick_monitor"));
+                setJoystickMonitorEnabled(true);
 
                 //Open Overview Window, if not already open
                 if(getMainApplication().getFrame(WheelchairGUI.FrameId.OVERVIEW) == null) {
@@ -177,6 +189,13 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
                     OverviewFrame overview = (OverviewFrame) getMainApplication().addNewFrame(WheelchairGUI.FrameId.OVERVIEW, new OverviewFrame(WheelchairGUI.WindowWidth, WheelchairGUI.WindowHeight, xPos, yPos));
                     overview.scanBus();
                 }
+                break;
+
+            // Enable the Joystick monitor if we receive a Joystick Feedback event
+            case JOYSTICK_FEEDBACK:
+
+                setJoystickMonitorEnabled(true);
+
                 break;
 
             case CONNECTED:
@@ -244,8 +263,7 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
                 button.setText(s("connect"));
                 DueSerialInfo = s("connection_end");
 
-                btnJoystickMonitorLaunch.setEnabled(false);
-                btnJoystickMonitorLaunch.setText(s("launch_joystick_monitor_no_connection"));
+                setJoystickMonitorEnabled(false);
             }
         } else if(button == btnJoystickMonitorLaunch){
 
