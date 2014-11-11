@@ -170,11 +170,13 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
                 btnJoystickMonitorLaunch.setEnabled(true);
                 btnJoystickMonitorLaunch.setText(s("launch_joystick_monitor"));
 
-                //Open Overview Window
-                int xPos = getX() + getWidth() + 10;
-                int yPos = getY();
-                OverviewFrame overview = (OverviewFrame) getMainApplication().addNewFrame(WheelchairGUI.FrameId.OVERVIEW, new OverviewFrame(WheelchairGUI.WindowWidth, WheelchairGUI.WindowHeight, xPos, yPos));
-                overview.scanBus();
+                //Open Overview Window, if not already open
+                if(getMainApplication().getFrame(WheelchairGUI.FrameId.OVERVIEW) == null) {
+                    int xPos = getX() + getWidth() + 10;
+                    int yPos = getY();
+                    OverviewFrame overview = (OverviewFrame) getMainApplication().addNewFrame(WheelchairGUI.FrameId.OVERVIEW, new OverviewFrame(WheelchairGUI.WindowWidth, WheelchairGUI.WindowHeight, xPos, yPos));
+                    overview.scanBus();
+                }
                 break;
 
             case CONNECTED:
