@@ -139,18 +139,13 @@ public class PWCInterface {
 
     public void setConnected(boolean connected){
 
-        this.connected = connected;
+        // Only dispatch an event if the connected state has changed
+        if(this.connected != connected) {
+            this.connected = connected;
 
-        PWCInterfaceEvent.EventType eventType = (connected ? PWCInterfaceEvent.EventType.CONNECTED : PWCInterfaceEvent.EventType.DISCONNECTED);
-        PWCInterfacePayloadConnectionStatus eventPayload = new PWCInterfacePayloadConnectionStatus(this, connected);
-        dispatchPWCInterfaceEvent(new PWCInterfaceEvent(this, eventType, eventPayload));
-    }
-
-    public void disconnect(){
-
-        // Only 'DISCONNECT' if the interface is already connected
-        if(connected) {
-            setConnected(false);
+            PWCInterfaceEvent.EventType eventType = (connected ? PWCInterfaceEvent.EventType.CONNECTED : PWCInterfaceEvent.EventType.DISCONNECTED);
+            PWCInterfacePayloadConnectionStatus eventPayload = new PWCInterfacePayloadConnectionStatus(this, connected);
+            dispatchPWCInterfaceEvent(new PWCInterfaceEvent(this, eventType, eventPayload));
         }
     }
 
@@ -518,17 +513,22 @@ public class PWCInterface {
 
         try {
 
+            // Get first character to determine response type
+            char firstChar = response.charAt(0);
+
+            // Ignore lines that start with an underscore _
+            if(firstChar == '_'){
+                return;
+            }
+
             // Check that the second or third letter is a colon - only valid responses will have a colon as the second character.
-            if(":".equals(response.charAt(1)) || ":".equals(response.charAt(2))) {
+            if(response.charAt(1) == ':' || response.charAt(2) == ':') {
 
-                // Get first character to determine response type
-                char firstChar = response.charAt(0);
+                // We have received some kind of response from the chair, therefore it must be connected
+                setConnected(true);
 
+                // Now work out what kind of response it was
                 switch (firstChar) {
-
-                    // Ignore lines that start with an underscore _
-                    case '_':
-                        return;
 
                     // Version information from the firmware
                     case 'I':

@@ -64,7 +64,7 @@ public class PWCInterfacePayloadJoystickFeedback extends PWCInterfaceEventPayloa
         return outputPosition;
     }
 
-    public boolean getIsAvoidanceEnabled(){
+    public boolean isAvoidanceEnabled(){
 
         return isAvoidanceEnabled;
     }
