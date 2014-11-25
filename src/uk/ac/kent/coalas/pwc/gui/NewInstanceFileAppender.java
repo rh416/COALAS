@@ -23,7 +23,7 @@ public class NewInstanceFileAppender extends RollingFileAppender {
             Date d = new Date();
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HHmmss");
 
-            filename = String.format("./%s.log", format.format(d));
+            filename = String.format("./logs/%s.log", format.format(d));
         }
 
         super.setFile(filename);
