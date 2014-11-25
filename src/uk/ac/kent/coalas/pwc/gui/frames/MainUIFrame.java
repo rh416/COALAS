@@ -53,8 +53,8 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
         size(WheelchairGUI.WindowWidth, WheelchairGUI.WindowHeight);
         noSmooth();
 
-        DueSerialPortList = new GDropList(this, 25, 25, 100, 150, 4);
-        DueSerialPortList.setItems(new String[]{"placeholder"}, 0);
+        DueSerialPortList = new GDropList(this, 25, 25, 150, 150, 4);
+        DueSerialPortList.setItems(new String[]{"Ports Not Loaded"}, 0);
         updateSerialPortList(0);
 
         btnDueSerialControlButton = new GButton(this, 195, 25, 100, 30, s("connect"));
@@ -204,6 +204,10 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
                 btnDueSerialControlButton.setEnabled(true);
                 break;
 
+            case DISCONNECTED:
+                // We appear to have disconnected - change the button text and re-enable it
+                btnDueSerialControlButton.setText(s("connect"));
+                btnDueSerialControlButton.setEnabled(true);
 
             case TIMEOUT:
                 PWCInterfacePayloadTimeout timeoutInfo = (PWCInterfacePayloadTimeout) e.getPayload();
@@ -241,11 +245,11 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
             if(button.getText() == s("connect")){
 
                 try {
-                    getMainApplication().getPWCConnection().connect(portName, WheelchairGUI.DUE_BAUD_RATE);
                     // Change button label to show we are trying to connect and disable it
                     button.setText(s("connecting"));
                     button.setEnabled(false);
                     DueSerialInfo = s("connection_check");
+                    getMainApplication().getPWCConnection().connect(portName, WheelchairGUI.DUE_BAUD_RATE);
                 } catch (SerialPortException se){
                     if("Port busy".equals(se.getExceptionType())) {
                         DueSerialInfo = "Unable to connect to serial port";
