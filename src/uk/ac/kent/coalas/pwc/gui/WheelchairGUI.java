@@ -228,7 +228,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
                 int inTurn = joystickFeedback.getInputPosition().getTurn();
                 int outSpeed = joystickFeedback.getOutputPosition().getSpeed();
                 int outTurn = joystickFeedback.getOutputPosition().getTurn();
-                boolean isAvoidanceEnabled = joystickFeedback.getIsAvoidanceEnabled();
+                boolean isAvoidanceEnabled = joystickFeedback.isAvoidanceEnabled();
 
                 // Output the Joystick data as 3 digit number from -100 to +100 for each one of
                 OutputHeadlessDataLn(String.format("%03d%03d%03d%03d%1b", inTurn, inSpeed, outTurn, outSpeed, isAvoidanceEnabled));
@@ -366,7 +366,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
 
             // Pause for a moment to give the Serial port time to open fully
             try {
-                Thread.sleep(250);
+                Thread.sleep(1500);
             } catch (InterruptedException e) {
             }
 
@@ -415,7 +415,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
             }
 
             if(pwcInterface != null) {
-                pwcInterface.disconnect();
+                pwcInterface.setConnected(false);
             }
         }
     }
