@@ -4,6 +4,7 @@ import g4p_controls.GButton;
 import g4p_controls.GConstants;
 import shapes.JEllipse;
 import shapes.JRectangle;
+import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 import uk.ac.kent.coalas.pwc.gui.hardware.JoystickPosition;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
 
@@ -42,8 +43,7 @@ public class JoystickMonitorFrame extends WheelchairGUIFrame {
     JoystickPosition inputPosition;
     JoystickPosition outputPosition;
 
-
-
+    boolean isDriveAssistEnabled = false;
 
     public JoystickMonitorFrame(WheelchairGUIFrame copyFrame){
 
@@ -140,6 +140,7 @@ public class JoystickMonitorFrame extends WheelchairGUIFrame {
                 // Update each marker's position
                 inputPosition = joystickPayload.getInputPosition();
                 outputPosition = joystickPayload.getOutputPosition();
+                isDriveAssistEnabled = joystickPayload.isAvoidanceEnabled();
                 setMarkerPositions();
                 break;
 
@@ -157,15 +158,22 @@ public class JoystickMonitorFrame extends WheelchairGUIFrame {
         setMarkerPosition(inputMarker, inputPosition);
         setMarkerPosition(outputMarker, outputPosition);
 
-        // Check to see if adjustments are being made, ie Drive Assist is active
-        if(inputPosition.getSpeed() != outputPosition.getSpeed() || inputPosition.getTurn() != outputPosition.getTurn()){
-            // Drive Assist IS active
-            btnDriveAssistIndicator.setLocalColorScheme(GConstants.GREEN_SCHEME);
-            btnDriveAssistIndicator.setText(s("drive_assist") + '\n' + s("drive_assist_active").toUpperCase());
+        // Check to see if Drive Assist is enabled
+        if(isDriveAssistEnabled) {
+            // Check to see if adjustments are being made, ie Drive Assist is active
+            if (inputPosition.getSpeed() != outputPosition.getSpeed() || inputPosition.getTurn() != outputPosition.getTurn()) {
+                // Drive Assist IS active
+                btnDriveAssistIndicator.setLocalColorScheme(GConstants.GREEN_SCHEME);
+                btnDriveAssistIndicator.setText(s("drive_assist") + '\n' + s("drive_assist_enabled") + ": " + s("drive_assist_active").toUpperCase());
+            } else {
+                // Drive Assist IS NOT active
+                btnDriveAssistIndicator.setLocalColorScheme(GConstants.GOLD_SCHEME);
+                btnDriveAssistIndicator.setText(s("drive_assist") + '\n' + s("drive_assist_enabled") + ": " + s("drive_assist_inactive").toUpperCase());
+            }
         } else {
-            // Drive Assist IS NOT active
-            btnDriveAssistIndicator.setLocalColorScheme(GConstants.GOLD_SCHEME);
-            btnDriveAssistIndicator.setText(s("drive_assist") + '\n' + s("drive_assist_inactive").toUpperCase());
+            // Drive assist is disabled
+            btnDriveAssistIndicator.setLocalColorScheme(WheelchairGUI.ERROR_COLOUR_SCHEME);
+            btnDriveAssistIndicator.setText(s("drive_assist") + '\n' + s("drive_assist_disabled").toUpperCase());
         }
     }
 
