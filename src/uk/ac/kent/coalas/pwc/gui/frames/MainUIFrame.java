@@ -209,6 +209,8 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
                 // We appear to have disconnected - change the button text and re-enable it
                 btnDueSerialControlButton.setText(s("connect"));
                 btnDueSerialControlButton.setEnabled(true);
+                DueSerialInfo = s("connection_end");
+                setJoystickMonitorEnabled(false);
 
             case TIMEOUT:
                 PWCInterfacePayloadTimeout timeoutInfo = (PWCInterfacePayloadTimeout) e.getPayload();
