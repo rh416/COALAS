@@ -51,7 +51,7 @@ public class PWCInterfacePayloadJoystickFeedback extends PWCInterfaceEventPayloa
         outputPosition = new JoystickPosition(outTurn, outSpeed);
 
         // Check whether the last character is set to 1 or 0
-        isAvoidanceEnabled = "1".equals(response.substring(14, 15));
+        isAvoidanceEnabled = !("1".equals(response.substring(14, 15)));
     }
 
     public JoystickPosition getInputPosition(){
