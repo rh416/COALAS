@@ -49,7 +49,8 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
     @Override
     public void setup(){
 
-        setTitle("COALAS Wheelchair Configuration UI");
+        //setTitle("COALAS Wheelchair Configuration UI");
+        setTitle("CareTECH Wheelchair Demo");
         size(WheelchairGUI.WindowWidth, WheelchairGUI.WindowHeight);
         noSmooth();
 
