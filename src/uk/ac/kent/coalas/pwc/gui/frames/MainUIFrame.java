@@ -211,6 +211,7 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
                 btnDueSerialControlButton.setEnabled(true);
                 DueSerialInfo = s("connection_end");
                 setJoystickMonitorEnabled(false);
+                break;
 
             case TIMEOUT:
                 PWCInterfacePayloadTimeout timeoutInfo = (PWCInterfacePayloadTimeout) e.getPayload();
@@ -240,12 +241,14 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
 
         if(button == btnDueSerialControlButton && event == GEvent.CLICKED) {
             String portName = DueSerialPortList.getSelectedText();
+            String buttonText = button.getText();
 
             // Disconnect from the serial port
             getMainApplication().getPWCConnection().disconnect();
 
             // If we are trying to connect
-            if(button.getText() == s("connect")){
+            // TODO: Detect desired action in a more robust way
+            if(buttonText == s("connect")){
 
                 try {
                     // Change button label to show we are trying to connect and disable it
