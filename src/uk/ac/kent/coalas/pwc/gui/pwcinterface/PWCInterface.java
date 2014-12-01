@@ -57,7 +57,7 @@ public class PWCInterface {
 
     private static Logger log = Logger.getLogger(PWCInterface.class);
 
-    public final int DEFAULT_TIMEOUT_SECS = 5;
+    public final int DEFAULT_TIMEOUT_SECS = 15;
     public final int TIME_BETWEEN_TIMEOUT_CHECKS_MS = 500;
     public final int TIME_BETWEEN_COMMANDS_MS = 100;
 
