@@ -14,14 +14,15 @@ public class PWCInterfacePayloadJoystickFeedback extends PWCInterfaceEventPayloa
 
     private static int parseJoystickValue(String inString){
 
-        if("   ".equals(inString)){
+        // Check for an empty string
+        if("".equals(inString.trim())){
             return 0;
         }
 
         int pos =  Integer.parseInt(inString) - 100;    // This is necessary to undo the addition of 100 to values before being sent out
                                                         // which is required to ensure that all values are sent as 3 digits
 
-        // Now map the position to the 0(min) - 128(neutral) - 255(max) range
+        // Now map the position from the 0(min) - 128(neutral) - 255(max) range to a ±100
         return map(pos, 0, 255, -100, 100);
     }
 
