@@ -3,6 +3,7 @@ package uk.ac.kent.coalas.pwc.gui;
 import g4p_controls.*;
 import jssc.*;
 import org.apache.log4j.Logger;
+import com.pi4j.wiringpi.Spi;
 
 import uk.ac.kent.coalas.pwc.gui.frames.MainUIFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.WheelchairGUIFrame;
@@ -57,6 +58,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
 
     private static PWCConsoleCommunicationProvider consoleCommsProvider = new PWCConsoleCommunicationProvider();
     private static PWCDueSerialCommunicationProvider serialCommsProvider = new PWCDueSerialCommunicationProvider();
+    private static PWCSPISerialCommunicationProvider spiCommsProvider = new PWCSPISerialCommunicationProvider();
 
     // Use this interface for debubgging using the console I/O
     //private static PWCInterface DueWheelchairInterface = new PWCInterface(consoleCommsProvider);
@@ -368,6 +370,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
             try {
                 Thread.sleep(1500);
             } catch (InterruptedException e) {
+
             }
 
             pwcInterface.requestVersion();
@@ -417,6 +420,64 @@ public class WheelchairGUI implements PWCInterfaceListener {
             if(pwcInterface != null) {
                 pwcInterface.setConnected(false);
             }
+        }
+    }
+
+    public static class PWCSPISerialCommunicationProvider implements PWCInterfaceCommunicationProvider{
+
+        private PWCInterface pwcInterface = null;
+        private int channel = Spi.CHANNEL_0;    // Default SPI channel
+        private int speed = 123456;             // Default SPI clock speed
+        private boolean available = false;
+
+        @Override
+        public boolean isAvailable() {
+
+            return available;
+        }
+
+        @Override
+        public void write(String command) {
+
+            // TODO: Convert the string command into a byte command - maybe just add a stop character?
+
+            Spi.wiringPiSPIDataRW(channel, command, command.length());
+
+            // Get the response
+
+        }
+
+        @Override
+        public void setPWCInterface(PWCInterface pwcInterface){
+
+            this.pwcInterface = pwcInterface;
+        }
+
+        private boolean connect(){
+
+            // Attempt to connect to the SPI
+            if(Spi.wiringPiSPISetup(channel, speed) == -1){
+                return false;
+            } else {
+                // Record the the SPI interface is now available
+                available = true;
+                return true;
+            }
+        }
+
+        public void connect(int channel){
+
+            this.channel = channel;
+
+            this.connect();
+        }
+
+        public void connect(int channel, int speed){
+
+            this.channel = channel;
+            this.speed = speed;
+
+            this.connect();
         }
     }
 
