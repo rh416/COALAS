@@ -1,0 +1,11 @@
+Configuration for SD Card reader/ writer used on Arduino DUE
+
+Pinout
+
+Sparkfun connector   DUE pin   Colour  SD Function
+CMD                  MOSI       Grn    Data in
+D0                   MISO       Wte    Data out
+CLK                  CLK        Blu    Clock
+D3                   D4         Yell   Chip select
+GND                  GND        Blk    OV
+Vcc                  3v3        Red    Power
