@@ -7,6 +7,7 @@ import com.pi4j.wiringpi.Spi;
 
 import uk.ac.kent.coalas.pwc.gui.frames.MainUIFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.WheelchairGUIFrame;
+import uk.ac.kent.coalas.pwc.gui.hardware.LogFile;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
 
 import java.io.BufferedReader;
@@ -49,7 +50,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
     public static int DUE_BAUD_RATE = 115200;        // Must match the baud rate set in the DUE firmware.
 
     // Variables for use in headless mode. Set as many useful defaults as possible
-    public static enum HeadlessMode {LIST_SERIAL_PORTS, MONITOR_JOYSTICK};
+    public static enum HeadlessMode {LIST_SERIAL_PORTS, MONITOR_JOYSTICK, LOG_START, LOG_END, LOG_LIST};
 
 
     private static int HEADLESS_BaudRate = DUE_BAUD_RATE;
@@ -76,44 +77,18 @@ public class WheelchairGUI implements PWCInterfaceListener {
         // If no command line arguments are given, launch the default GUI
         if(args.length == 0 || (args.length == 1 && args[0].trim() == "")) {
             LaunchGUI();
-        } else {
-            // Parse the command line arguments
-            int argIndex = 0;
+        } else if(args.length == 1 && (args[0].trim() == "-daemon" || args[0].trim() == "d")) {
 
-            try {
+            // TODO: Parse arguments properly
 
-                while (argIndex < args.length) {
-                    String command = args[argIndex];
-
-                    // Connect using the specified port
-                    if ("-p".equals(command)){
-                        HEADLESS_ComPort = args[argIndex + 1];
-                        argIndex++;
-                    } else if ("-b".equals(command)){
-                        HEADLESS_BaudRate = Integer.parseInt(args[argIndex + 1]);
-                        argIndex++;
-                    } else if ("-m".equals(command)){
-                        try {
-                            HEADLESS_Mode = HeadlessMode.valueOf(args[argIndex + 1]);
-                        } catch (IllegalArgumentException iex){
-                            throw new Exception("The given mode is not valid. It must be one of: " + join(HeadlessMode.values(), ", "));
-                        }
-                        argIndex++;
-                    }
-
-                    argIndex++;
-                }
-
-                if(HEADLESS_Mode == null){
-                    throw new Exception("Please select which mode you would like to use. Choose from the following: " + join(HeadlessMode.values(), ", "));
-                }
-
-                LaunchHeadlessMode();
-            } catch (Exception ex){
-                // For any errors, report the message back to the console / log file
-                log.error(ex.getMessage());
-                System.exit(1);
+            if (HEADLESS_ComPort == null) {
+                OutputHeadlessError(new Exception("Please specify the serial port that the chair is connected to"));
             }
+
+            // Connect to the given com port
+            //serialCommsProvider.connect(HEADLESS_ComPort, HEADLESS_BaudRate);
+
+            LaunchHeadlessMode();
         }
     }
 
@@ -139,29 +114,76 @@ public class WheelchairGUI implements PWCInterfaceListener {
         addNewFrame(FrameId.MAIN, new MainUIFrame());
     }
 
-    private static void LaunchHeadlessMode() throws Exception{
+    private static void LaunchHeadlessMode(){
 
         OutputHeadlessDataLn("Wheelchair UI - Headless Mode Started");
+        OutputHeadlessDataLn("Waiting for commands...");
 
-        if(HEADLESS_Mode == HeadlessMode.LIST_SERIAL_PORTS){
+        BufferedReader SystemIn = new BufferedReader(new InputStreamReader(System.in));
 
-            String[] ports = SerialPortList.getPortNames();
+        // Loop forever, listening for commands
+        while(true){
 
-            for(String port : ports){
-                OutputHeadlessDataLn(port);
+            // Check to see if we have any new commands
+            try {
+                if (SystemIn.ready()) {
+                    String line = SystemIn.readLine();
+
+                    // Parse any incoming commands to determine the mode to switch to
+                    int argIndex = 0;
+
+                    // Reset the mode
+                    HEADLESS_Mode = null;
+
+                    try {
+                        //TODO: Parse incoming commands
+
+                        /*
+                        while (argIndex < args.length) {
+                            String command = args[argIndex];
+
+                            // Connect using the specified port
+                            if ("-p".equals(command)) {
+                                HEADLESS_ComPort = args[argIndex + 1];
+                                argIndex++;
+                            } else if ("-b".equals(command)) {
+                                HEADLESS_BaudRate = Integer.parseInt(args[argIndex + 1]);
+                                argIndex++;
+                            } else if ("-m".equals(command)) {
+                                try {
+                                    HEADLESS_Mode = HeadlessMode.valueOf(args[argIndex + 1]);
+                                } catch (IllegalArgumentException iex) {
+                                    throw new Exception("The given mode is not valid. It must be one of: " + join(HeadlessMode.values(), ", "));
+                                }
+                                argIndex++;
+                            }
+
+                            argIndex++;
+                        }
+                        */
+
+                        if (HEADLESS_Mode == null) {
+                            throw new Exception("Please select which mode you would like to use. Choose from the following: " + join(HeadlessMode.values(), ", "));
+                        }
+
+
+                        if (HEADLESS_Mode == HeadlessMode.LIST_SERIAL_PORTS) {
+
+                            String[] ports = SerialPortList.getPortNames();
+
+                            for (String port : ports) {
+                                OutputHeadlessDataLn(port);
+                            }
+                        } else if (HEADLESS_Mode == HeadlessMode.MONITOR_JOYSTICK) {
+                        }
+                    } catch (Exception e){
+                            OutputHeadlessError(e);
+                    }
+                }
+            } catch (Exception e) {
+                OutputHeadlessError(e);
             }
-
-            System.exit(0);
-
-        } else if(HEADLESS_Mode == HeadlessMode.MONITOR_JOYSTICK){
-            if(HEADLESS_ComPort == null){
-                throw new Exception("Please specify the serial port that the chair is connected to");
-            }
-
-            // Connect to the given com port
-            //serialCommsProvider.connect(HEADLESS_ComPort, HEADLESS_BaudRate);
         }
-
     }
 
     private static void OutputHeadlessData(String data){
@@ -172,6 +194,11 @@ public class WheelchairGUI implements PWCInterfaceListener {
     private static void OutputHeadlessDataLn(String data){
 
         System.out.println(data);
+    }
+
+    private static void OutputHeadlessError(Exception e){
+
+        OutputHeadlessDataLn("ERROR: " + e.getMessage());
     }
 
     public static WheelchairGUIFrame addNewFrame(FrameId id, WheelchairGUIFrame frame){
@@ -234,6 +261,14 @@ public class WheelchairGUI implements PWCInterfaceListener {
 
                 // Output the Joystick data as 3 digit number from -100 to +100 for each one of
                 OutputHeadlessDataLn(String.format("%03d%03d%03d%03d%1b", inTurn, inSpeed, outTurn, outSpeed, isAvoidanceEnabled));
+            }
+        } else if(HEADLESS_Mode == HeadlessMode.LOG_LIST || HEADLESS_Mode == HeadlessMode.LOG_END){
+            if(e.getType() == PWCInterfaceEvent.EventType.LOG_LIST){
+                PWCInterfacePayloadLogFileInfo logFileFeedback = (PWCInterfacePayloadLogFileInfo) e.getPayload();
+                LogFile logFile = logFileFeedback.getLogFile();
+
+                // Output the log file information
+                OutputHeadlessDataLn(logFile.getFilename() + ":" + logFile.getSize());
             }
         }
 
