@@ -395,6 +395,68 @@ public class PWCInterface {
         bufferCommand(PWCInterfaceEvent.EventType.NODE_MODE, nodeId, "M%d" + modeStr);
     }
 
+    /**
+     * Set the system time of the chair to the given time (in seconds since January 1st 1970)
+     *
+     * Immediately returns void, but will initiate an ACK event when the chair responds
+     *
+     * @param newTime The new system time
+     *
+     */
+    public void setSystemTime(int newTime){
+
+        bufferCommand(PWCInterfaceEvent.EventType.SET_TIME, 0, String.format("T$d", newTime));
+    }
+
+    /**
+     * Set the system time of the chair to the host's current time (in seconds since January 1st 1970)
+     *
+     * Immediately returns void, but will initiate an ACK event when the chair responds
+     *
+     */
+    public void setSystemTime(){
+
+        setSystemTime((int)(System.currentTimeMillis() / 1000));
+    }
+
+    /**
+     * Start logging, writing the data to a logfile with the given name
+     *
+     * Immediately returns void, but will initiate an ACK event when the chair responds
+     *
+     * @param filename
+     */
+    public void startLogging(String filename){
+
+        // '0' must appear in the command string to indicate that this is not a node specific command
+        bufferCommand(PWCInterfaceEvent.EventType.LOG_START, 0, String.format("L0S:$s", filename));
+    }
+
+    /**
+     * End the current logging session
+     *
+     * Immediately returns void, but will initiate a LOG_FILE_INFO event when the chair responds
+     *
+     */
+    public void endLogging(){
+
+        // '0' must appear in the command string to indicate that this is not a node specific command
+        bufferCommand(PWCInterfaceEvent.EventType.LOG_END, 0, "L0E");
+    }
+
+
+    /**
+     * List all the log files already on the SD card
+     *
+     * Immediately returns void, but will initiate a LOG_FILE_INFO event for each log file found when the chair responds
+     *
+     */
+    public void listLogFiles(){
+
+        // '0' must appear in the command string to indicate that this is not a node specific command
+        bufferCommand(PWCInterfaceEvent.EventType.LOG_LIST, 0, "L0?");
+    }
+
 
 
     /**
@@ -582,6 +644,11 @@ public class PWCInterface {
                     case 'J':
                         type = PWCInterfaceEvent.EventType.JOYSTICK_FEEDBACK;
                         payload = new PWCInterfacePayloadJoystickFeedback(this, response);
+                        break;
+
+                    case 'L':
+                        type = PWCInterfaceEvent.EventType.LOG_LIST;
+                        payload = new PWCInterfacePayloadLogFileInfo(this, response);
                         break;
 
                     /*
