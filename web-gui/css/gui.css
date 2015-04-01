@@ -1,0 +1,12 @@
+/* Prevent the NavBar hiding page content */
+body {
+    padding-top: 60px;
+}
+
+.navbar-info{
+    display: none;
+}
+
+.navbar-info .navbar-brand{
+    color: white;
+}

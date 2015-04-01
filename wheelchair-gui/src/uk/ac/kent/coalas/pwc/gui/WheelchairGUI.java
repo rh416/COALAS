@@ -59,7 +59,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
 
     private static PWCConsoleCommunicationProvider consoleCommsProvider = new PWCConsoleCommunicationProvider();
     private static PWCDueSerialCommunicationProvider serialCommsProvider = new PWCDueSerialCommunicationProvider();
-    private static PWCSPISerialCommunicationProvider spiCommsProvider = new PWCSPISerialCommunicationProvider();
+    //private static PWCSPISerialCommunicationProvider spiCommsProvider = new PWCSPISerialCommunicationProvider();
 
     // Use this interface for debubgging using the console I/O
     //private static PWCInterface DueWheelchairInterface = new PWCInterface(consoleCommsProvider);
@@ -68,6 +68,8 @@ public class WheelchairGUI implements PWCInterfaceListener {
     private static PWCInterface DueWheelchairInterface = new PWCInterface(serialCommsProvider);
 
     public static Logger log = null;
+
+
 
     public static void main(String args[]) {
 
@@ -458,6 +460,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
         }
     }
 
+    /*
     public static class PWCSPISerialCommunicationProvider implements PWCInterfaceCommunicationProvider{
 
         private PWCInterface pwcInterface = null;
@@ -515,6 +518,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
             this.connect();
         }
     }
+    */
 
     public static String firstCharUpperCase(String inString){
 

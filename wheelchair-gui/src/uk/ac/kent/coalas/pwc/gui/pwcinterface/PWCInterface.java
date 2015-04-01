@@ -1,6 +1,7 @@
 package uk.ac.kent.coalas.pwc.gui.pwcinterface;
 
 import org.apache.log4j.Logger;
+import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
 import uk.ac.kent.coalas.pwc.gui.hardware.Node;
 
 import java.util.*;
@@ -13,12 +14,12 @@ public class PWCInterface {
 
     private ArrayList<PWCInterfaceListener> listeners = new ArrayList<PWCInterfaceListener>();
     private PWCInterfaceCommunicationProvider commsProvider;
-    private ArrayList<Node> nodes = new ArrayList<>(10);
+    private ArrayList<Node> nodes = new ArrayList<Node>(10);
     private boolean connected = false;
 
-    private LinkedList<String> commandQueue = new LinkedList<>();
+    private LinkedList<String> commandQueue = new LinkedList<String>();
 
-    private Map<PWCInterfaceRequestIdentifier, PWCInterfaceRequest> requests = new HashMap<>();
+    private Map<PWCInterfaceRequestIdentifier, PWCInterfaceRequest> requests = new HashMap<PWCInterfaceRequestIdentifier, PWCInterfaceRequest>();
 
     private String buffer = "";
 
@@ -55,7 +56,7 @@ public class PWCInterface {
 
     public final Node ALL_NODES;
 
-    private static Logger log = Logger.getLogger(PWCInterface.class);
+    private static Logger log = WheelchairGUI.log;
 
     public final int DEFAULT_TIMEOUT_SECS = 15;
     public final int TIME_BETWEEN_TIMEOUT_CHECKS_MS = 500;
