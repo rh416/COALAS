@@ -12,7 +12,7 @@
 #define RESPONSE_TIMEOUT_MS 100
 #define RESPONSE_MAX_LENGTH 60
 
-comms_485* comms_485_diag = 0; // RS485 Comms
+Comms_485* comms_485_diag = 0; // RS485 Comms
 
 // Firmware information
 const String firmware_version = "v0.1";  // Store the firmware version
@@ -45,7 +45,7 @@ void diagnostics_setup(){
   Serial.begin(PC_BAUD_RATE);
 
   // Connect to the RS-485 bus
-  comms_485_diag = new comms_485_diag();
+  comms_485_diag = new Comms_485();
 
   // Empty the 485 buffer
   while(comms_485_diag->available()){
