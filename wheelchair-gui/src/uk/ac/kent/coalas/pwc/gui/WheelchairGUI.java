@@ -3,15 +3,22 @@ package uk.ac.kent.coalas.pwc.gui;
 import g4p_controls.*;
 import jssc.*;
 import org.apache.log4j.Logger;
-import com.pi4j.wiringpi.Spi;
 
+import org.json.JSONObject;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
 import uk.ac.kent.coalas.pwc.gui.frames.MainUIFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.WheelchairGUIFrame;
 import uk.ac.kent.coalas.pwc.gui.hardware.LogFile;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
+import uk.ac.kent.coalas.pwc.gui.web.WheelchairWebServer;
+import uk.ac.kent.coalas.pwc.gui.web.WheelchairWebServerThread;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.BindException;
 import java.util.*;
 
 /**
@@ -57,48 +64,74 @@ public class WheelchairGUI implements PWCInterfaceListener {
     private static String HEADLESS_ComPort = null;
     private static HeadlessMode HEADLESS_Mode = null;
 
-    private static PWCConsoleCommunicationProvider consoleCommsProvider = new PWCConsoleCommunicationProvider();
-    private static PWCDueSerialCommunicationProvider serialCommsProvider = new PWCDueSerialCommunicationProvider();
-    //private static PWCSPISerialCommunicationProvider spiCommsProvider = new PWCSPISerialCommunicationProvider();
-
-    // Use this interface for debubgging using the console I/O
+    private static PWCInterfaceCommunicationProvider commsProvider;
     //private static PWCInterface DueWheelchairInterface = new PWCInterface(consoleCommsProvider);
     //
     // Use this interface for communication with a Due running Diagnostics / Config Firmware
-    private static PWCInterface DueWheelchairInterface = new PWCInterface(serialCommsProvider);
+    private static PWCInterface DueWheelchairInterface;
 
-    public static Logger log = null;
+    private static Logger logger = Logger.getLogger(WheelchairGUI.class);
 
 
+    // Command line arguments
+    @Option(name="-gui", usage="Force the GUI to be launched - useful in conjunction with the -web argument")
+    private boolean guiMode = false;
+    @Option(name="-web", usage="Launch the web interface. Will only launch the GUI as well if -gui is set")
+    private boolean webMode = false;
+    @Option(name="-console", usage="Force the wheelhchair interface to connect over the console rather than a serial port. Useful for debugging")
+    private boolean consoleCommunication = false;
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws IOException {
 
-        // Initialise log
-        log = Logger.getLogger(WheelchairGUI.class);
-
-        // If no command line arguments are given, launch the default GUI
-        if(args.length == 0 || (args.length == 1 && args[0].trim() == "")) {
-            LaunchGUI();
-        } else if(args.length == 1 && (args[0].trim() == "-daemon" || args[0].trim() == "d")) {
-
-            // TODO: Parse arguments properly
-
-            if (HEADLESS_ComPort == null) {
-                OutputHeadlessError(new Exception("Please specify the serial port that the chair is connected to"));
-            }
-
-            // Connect to the given com port
-            //serialCommsProvider.connect(HEADLESS_ComPort, HEADLESS_BaudRate);
-
-            LaunchHeadlessMode();
-        }
+        WheelchairGUI.getInstance().launch(args);
     }
 
-    public WheelchairGUI(){
+    public void launch(String[] args) throws IOException{
+
+        // Parse the command line arguments
+        CmdLineParser parser = new CmdLineParser(this);
+
+        // Limit the output width to 80 chars
+        parser.getProperties().withUsageWidth(80);
+
+        try {
+            parser.parseArgument(args);
+
+
+
+        } catch (CmdLineException ce) {
+            // if there's a problem in the command line,
+            // you'll get this exception. this will report
+            // an error message.
+            System.err.println(ce.getMessage());
+            System.err.println("java sysiass-wheelchair-gui [options...]");
+            // print the list of available options
+            parser.printUsage(System.err);
+            System.err.println();
+            return;
+        }
+
+        if(consoleCommunication){
+            commsProvider  = new PWCConsoleCommunicationProvider();
+        } else {
+            commsProvider = new PWCDueSerialCommunicationProvider();
+        }
+
+        DueWheelchairInterface = new PWCInterface(commsProvider);
+
+        if(webMode) {
+            LaunchWebUI();
+
+            // GUI is only launched along with the web view if specifically requested
+            if (guiMode) {
+                LaunchGUI();
+            }
+        } else {
+            LaunchGUI();
+        }
 
         // Register this class to receive events from the wheelchair
         DueWheelchairInterface.registerListener(this);
-
         G4P.setGlobalColorScheme(DEFAULT_COLOUR_SCHEME);
     }
 
@@ -116,6 +149,13 @@ public class WheelchairGUI implements PWCInterfaceListener {
         addNewFrame(FrameId.MAIN, new MainUIFrame());
     }
 
+    private static void LaunchWebUI(){
+
+        WheelchairWebServerThread.start();
+        // TODO: Create another thread to keep the server alive
+    }
+
+    /*
     private static void LaunchHeadlessMode(){
 
         OutputHeadlessDataLn("Wheelchair UI - Headless Mode Started");
@@ -162,7 +202,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
 
                             argIndex++;
                         }
-                        */
+                        */   /*
 
                         if (HEADLESS_Mode == null) {
                             throw new Exception("Please select which mode you would like to use. Choose from the following: " + join(HeadlessMode.values(), ", "));
@@ -202,6 +242,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
 
         OutputHeadlessDataLn("ERROR: " + e.getMessage());
     }
+    */
 
     public static WheelchairGUIFrame addNewFrame(FrameId id, WheelchairGUIFrame frame){
 
@@ -244,14 +285,15 @@ public class WheelchairGUI implements PWCInterfaceListener {
         return DueWheelchairInterface;
     }
 
-    public PWCDueSerialCommunicationProvider getPWCConnection(){
+    public PWCInterfaceCommunicationProvider getPWCConnection(){
 
-        return serialCommsProvider;
+        return commsProvider;
     }
 
     public void onPWCInterfaceEvent(PWCInterfaceEvent e){
 
         // These events are only used in headless mode (and only certain modes) - so check which mode we're in
+        /*
         if(HEADLESS_Mode == HeadlessMode.MONITOR_JOYSTICK){
             if(e.getType() == PWCInterfaceEvent.EventType.JOYSTICK_FEEDBACK){
                 PWCInterfacePayloadJoystickFeedback joystickFeedback = (PWCInterfacePayloadJoystickFeedback) e.getPayload();
@@ -273,7 +315,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
                 OutputHeadlessDataLn(logFile.getFilename() + ":" + logFile.getSize());
             }
         }
-
+        */
     }
 
     public static String s(String stringName){
@@ -315,7 +357,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
                         // Sleep for 100ms
                         Thread.sleep(100);
                     } catch (Exception e){
-                        log.error(e.getMessage());
+                        logger.error(e.getMessage());
                     }
                 }
 
@@ -342,7 +384,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
         @Override
         public void write(String command){
 
-            System.out.println(command);
+            System.out.println("Command" + String.valueOf(command));
         }
 
         public void checkInput(){
@@ -350,11 +392,38 @@ public class WheelchairGUI implements PWCInterfaceListener {
             try {
                 if(SystemIn.ready()) {
                     String line = SystemIn.readLine();
-                    pwcInterface.buffer(line + '\n');
+                    logger.info("Input received: " + line);
+
+                    // Check for the special characters to 'disconnect'
+                    if("**D**".equalsIgnoreCase(line)){
+                        pwcInterface.setConnected(false);
+                    } else {
+                        pwcInterface.buffer(line + '\n');
+                    }
                 }
             } catch (Exception e){
+                logger.info("Error");
+                e.printStackTrace();
                 System.out.println(e.getMessage());
             }
+        }
+
+        @Override
+        public void connect(String port){
+
+            connect(port, DUE_BAUD_RATE);
+        }
+
+        @Override
+        public void connect(String port, int baud_rate){
+
+            System.out.println("Connected to port: " + port + " at " + String.valueOf(baud_rate) + "bps");
+        }
+
+        @Override
+        public void disconnect(){
+
+            System.out.println("Disconnected");
         }
     }
 
@@ -376,7 +445,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
             try {
                 transportSerialPort.writeString(command + '\n');
             } catch (SerialPortException ex){
-                log.error(ex.getMessage());
+                logger.error(ex.getMessage());
             }
         }
 
@@ -384,6 +453,11 @@ public class WheelchairGUI implements PWCInterfaceListener {
         public void setPWCInterface(PWCInterface pwcInterface){
 
             this.pwcInterface = pwcInterface;
+        }
+
+        public void connect(String portName) throws SerialPortException{
+
+            connect(portName, DUE_BAUD_RATE);
         }
 
         public void connect(String portName, int baudRate) throws SerialPortException{
@@ -401,13 +475,13 @@ public class WheelchairGUI implements PWCInterfaceListener {
             // Register as a listener
             transportSerialPort.addEventListener(this);
 
-            log.info("Attempting to connect to PWC on Port: " + portName);
+            logger.info("Attempting to connect to PWC on Port: " + portName);
 
             // Pause for a moment to give the Serial port time to open fully
             try {
                 Thread.sleep(1500);
             } catch (InterruptedException e) {
-
+                // Don't worry about InterruptedExceptions
             }
 
             pwcInterface.requestVersion();
@@ -439,7 +513,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
                     e.printStackTrace();
                 }
             } else if(event.isERR()){
-                log.error("There was an error with the serial port");
+                logger.error("There was an error with the serial port");
             }
         }
 
@@ -450,7 +524,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
                 try{
                     transportSerialPort.closePort();
                 } catch (SerialPortException ex){
-                    log.error(ex.getMessage());
+                    logger.error(ex.getMessage());
                 }
             }
 

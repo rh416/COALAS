@@ -22,6 +22,9 @@ public class PWCInterfacePayloadLogFileInfo extends PWCInterfaceEventPayload {
 
         logFile = new LogFile(filename);
         logFile.setSize(size);
+
+        // Add the log file to the list
+        chairInterface.addLogFile(logFile);
     }
 
     public LogFile getLogFile(){

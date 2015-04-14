@@ -21,9 +21,9 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
 
     private int frameWidth, frameHeight;
 
-    protected Logger log = WheelchairGUI.log;
-
     public boolean CLICK_EVENT_STOPPED;
+
+    protected Logger logger;
 
     public WheelchairGUIFrame(){
 
@@ -36,6 +36,9 @@ public abstract class WheelchairGUIFrame extends PApplet implements PWCInterface
     }
 
     public WheelchairGUIFrame(int theWidth, int theHeight, int xPos, int yPos) {
+
+        logger = Logger.getLogger(this.getClass());
+
         frameWidth = theWidth;
         frameHeight = theHeight;
 

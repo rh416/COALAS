@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -28,7 +29,7 @@ public class NewInstanceFileAppender extends RollingFileAppender {
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HHmmss");
 
             // Store a link to the logs folder
-            File logFolder = new File("/.logs");
+            File logFolder = new File("./logs");
 
             // Ensure that the logs folder exists - if not, create it
             if(!Files.isDirectory(logFolder.toPath())){
@@ -39,9 +40,7 @@ public class NewInstanceFileAppender extends RollingFileAppender {
                 }
             }
 
-
-
-            filename = String.format("./logs/%s.log", format.format(d));
+            filename = Paths.get(logFolder.getPath(), String.format("%s.log", format.format(d))).toString();
         }
 
         super.setFile(filename);

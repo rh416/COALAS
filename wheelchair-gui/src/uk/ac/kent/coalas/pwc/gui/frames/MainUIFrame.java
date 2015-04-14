@@ -55,7 +55,7 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
         noSmooth();
 
         DueSerialPortList = new GDropList(this, 25, 25, 150, 150, 4);
-        DueSerialPortList.setItems(new String[]{"Ports Not Loaded"}, 0);
+        DueSerialPortList.setItems(new String[]{s("ports_loading")}, 0);
         updateSerialPortList(0);
 
         btnDueSerialControlButton = new GButton(this, 195, 25, 100, 30, s("connect"));
@@ -119,26 +119,31 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
     private void updateSerialPortList(int index){
 
         String[] portList = SerialPortList.getPortNames();
-        int validIndex = Math.min(index, portList.length - 1);
 
-        String currentSelectedItem = DueSerialPortList.getSelectedText();
+        // If no ports were found
+        if(portList.length == 0){
+            DueSerialPortList.setItems(new String[]{s("ports_none")}, 0);
+        } else {
+            int validIndex = Math.min(index, portList.length - 1);
 
-        // Check that the correct item is re-selected
-        // If the indexes don't match, scan the list
-        if (index >= portList.length || !portList[index].equals(currentSelectedItem)) {
-            validIndex = 0;
-            int loopIndex = 0;
-            for (String item : portList) {
-                if (item.equals(currentSelectedItem)) {
-                    validIndex = loopIndex;
-                    break;
+            String currentSelectedItem = DueSerialPortList.getSelectedText();
+
+            // Check that the correct item is re-selected
+            // If the indexes don't match, scan the list
+            if (index >= portList.length || !portList[index].equals(currentSelectedItem)) {
+                validIndex = 0;
+                int loopIndex = 0;
+                for (String item : portList) {
+                    if (item.equals(currentSelectedItem)) {
+                        validIndex = loopIndex;
+                        break;
+                    }
+                    loopIndex++;
                 }
-                loopIndex++;
             }
+
+            DueSerialPortList.setItems(portList, validIndex);
         }
-
-        DueSerialPortList.setItems(portList, validIndex);
-
     }
 
     private void updateSerialPortList(){
@@ -247,7 +252,6 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
             getMainApplication().getPWCConnection().disconnect();
 
             // If we are trying to connect
-            // TODO: Detect desired action in a more robust way
             if(buttonText == s("connect")){
 
                 try {
@@ -258,7 +262,11 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
                     getMainApplication().getPWCConnection().connect(portName, WheelchairGUI.DUE_BAUD_RATE);
                 } catch (SerialPortException se){
                     if("Port busy".equals(se.getExceptionType())) {
-                        DueSerialInfo = "Unable to connect to serial port";
+                        DueSerialInfo = s("port_busy");
+                        button.setText(s("connect"));
+                    } else if("Port not found".equals(se.getExceptionType())) {
+                        DueSerialInfo = s("port_not_found");
+                        button.setText(s("connect"));
                     } else {
                         se.printStackTrace();
                     }

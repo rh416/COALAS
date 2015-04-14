@@ -1,0 +1,75 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	font-family: 'Roboto', 'Arial', 'Helvetica', sans-serif;
+	font-size: 14px;
+}
+
+.container {
+	width: 50%;
+	margin: 0 auto;
+	padding: 40px 0;
+}
+
+/* Demo Buttons */
+.button {
+	padding: 10px 10px;
+	text-decoration: none;
+	text-transform: uppercase;
+	color: #03A9F4;
+	transition: all .3s;
+	border-radius: 2px;
+	display: inline-block;
+	margin: 0;
+	overflow: hidden;
+}
+.floating-wrapper {
+	position: fixed;
+	bottom: 30px;
+	right: 30px;
+}
+.button.floating {
+	border-radius: 50%;
+	padding: 20px 25px;
+}
+.button:hover {
+	box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.35);
+}
+.button:active {
+	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.4);
+}
+.button .ripple-wrapper {
+	background: rgba(0, 0, 0, 0.15);
+}
+.button.raised,
+.button.floating {
+	color: #fff;
+	background: #03A9F4;
+	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
+}
+.button.raised.danger,
+.button.floating.danger {
+	background: #f44336;
+}
+.button.raised.invert,
+.button.floating.invert {
+	background: #212121;
+}
+.button.raised.success,
+.button.floating.success {
+	background: #4caf50;
+}
+.button.raised.warning,
+.button.floating.warning {
+	background: #ffeb3b;
+	color: #5f5b0b;
+}
+.button.raised.warning .ripple-wrapper,
+.button.floating.warning .ripple-wrapper {
+	background: rgba(0, 0, 0, 0.15);
+}
+
+.button.raised .ripple-wrapper,
+.button.floating .ripple-wrapper {
+	background: rgba(255, 255, 255, 0.35);
+}

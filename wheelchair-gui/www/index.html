@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>COALAS Web Frontend</title>
+
+    <base href="/" />
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Bootstrap select -->
+    <link href="css/bootstrap-select.min.css" rel="stylesheet" />
+    <!-- Button Ripple Effect -->
+    <link href="css/jquery.materialripple.css" rel="stylesheet" />
+
+    <link href="css/gui.css" rel="stylesheet" />
+
+</head>
+
+<body>
+
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">COALAS UI</a>
+        </div>
+        <div class="navbar-info navbar-header pull-right">
+            <a class="navbar-brand">Current Process Time: 00:00</a>
+        </div>
+    </div>
+</nav>
+<div class="container">
+
+    <div class="row">
+        <div class="col-md-4">
+            <h3 id="header-connection">Wheelchair Connection</h3>
+            <div id="form-connection">
+                <div id="form-connection-options" class="show-when-disconnected">
+                    <div class="form-group" id="connection-port">
+                        <label for="port">Port:</label>
+                        <select id="port" class="selectpicker form-control">
+                            <option value="">Loading ports...</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="connection-baudrate">
+                        <label for="baudrate">Baud Rate:</label>
+                        <input type="number" id="baudrate" class="form-control" placeholder="Optional - defaults to 115200" />
+                    </div>
+                </div>
+                <div class="form-group" id="connection-buttons">
+                    <button class="btn btn-primary form-control ripple">Connect</button>
+                    <br />
+                    <div id="connection-warning" class="show-when-disconnected">This will cause the wheelchair firmware to restart,<br />do not use while in motion.</div>
+                </div>
+            </div>
+            <h3 id="header-pi-control">Raspberry Pi Control</h3>
+            <div class="form-group" id="pi-control-buttons">
+                <button id="btn-pi-shutdown" type="submit" class="btn btn-danger form-control ripple">Shutdown Pi</button>
+            </div>
+            <div id="pi-time-container" style="text-align: center" class="form-group alert alert-info">
+                <div class="h4">System Times</div>
+                <div class="form-group time-info">
+                    <p>PWC System Time: <span id="pi-time">Loading...</span></p>
+                    <p>Your System Time: <span id="local-time"></span></p>
+                </div>
+                <div id="pi-time-buttons">
+                    <button id="btn-sync-time" class="btn btn-primary form-control ripple">Synchronise Time</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <h3 id="header-logging">Logging</h3>
+            <div class="alert alert-info show-when-disconnected">Please connect to the wheelchair to control logging sessions</div>
+            <div class="show-when-connected">
+                <div id="form-logging" class="form-inline">
+                    <div id="form-logging-options" class="form-group show-when-not-logging">
+                        <div class="form-group" id="logging-filename" style="width: 100%">
+                            <label for="logging-user">Filename:</label>
+                        </div>
+                        <div class="form-group" style="width: 50%">
+                            <select id="logging-user" class=" form-control selectpicker" style="width: 100%">
+                                <option value="">Loading users...</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="width: 23%">
+                            <select id="logging-run" class="form-control selectpicker"></select>
+                        </div>
+                        <div class="form-group" style="width: 23%">
+                            <select id="logging-runtype" class="form-control selectpicker">
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="show-when-logging alert alert-info" style="text-align: center">
+                        <p>Logging Session in Progress</p>
+                        <p><strong id="logging-current-filename">FILENAME</strong></p>
+                        <p id="logging-timer">00:00</p>
+                    </div>
+                    <div class="form-group" id="logging-buttons" style="width: 100%;">
+                        <button class="btn btn-primary form-control ripple" style="width: 100%;">
+                            <span class="text">Start Logging</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="logging-events" class="show-when-logging">
+                <h3>Logging Events</h3>
+                <div class="form-group">
+                    <button class="btn btn-primary form-control ripple">Start Line Crossed</button>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary form-control ripple">Finish Line Crossed</button>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary form-control ripple">Collision</button>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary form-control ripple">Other</button>
+                    <div class="event-info">Please record event details separately</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <h3 id="header-logs">Log Files</h3>
+            <div class="alert alert-info show-when-disconnected">Please connect to the wheelchair to view a list of existing log files</div>
+            <div class="show-when-connected">
+                <ul class="list-group" id="list-log-files-empty">
+                    <!--  This is the only list item by default -->
+                    <li class="list-group-item">No Log Files</li>
+                </ul>
+                <ul class="list-group" id="list-log-files"></ul>
+                <!--  This row is hidden by default. It is just a template used to convert a javascript log object into HTML -->
+                <ul class="list-group hidden" id="list-log-files-template">
+                    <li class="list-group-item" id="listitem-log-file-template">
+                        <div class="filename">FILENAME</div>
+                        <div><span class="filesize">FILESIZE</span></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /.container -->
+
+<!-- Task Confirmation Dialog -->
+<div class="modal fade" id="dialog-task-confirmation" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Confirm Action</h4>
+            </div>
+            <div class="modal-body">Are you sure?</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default ripple" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger ripple">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="js//jquery-1.11.1.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="js/ie10-viewport-bug-workaround.js"></script>
+
+<script type="text/javascript" src="js/bootstrap-select.min.js"></script>
+<script type="text/javascript" src="js/jquery.timeago.js"></script>
+<script type="text/javascript" src="js/moment.js"></script>
+<script type="text/javascript" src="js/jquery.materialripple.js"></script>
+
+<script type="text/javascript" src="js/utilities.js"></script>
+
+<!-- ui.js must be included before other UI files -->
+<script type="text/javascript" src="js/ui.js"></script>
+<script type="text/javascript" src="js/connection.ui.js"></script>
+<script type="text/javascript" src="js/logging.ui.js"></script>
+<script type="text/javascript" src="js/pi-control.ui.js"></script>
+
+
+<script type="text/javascript" src="js/dialog.js"></script>
+<script type="text/javascript" src="js/api.js"></script>
+<script type="text/javascript" src="js/chair-status.js"></script>
+<script type="text/javascript" src="js/tasks.js"></script>
+<script type="text/javascript" src="js/connection.js"></script>
+<script type="text/javascript" src="js/logging.js"></script>
+<script type="text/javascript" src="js/pi-control.js"></script>
+<script type="text/javascript" src="js/users.js"></script>
+</body>
+</html>

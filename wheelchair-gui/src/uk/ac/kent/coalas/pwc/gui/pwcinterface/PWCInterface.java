@@ -1,7 +1,7 @@
 package uk.ac.kent.coalas.pwc.gui.pwcinterface;
 
 import org.apache.log4j.Logger;
-import uk.ac.kent.coalas.pwc.gui.WheelchairGUI;
+import uk.ac.kent.coalas.pwc.gui.hardware.LogFile;
 import uk.ac.kent.coalas.pwc.gui.hardware.Node;
 
 import java.util.*;
@@ -15,13 +15,22 @@ public class PWCInterface {
     private ArrayList<PWCInterfaceListener> listeners = new ArrayList<PWCInterfaceListener>();
     private PWCInterfaceCommunicationProvider commsProvider;
     private ArrayList<Node> nodes = new ArrayList<Node>(10);
+    private Map<String, LogFile> logFiles = new HashMap<String, LogFile>();
     private boolean connected = false;
+
+    private boolean isLogging = false;
+    private String currentLogFilename = null;
+    private String currentLogFilenameNext = null;
+    private long currentLogStartTime = 0;
+    private boolean loggingHasRequestedList = false;
 
     private LinkedList<String> commandQueue = new LinkedList<String>();
 
     private Map<PWCInterfaceRequestIdentifier, PWCInterfaceRequest> requests = new HashMap<PWCInterfaceRequestIdentifier, PWCInterfaceRequest>();
 
     private String buffer = "";
+
+    private Logger logger = Logger.getLogger(PWCInterface.class);
 
     private Thread TimeoutCheck = new Thread(){
 
@@ -56,12 +65,9 @@ public class PWCInterface {
 
     public final Node ALL_NODES;
 
-    private static Logger log = WheelchairGUI.log;
-
     public final int DEFAULT_TIMEOUT_SECS = 15;
     public final int TIME_BETWEEN_TIMEOUT_CHECKS_MS = 500;
     public final int TIME_BETWEEN_COMMANDS_MS = 100;
-
 
     /**
      * A method to look for requests which have not received an appropriate response.
@@ -124,8 +130,8 @@ public class PWCInterface {
         commsProvider.setPWCInterface(this);
 
         // Init nodes array - chair has a max of 9 so lets create them
-        for(int i = 0; i < 9; i++){
-            nodes.add(new Node(i + 1));
+        for(int i = 1; i <= 9; i++){
+            nodes.add(new Node(i));
         }
 
         // Create a special node with an ID of 0 - this can be used to address all nodes
@@ -138,6 +144,11 @@ public class PWCInterface {
         CommandSender.start();
     }
 
+    public boolean isConnected(){
+
+        return this.connected;
+    }
+
     public void setConnected(boolean connected){
 
         // Only dispatch an event if the connected state has changed
@@ -148,6 +159,65 @@ public class PWCInterface {
             PWCInterfacePayloadConnectionStatus eventPayload = new PWCInterfacePayloadConnectionStatus(this, connected);
             dispatchPWCInterfaceEvent(new PWCInterfaceEvent(this, eventType, eventPayload));
         }
+    }
+
+    public boolean isLogging(){
+
+        return isLogging;
+    }
+
+    public void setLoggingStatus(boolean isLogging){
+
+        this.isLogging = isLogging;
+        if(isLogging) {
+            this.currentLogFilename = this.currentLogFilenameNext;
+            this.currentLogStartTime = System.currentTimeMillis();
+        }
+    }
+
+    public String getCurrentLoggingFilename(){
+
+        return this.currentLogFilename;
+    }
+
+    public void setCurrentLoggingFilename(String filename){
+
+        this.currentLogFilename = null;
+        this.currentLogFilenameNext = filename;
+    }
+
+    public long getCurrentLoggingStartTime(){
+
+        return this.currentLogStartTime;
+    }
+
+    public boolean hasRequestedLogFileList(){
+
+        return this.loggingHasRequestedList;
+    }
+
+    public void addLogFile(LogFile logFile){
+
+        synchronized (logFiles){
+            logFiles.put(logFile.getFilename(), logFile);
+        }
+    }
+
+    public Map<String, LogFile> getLogFiles(){
+
+        return logFiles;
+    }
+
+    public void clearLogFileList(){
+
+        synchronized (logFiles){
+            logFiles.clear();
+        }
+    }
+
+    public LogFile getLogFile(String filename){
+
+        return logFiles.get(filename);
     }
 
     public void registerListener(PWCInterfaceListener listener){
@@ -429,8 +499,11 @@ public class PWCInterface {
      */
     public void startLogging(String filename){
 
+        // Store the current filename
+        this.setCurrentLoggingFilename(filename);
+
         // '0' must appear in the command string to indicate that this is not a node specific command
-        bufferCommand(PWCInterfaceEvent.EventType.LOG_START, 0, String.format("L0S:$s", filename));
+        bufferCommand(PWCInterfaceEvent.EventType.LOG_START, 0, String.format("L0S:%s", filename));
     }
 
     /**
@@ -445,6 +518,18 @@ public class PWCInterface {
         bufferCommand(PWCInterfaceEvent.EventType.LOG_END, 0, "L0E");
     }
 
+    /**
+     * Records an event at the current time
+     *
+     * Immediately returns void, but will initiate an ACK event when the chair responds
+     *
+     */
+    public void logEvent(String eventDescription){
+
+        // '0' must appear in the command string to indicate that this is not a node specific command
+        bufferCommand(PWCInterfaceEvent.EventType.LOG_EVENT, 0, "E0" + eventDescription);
+    }
+
 
     /**
      * List all the log files already on the SD card
@@ -452,7 +537,13 @@ public class PWCInterface {
      * Immediately returns void, but will initiate a LOG_FILE_INFO event for each log file found when the chair responds
      *
      */
-    public void listLogFiles(){
+    public void refreshLogFileList(){
+
+        // Clear the array of log files
+        clearLogFileList();
+
+        // Record that we have requested the list
+        loggingHasRequestedList = true;
 
         // '0' must appear in the command string to indicate that this is not a node specific command
         bufferCommand(PWCInterfaceEvent.EventType.LOG_LIST, 0, "L0?");
@@ -510,14 +601,14 @@ public class PWCInterface {
         if(commandQueue.peekFirst() != null) {
             String commandToSend = commandQueue.removeFirst();
 
-            log.info("Command sent :" + commandToSend);
+            logger.info("Command sent :" + commandToSend);
             commsProvider.write(commandToSend);
         }
     }
 
     /**
      * Internal method used to record when a request was sent, so that requests can be checked for timeouts
-     *
+     *                                                      
      * @param type      The type of command that is being sent
      * @param nodeId    The ID of the Node that this command affects
      */
@@ -569,7 +660,7 @@ public class PWCInterface {
      */
     public void parse(String response) {
 
-        log.info("Response received: " + response);
+        logger.info("Parsing: " + response);
 
         PWCInterfaceEvent.EventType type = PWCInterfaceEvent.EventType.UNKNOWN;
         PWCInterfaceEventPayload payload = null;
@@ -632,13 +723,13 @@ public class PWCInterface {
                     // Detect Acks from the node
                     case 'Y':
                         type = PWCInterfaceEvent.EventType.ACK;
-                        payload = new PWCInterfacePayloadAckNack(this, response);
+                        payload = new PWCInterfacePayloadAckNack(this, response, true);
                         break;
 
                     // Detect Nacks from the node
                     case 'N':
                         type = PWCInterfaceEvent.EventType.NACK;
-                        payload = new PWCInterfacePayloadAckNack(this, response);
+                        payload = new PWCInterfacePayloadAckNack(this, response, false);
                         break;
 
                     // Detect Joystick position data
@@ -705,7 +796,7 @@ public class PWCInterface {
         PWCInterfaceRequestIdentifier identifier = new PWCInterfaceRequestIdentifier(identifierType, identifierNodeId);
         requests.remove(identifier);
 
-        log.info("Event Dispatched: " + event.getType());
+        logger.info("Event Dispatched: " + event.getType());
 
         ArrayList<PWCInterfaceListener> listenersIterator = new ArrayList<PWCInterfaceListener>(listeners);
         // Send the event out to any registered listener

@@ -1,0 +1,60 @@
+/* Prevent the NavBar hiding page content */
+body {
+    padding-top: 60px;
+}
+
+.navbar-info{
+    display: none;
+}
+
+.navbar-info .navbar-brand{
+    color: white;
+}
+
+.show-when-connected{
+    display: none;
+}
+
+.show-when-disconnected{
+    // Empty
+}
+
+.show-when-logging{
+    display: none;
+}
+
+.show-when-not-logging{
+    // Empty
+}
+
+#connection-warning{
+    font-size: 0.85em;
+    font-style: italic;
+    padding-top: 8px;
+    text-align: center;
+}
+
+#pi-time-container .time-info{
+    font-size: 0.8em;
+}
+
+#form-logging-options{
+    margin-bottom: 15px;
+}
+
+#create-user-error{
+    color: #a94442;
+    font-size: 0.8em;
+    margin-top: 4px;
+    visibility: hidden;
+}
+
+.filesize{
+    font-size: 0.8em;
+}
+
+#logging-events .event-info{
+    font-size: 0.8em;
+    text-align: center;
+}
+
