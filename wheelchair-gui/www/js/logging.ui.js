@@ -6,11 +6,14 @@ ui.logging = {
 
     init : function(){
 
-        // Refresh the log file list - now and again on connection to the chair
-        ui.logging.refreshList();
+        // Refresh the log file list on connection to the chair
         connection.onConnect(function(){
-            ui.logging.refreshList();
+            ui.logging.refreshList(true);
         });
+
+        connection.onDisconnect(function(){
+            ui.logging.updateLoggingUI();
+        })
 
         // Ensure that the logging timer is being update
         ui.logging.updateLoggingTimer();
@@ -37,7 +40,8 @@ ui.logging = {
             if(logging.isLogging){
                 logging.stopLogging(function(){
 
-                    ui.logging.outputLogFileList();
+                    ui.logging.refreshList(true);
+                    ui.logging.updateLoggingUI();
                 });
             } else {
                 // Build the filename
@@ -45,7 +49,7 @@ ui.logging = {
                 var run = $('#logging-run').val();
                 var runtype = $('#logging-runtype').val();
 
-                var filename = user + ' - ' + padLeft(run, 2) + runtype;
+                var filename = user + padLeft(run, 2) + runtype + ".csv";
 
                 logging.startLogging(filename, ui.logging.updateLoggingUI, function(){
 
@@ -59,7 +63,10 @@ ui.logging = {
             var eventButton = $(this);
             eventButton.addClass("btn-primary");
 
-            logging.recordEvent(eventButton.text(),
+            var matches = eventButton.text().match(/\b(\w)/g); // Create an array of the first letter of each word
+            var eventText = matches.join(''); // Join it back together, in a string
+
+            logging.recordEvent(eventText,
                 function(){
                     eventButton.addClass("btn-success");
                     setTimeout(function(){
@@ -126,6 +133,8 @@ ui.logging = {
             ui.logging.showNewUserError("New user cannot be called 'new'");
         } else if(stringContains(val, illegalChars)){
             ui.logging.showNewUserError("New user cannot contain any of the following: " + illegalChars.join("&nbsp;&nbsp;"));
+        } else if(val.length > 5){
+            ui.logging.showNewUserError("New user name cannot be longer than 5 characters");
         } else {
             $('#create-user-error').css("visibility", "hidden");
             $('#dialog-task-confirmation .btn-danger').prop("disabled", false);
@@ -213,12 +222,17 @@ ui.logging = {
         if(logging.currentLoggingStartTimestamp > 0){
             var logTimestamp = moment.unix(logging.currentLoggingStartTimestamp / 1000);
             var loggingDuration = moment.utc(pi.systemTimeMoment().diff(logTimestamp));
+            var loggingDurationOutput = $('#logging-timer');
             var format = "mm:ss";
 
-            if(parseInt(loggingDuration.format("X")) > 3600){
-                format = "hh:mm:ss";
+            if(loggingDuration >= 0){
+                if(parseInt(loggingDuration.format("X")) > 3600){
+                    format = "hh:mm:ss";
+                }
+                loggingDurationOutput.text(loggingDuration.format(format));
+            } else {
+                loggingDurationOutput.text("00:00");
             }
-            $('#logging-timer').text(loggingDuration.format(format));
         }
 
         clearTimeout(ui.logging.loggingTimer);
@@ -232,7 +246,7 @@ ui.logging = {
         ui.logging.updateLoggingTimer();
 
         // Hide and display the relevant parts
-        if(logging.isLogging){
+        if(connection.connected && logging.isLogging){
             $('.show-when-logging').show();
             $('.show-when-not-logging').hide();
             btnText($('#logging-buttons .btn-primary'), "Finish Logging").addClass("btn-danger");

@@ -158,6 +158,12 @@ public class PWCInterface {
             PWCInterfaceEvent.EventType eventType = (connected ? PWCInterfaceEvent.EventType.CONNECTED : PWCInterfaceEvent.EventType.DISCONNECTED);
             PWCInterfacePayloadConnectionStatus eventPayload = new PWCInterfacePayloadConnectionStatus(this, connected);
             dispatchPWCInterfaceEvent(new PWCInterfaceEvent(this, eventType, eventPayload));
+
+            if(eventType == PWCInterfaceEvent.EventType.CONNECTED){
+                // When the chair connects, automatically retrieve the version information and send the time
+                requestVersion();
+                setSystemTime();
+            }
         }
     }
 
@@ -476,7 +482,7 @@ public class PWCInterface {
      */
     public void setSystemTime(int newTime){
 
-        bufferCommand(PWCInterfaceEvent.EventType.SET_TIME, 0, String.format("T$d", newTime));
+        bufferCommand(PWCInterfaceEvent.EventType.SET_TIME, 0, String.format("Z0%d", newTime));
     }
 
     /**
@@ -491,7 +497,7 @@ public class PWCInterface {
     }
 
     /**
-     * Start logging, writing the data to a logfile with the given name
+         * Start logging, writing the data to a logfile with the given name
      *
      * Immediately returns void, but will initiate an ACK event when the chair responds
      *
@@ -527,7 +533,7 @@ public class PWCInterface {
     public void logEvent(String eventDescription){
 
         // '0' must appear in the command string to indicate that this is not a node specific command
-        bufferCommand(PWCInterfaceEvent.EventType.LOG_EVENT, 0, "E0" + eventDescription);
+        bufferCommand(PWCInterfaceEvent.EventType.LOG_EVENT, 0, String.format("E0:%s",eventDescription));
     }
 
 
@@ -582,8 +588,8 @@ public class PWCInterface {
                     #   - command type id (Enum Ordinal - allows us to recover which type of request was called.
                                             Should NOT be stored long term - ie could change at next compile)
                     &   - command indicator
-                    #   - Node ID
                     A-Z - command
+                    #   - Node ID
                     ... - any command parameters
                 */
                 String commandToSend = String.format("&%02d&", type.ordinal()) + String.format(command, nodeId);
@@ -672,6 +678,7 @@ public class PWCInterface {
 
             // Ignore lines that start with an underscore _
             if(firstChar == '_'){
+                System.out.println(response);
                 return;
             }
 

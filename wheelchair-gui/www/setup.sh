@@ -21,6 +21,13 @@ sudo ln -sf /usr/sbin/hostapd.edimax /usr/sbin/hostapd
 sudo chown root.root /usr/sbin/hostapd 
 sudo chmod 755 /usr/sbin/hostapd
 
+#Edit /etc/rc.local
+# git checkout ....
+# Create symlink from /www -> /home/pi/__gitpath__/www
+# Copy latest www over
+
+
+
 # Setup HostAPD with a custom config file
 mv /etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf.bak
 ln ~/WEB-UI/hostapd.conf /etc/hostapd/hostapd.conf

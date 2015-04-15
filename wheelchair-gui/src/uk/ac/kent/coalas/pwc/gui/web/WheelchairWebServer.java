@@ -14,8 +14,7 @@ import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEvent;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceEvent.EventType;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.PWCInterfaceListener;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.List;
@@ -53,6 +52,7 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
     private static final String JSON_FIELD_LOGGING_START_TIMESTAMP = "logging_start_timestamp";
     private static final String JSON_FIELD_PI_TIME = "time";
     private static final String JSON_FIELD_USERS = "users";
+    private static final String JSON_FIELD_TIMEDOUT = "request_timed_out";
 
     private static final File USERS_DATA_FILE = new File("./www/users.json");
 
@@ -68,6 +68,9 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
             rootDirs.add(new File("./www").getAbsoluteFile());
 
             webServer = new WheelchairWebServer(null, 2015, rootDirs, true);
+
+            // Register to receive events from the chair interface
+            WheelchairGUI.getChairInterface().registerListener(webServer);
         }
 
         return webServer;
@@ -85,9 +88,6 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
 
         this.port = port;
         logger = Logger.getLogger(this.getClass());
-
-        // Register to receive events from the chair interface
-        WheelchairGUI.getChairInterface().registerListener(this);
     }
 
     public int getPort(){
@@ -426,12 +426,7 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
 
     private Response RPiGetTime(IHTTPSession session){
 
-        JSONObject response = new JSONObject();
-
-        response.put(JSON_FIELD_STATUS, "okay");
-        response.put(JSON_FIELD_PI_TIME, System.currentTimeMillis());
-
-        return new JsonResponse(response);
+        return RPiTimeResponse(false);
     }
 
     private Response RPiSetTime(IHTTPSession session){
@@ -443,16 +438,64 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
         if(newDateTimeStr != null) {
             // Send the command to the system
             try {
-                Runtime.getRuntime().exec("date +%s @" + newDateTimeStr); // Format to set time based on Unix timestamp (seconds): date +%s -s @123456789
+                // We don't want to actually run the command on a Windows based system
+                //  so look to see if the OS starts with "Windows" - if not, run the command
+                if (!System.getProperty("os.name").startsWith("Windows")) {
+                    // Format to set time based on Unix timestamp (seconds): date +%s -s @123456789
+                    Process setTimeProcess = new ProcessBuilder("date", "+%s", "-s", "@" + newDateTimeStr).redirectErrorStream(true).start();
+                    InputStream is = setTimeProcess.getInputStream();
+                    InputStreamReader isr = new InputStreamReader(is);
+                    BufferedReader br = new BufferedReader(isr);
 
-                response.put(JSON_FIELD_STATUS, "okay")
-                        .put(JSON_FIELD_MESSAGE, "Time set successfully")
-                        .put(JSON_FIELD_PI_TIME, System.currentTimeMillis());
+                    String setTimeResponse = "";
+                    String line;
+
+                    while((line = br.readLine()) != null){
+                        setTimeResponse += line + "\n";
+                    }
+
+                    if(setTimeResponse.trim().equalsIgnoreCase(newDateTimeStr)) {
+                        // Raspberry Pi time was set okay - now send it to the wheelchair (if it's connected)
+                        if (chairInterface().isConnected()) {
+                            chairInterface().setSystemTime();
+                            waitForResponse(EventType.ACK, new WaitForResponseHandler() {
+
+                                @Override
+                                public Response onResponse(WebServerResponseReceiver receiver) {
+
+                                    return RPiTimeResponse(true);
+                                }
+                            });
+                        } else {
+                            return RPiTimeResponse(true);
+                        }
+                    } else {
+                        response.put(JSON_FIELD_STATUS, "error")
+                                .put(JSON_FIELD_MESSAGE, setTimeResponse.trim());
+                    }
+                } else {
+                    return RPiTimeResponse(true);
+                }
             } catch (IOException e) {
                 errorResponse(response, "Setting the time failed", e);
             }
         } else {
             errorResponse(response, "No date / time string was provided");
+        }
+
+        return new JsonResponse(response);
+    }
+
+    private Response RPiTimeResponse(boolean wasSet){
+
+        JSONObject response = new JSONObject();
+
+        // If the chair is not connected, just let the user know that we set the time okay
+        response.put(JSON_FIELD_STATUS, "okay")
+                .put(JSON_FIELD_PI_TIME, System.currentTimeMillis());
+
+        if(wasSet){
+            response.put(JSON_FIELD_MESSAGE, "Time set successfully");
         }
 
         return new JsonResponse(response);
@@ -548,7 +591,6 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
             JSONObject logFileJSON = new JSONObject();
             logFileJSON.put(JSON_FIELD_LOGGING_FILENAME, logFile.getFilename());
             logFileJSON.put(JSON_FIELD_LOGGING_FILESIZE, logFile.getSize());
-            // TODO: Date??
             logList.put(logFileJSON);
         }
 
@@ -677,8 +719,8 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
             PWCInterfaceEvent response = receiver.getFinalEvent();
 
             // Build up the response
-            JSONOutput.put("status", "okay");
-            JSONOutput.put("message", "This is the default implementation - you should probably override this!");
+            JSONOutput.put(JSON_FIELD_STATUS, "okay");
+            JSONOutput.put(JSON_FIELD_MESSAGE, "This is the default implementation - you should probably override this!");
             JSONOutput.put("stack_trace", Arrays.toString(Thread.currentThread().getStackTrace()));
             JSONOutput.put("response_type", response.getType().name());
 
@@ -687,7 +729,7 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
 
         public Response onTimeout(){
 
-            JSONOutput.put("message", "Request timed out");
+            JSONOutput.put(JSON_FIELD_MESSAGE, "Request timed out").put(JSON_FIELD_TIMEDOUT, true);
 
             return new JsonResponse(JSONOutput);
         }
@@ -703,9 +745,7 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
 
     public class WebServerResponseReceiver {
 
-        //TODO: Set much lower for production
-        //private long DEFAULT_TIMEOUT_MS = 15000;
-        private long DEFAULT_TIMEOUT_MS = 150000;
+        private long DEFAULT_TIMEOUT_MS = 15000;
 
         private long sourceThreadId;
         private long startTimestamp;

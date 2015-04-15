@@ -96,9 +96,6 @@ public class WheelchairGUI implements PWCInterfaceListener {
 
         try {
             parser.parseArgument(args);
-
-
-
         } catch (CmdLineException ce) {
             // if there's a problem in the command line,
             // you'll get this exception. this will report
@@ -152,7 +149,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
     private static void LaunchWebUI(){
 
         WheelchairWebServerThread.start();
-        // TODO: Create another thread to keep the server alive
+        System.out.println("Server started - listening on port: " + WheelchairWebServer.getInstance().getPort());
     }
 
     /*
@@ -418,6 +415,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
         public void connect(String port, int baud_rate){
 
             System.out.println("Connected to port: " + port + " at " + String.valueOf(baud_rate) + "bps");
+            pwcInterface.setConnected(true);
         }
 
         @Override
@@ -484,7 +482,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
                 // Don't worry about InterruptedExceptions
             }
 
-            pwcInterface.requestVersion();
+            pwcInterface.setConnected(true);
         }
 
         public void serialEvent(SerialPortEvent event){

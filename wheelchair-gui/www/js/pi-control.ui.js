@@ -21,7 +21,19 @@ ui.pi_control = {
                 positive : {
                     text : 'Yep, shut it down',
                     callback : function(){
-                        pi.shutdown(null, function(){alert("Request to shutdown failed. Please try again, then pull the power if required.")});
+                        pi.shutdown(function(){
+
+                            // Show a dialog explaining to the user that the Pi is shutting down
+                            dialog.show({
+                                title : 'Raspberry Pi is Shutting Down',
+                                message : '<p>The Raspberry Pi is now shutting down.</p>' +
+                                    '<p>Please wait for the red light to stop flashing before removing power.</p>' +
+                                    '<p>If you wan to restart it, remove power and then plug it back in.</p>' +
+                                    '<p>This page will not work until the Raspberry Pi is powered on again and this page is refreshed.</p>',
+                                buttons : false
+                            })
+
+                        }, function(){alert("Request to shutdown failed. Please try again, then pull the power if required.")});
                     }
                 },
                 negative : {
@@ -73,8 +85,8 @@ ui.pi_control = {
                             text : 'Yes, set the time',
                             callback : function(){
 
-                                pi.synchroniseTime(ui.pi_control.displayTimeSyncSuccess, function(){
-                                    alert("Synchronising time failed!");
+                                pi.synchroniseTime(ui.pi_control.displayTimeSyncSuccess, function(response){
+                                    alert("Synchronising time failed!\n\nMessage: " + response.message);
                                 })
                             }
                         },
@@ -83,6 +95,9 @@ ui.pi_control = {
                         }
                     });
                 }
+            } else {
+                // Reset the appearance once the time is correct
+                $('#pi-time-container').removeClass("alert-danger");
             }
         }
 

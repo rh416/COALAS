@@ -29,7 +29,7 @@ var connection = {
                 baud_rate : baud
             },
             function(response){
-                setConnected(response.is_connected);
+                connection.setConnected(response.is_connected);
             },
             successCallback,
             errorCallback);
@@ -39,7 +39,7 @@ var connection = {
 
         api("/serial-disconnect",
             function(response){
-                setConnected(response.is_connected);
+                connection.setConnected(response.is_connected);
             },
             successCallback,
             errorCallback);

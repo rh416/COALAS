@@ -10,6 +10,7 @@ var dialog = {
     defaults : {
         title : 'Confirm Action',
         message : 'Are you sure',
+        buttons : true,
         positive : {
             text : 'Yes',
             callback : function(){}
@@ -31,6 +32,16 @@ var dialog = {
         d.find('.modal-body').html(settings.message);
         d.find('.btn-danger').text(settings.positive.text);
         d.find('.btn-default').text(settings.negative.text);
+
+        var buttons = d.find('.modal-footer');
+        // TODO: Hide buttons if desired
+        if(settings.buttons){
+            buttons.show();
+        } else {
+            buttons.hide();
+        }
+
+        $('#dialog-task-confirmation .btn-danger').prop("disabled", false);
 
         // Store callbacks
         dialog.currentPositiveCallback = settings.positive.callback;
