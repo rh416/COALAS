@@ -32,7 +32,6 @@ void setup(){
     set_vibration_pattern(OFF);
     update_vibration();
     
-    
     diagnostics_setup();
   } else {   
     algorithm_setup(); 

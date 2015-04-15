@@ -189,7 +189,7 @@ int currentTime = 0;
 void algorithm_setup() { // logging on to RS485 and GPSB updated and modified by Michael Gillham 31/08/14 to prevent intialisation drop out.
   
   delay(100);  // Power-up delay
-  Serial.begin(9600);  // Setup comms to PC 
+  Serial.begin(115200);  // Setup comms to PC 
   delay(100);
   
  // =============== initialise log on to GPSB
@@ -307,6 +307,8 @@ void algorithm_loop() {
             userSpeed = speed;                // logging
             userTurn = turn;                  // logging 
             returnJoystickDirect();
+            serialEventRun();                 // Get any data from the serial port
+            handleProtocolMessages();          // Handle any protocol messages that have been sent over the serial port
             logging();            
           }while(isolated == 1);
         }                                   // return joystick to system without obstacle correction if isolate on
@@ -317,8 +319,9 @@ void algorithm_loop() {
         timer = millis();
         currentTime = timer;
          do{
-             if (directionFlag == 0 && rotationFlag == 0){ set_vibration_pattern(OFF); // Turn off vibration if joystick centred
-                 } 
+             if (directionFlag == 0 && rotationFlag == 0){
+                set_vibration_pattern(OFF); // Turn off vibration if joystick centred
+                } 
              check_isolate_switch();           
              GPSB_update_joystick_position();  // continuously grab joystick data from GPSB 
              speed = get_joystick_speed();     // Take user speed input from data stream
@@ -329,51 +332,13 @@ void algorithm_loop() {
              hapticFeedback ();               // Set haptic feedback to user
              update_vibration();              // Send haptic feedback to joystick vibration motor   
              Dynamic_model();                 // Use the DLAFF 'dynamic model' to generate kinematic valid output back to GPSB            
+             serialEventRun();                // Get any data from the serial port
+             handleProtocolMessages();        // Process any commands that have been sent over the serial port
              logging();
-           }while(isolated == 0);
-        } 
-                
+          }while(isolated == 0);
+      } 
 }
 
-// ================================== Data logging on SD card function
-
-
-void logging(){
-  timer = millis();
-  stopWatch = timer - currentTime;
-  String dataString = "";
-    
-    dataString += String(runNumber);
-    dataString += ",";
-    dataString += String(stopWatch);
-    dataString += ",";
-    dataString += String(userSpeed);
-    dataString += ",";
-    dataString += String(userTurn);
-    dataString += ",";
-    dataString += String(returnedSpeed);
-    dataString += ",";
-    dataString += String(returnedTurn);
-
-
-  // open the file. note that only one file can be open at a time,
-  // so you have to close this one before opening another.
-  File dataFile = SD.open("datalog.txt", FILE_WRITE);
-
-  // if the file is available, write to it:
-  if (dataFile) {
-    dataFile.println(dataString);
-    dataFile.close();
-    
-   // print to the serial port for debugging
-  //  Serial.println(dataString);
-    }  
-   // if the file isn't open, pop up an error:
-  else {
-    // print to the serial port for debugging
-    Serial.println("error opening datalog.txt");
-   } 
-}
 
 
 
