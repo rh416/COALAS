@@ -3,3 +3,6 @@
 out/
 *.iml
 *.log
+*.log.*
+*.img
+users.json
