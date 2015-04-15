@@ -4,13 +4,11 @@ import g4p_controls.*;
 import jssc.*;
 import org.apache.log4j.Logger;
 
-import org.json.JSONObject;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import uk.ac.kent.coalas.pwc.gui.frames.MainUIFrame;
 import uk.ac.kent.coalas.pwc.gui.frames.WheelchairGUIFrame;
-import uk.ac.kent.coalas.pwc.gui.hardware.LogFile;
 import uk.ac.kent.coalas.pwc.gui.pwcinterface.*;
 import uk.ac.kent.coalas.pwc.gui.web.WheelchairWebServer;
 import uk.ac.kent.coalas.pwc.gui.web.WheelchairWebServerThread;
@@ -18,7 +16,6 @@ import uk.ac.kent.coalas.pwc.gui.web.WheelchairWebServerThread;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.BindException;
 import java.util.*;
 
 /**
@@ -78,8 +75,10 @@ public class WheelchairGUI implements PWCInterfaceListener {
     private boolean guiMode = false;
     @Option(name="-web", usage="Launch the web interface. Will only launch the GUI as well if -gui is set")
     private boolean webMode = false;
-    @Option(name="-console", usage="Force the wheelhchair interface to connect over the console rather than a serial port. Useful for debugging")
-    private boolean consoleCommunication = false;
+    @Option(name="-comms-web", usage="Communicate with the UI by sending wheelchair data via the web interface")
+    private boolean webComms = false;
+    @Option(name="-comms-console", usage="Force the wheelchair interface to connect over the console rather than a serial port. takes precidence over -comms-web. Useful for debugging")
+    private boolean consoleComms = false;
 
     public static void main(String args[]) throws IOException {
 
@@ -108,8 +107,10 @@ public class WheelchairGUI implements PWCInterfaceListener {
             return;
         }
 
-        if(consoleCommunication){
+        if(consoleComms){
             commsProvider  = new PWCConsoleCommunicationProvider();
+        } else if(webComms) {
+            commsProvider = new PWCHTTPReadOnlyCommunicationProvider();
         } else {
             commsProvider = new PWCDueSerialCommunicationProvider();
         }
@@ -532,6 +533,45 @@ public class WheelchairGUI implements PWCInterfaceListener {
         }
     }
 
+    public static class PWCHTTPReadOnlyCommunicationProvider implements PWCInterfaceCommunicationProvider{
+
+        private PWCInterface pwcInterface;
+
+        @Override
+        public boolean isAvailable() {
+            return true;
+        }
+
+        @Override
+        public void setPWCInterface(PWCInterface pwcInterface) {
+
+            this.pwcInterface = pwcInterface;
+        }
+
+        @Override
+        public void write(String output) {
+
+            // Do nothing
+        }
+
+        @Override
+        public void connect(String port) throws SerialPortException {
+
+            // Do nothing
+        }
+
+        @Override
+        public void connect(String port, int baud) throws SerialPortException {
+
+            // Do nothing
+        }
+
+        @Override
+        public void disconnect() {
+
+            // Do nothing
+        }
+    }
     /*
     public static class PWCSPISerialCommunicationProvider implements PWCInterfaceCommunicationProvider{
 

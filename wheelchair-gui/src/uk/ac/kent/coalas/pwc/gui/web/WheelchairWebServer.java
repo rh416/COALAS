@@ -41,6 +41,7 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
     private static final String COMMAND_RPI_SHUTDOWN = "/rpi/shutdown";
     private static final String COMMAND_USERS_GET = "/users/get";
     private static final String COMMAND_USERS_SAVE = "/users/save";
+    private static final String COMMAND_INTERFACE_POST_EVENT = "/interface/post-event";
 
 
     private static final String JSON_FIELD_STATUS = "status";
@@ -186,6 +187,9 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
 
             case COMMAND_USERS_SAVE:
                 return UsersSaveList(session);
+
+            case COMMAND_INTERFACE_POST_EVENT:
+                return InterfacePostEvent(session);
 
             default:
                 return super.serve(session);
@@ -557,6 +561,26 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
             }
         } else {
             errorResponse(response, "No users supplied");
+        }
+
+        return new JsonResponse(response);
+    }
+
+
+    private Response InterfacePostEvent(IHTTPSession session){
+
+        String eventData = getStr(session, "data");
+
+        JSONObject response = new JSONObject();
+
+        if(eventData != null){
+            chairInterface().parse(eventData );
+            response.put(JSON_FIELD_STATUS, "okay")
+                    .put(JSON_FIELD_MESSAGE, "Event data received");
+
+        } else {
+            response.put(JSON_FIELD_STATUS, "error")
+                    .put(JSON_FIELD_MESSAGE, "No event data supplied");
         }
 
         return new JsonResponse(response);
