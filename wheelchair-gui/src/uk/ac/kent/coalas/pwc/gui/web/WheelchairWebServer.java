@@ -379,7 +379,7 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
     private Response loggingEnd(IHTTPSession session){
 
         chairInterface().endLogging();
-        return logFileListResponse();
+        return logFileListWaitAndResponse();
     }
 
     private Response loggingList(IHTTPSession session){
