@@ -24,6 +24,35 @@ public class PWCInterface {
     private long currentLogStartTime = 0;
     private boolean loggingHasRequestedList = false;
 
+    /***************************************
+     */
+    public static enum Error {
+        UNKNOWN(0),
+        LOG_SD_CARD_INACCESSIBLE(50),
+        ANOTHER_KIND_OF_ERROR(35);
+
+        // How the error codes are sent from the Wheelchair Firmware
+        private final int code;
+        Error(int code){
+            this.code = code;
+        }
+        public int getCode(){
+            return this.code;
+        }
+
+        public static Error fromCode(int code){
+
+            // Find the error that matches the given code
+            for(Error e : Error.values()){
+                if(e.getCode() == code){
+                    return e;
+                }
+            }
+            // If none are found, return an unknown error
+            return UNKNOWN;
+        }
+    }
+
     private LinkedList<String> commandQueue = new LinkedList<String>();
 
     private Map<PWCInterfaceRequestIdentifier, PWCInterfaceRequest> requests = new HashMap<PWCInterfaceRequestIdentifier, PWCInterfaceRequest>();
@@ -750,6 +779,10 @@ public class PWCInterface {
                         payload = new PWCInterfacePayloadLogFileInfo(this, response);
                         break;
 
+                    case 'E':
+                        type = PWCInterfaceEvent.EventType.ERROR;
+                        break;
+
                     /*
                     case 'CUSTOM_CHARACTER':
                         type = PWCInterfaceEvent.EventType.CUSTOM_TYPE
@@ -762,8 +795,8 @@ public class PWCInterface {
                 }
             }
         }catch(Exception e){
-            type = PWCInterfaceEvent.EventType.ERROR;
-            payload= new PWCInterfacePayloadError(this, response, e);
+            type = PWCInterfaceEvent.EventType.PARSE_ERROR;
+            payload= new PWCInterfacePayloadParseError(this, response, e);
         }
 
         if(payload == null){

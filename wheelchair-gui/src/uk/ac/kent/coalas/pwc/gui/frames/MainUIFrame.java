@@ -172,8 +172,8 @@ public class MainUIFrame extends WheelchairGUIFrame implements PWCInterfaceListe
         // Handle any specific events we want to here
         switch(e.getType()){
 
-            case ERROR:
-                PWCInterfacePayloadError errorPayload = (PWCInterfacePayloadError)e.getPayload();
+            case PARSE_ERROR:
+                PWCInterfacePayloadParseError errorPayload = (PWCInterfacePayloadParseError)e.getPayload();
                 Exception err = errorPayload.getException();
 
                 logToScreen(timestamp() + " - " + err.getMessage());

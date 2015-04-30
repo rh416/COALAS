@@ -128,8 +128,8 @@ public class OverviewFrame extends WheelchairGUIFrame {
 
                 break;
 
-            case ERROR:
-                PWCInterfacePayloadError errorPayload = (PWCInterfacePayloadError)payload;
+            case PARSE_ERROR:
+                PWCInterfacePayloadParseError errorPayload = (PWCInterfacePayloadParseError)payload;
                 logToScreen(s("error_occurred_check_log"));
                 break;
 

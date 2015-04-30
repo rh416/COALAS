@@ -7,10 +7,11 @@ package uk.ac.kent.coalas.pwc.gui.pwcinterface;
  */
 public class PWCInterfaceEvent {
 
-    public static enum EventType {ERROR, UNKNOWN, FIRMWARE_INFO, BUS_SCAN, ACK, NACK, TIMEOUT,
+    public static enum EventType {
+        PARSE_ERROR, UNKNOWN, FIRMWARE_INFO, BUS_SCAN, ACK, NACK, TIMEOUT,
         NODE_CURRENT_DATA, NODE_CONFIGURATION, NODE_DATA_FORMAT, NODE_THRESHOLDS, NODE_MODE,
         NODE_FIRMWARE_INFO, JOYSTICK_FEEDBACK, SET_TIME, LOG_START, LOG_END, LOG_EVENT, LOG_LIST,
-        CONNECTED, DISCONNECTED}
+        CONNECTED, DISCONNECTED, ERROR}
 
     private PWCInterface chairInterface;
     private EventType type;

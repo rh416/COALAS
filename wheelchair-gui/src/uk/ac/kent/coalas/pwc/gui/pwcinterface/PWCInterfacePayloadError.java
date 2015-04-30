@@ -1,38 +1,34 @@
 package uk.ac.kent.coalas.pwc.gui.pwcinterface;
 
 /**
- * Created by rm538 on 06/08/2014.
- *
- * A class representing the payload for an error event from the Interface - usually caused by a malformed response
- *
+ * Created by Richard on 27/04/2015.
  */
 public class PWCInterfacePayloadError extends PWCInterfaceEventPayload {
 
-    Exception exception;
+    private PWCInterface.Error error;
 
-    public PWCInterfacePayloadError(PWCInterface chairInterface, String response, Exception e) {
+    public PWCInterfacePayloadError(PWCInterface chairInterface, String response) {
 
         super(chairInterface, response);
-        exception = e;
+
+        try {
+            error = PWCInterface.Error.fromCode(Integer.valueOf(response.substring(2)));
+        } catch (NumberFormatException e){
+            error = PWCInterface.Error.UNKNOWN;
+        }
+
+        // Handle errors here
+        switch(error){
+
+            case LOG_SD_CARD_INACCESSIBLE:
+                chairInterface.setLoggingStatus(false);
+                break;
+
+        }
     }
 
-    /**
-     * Return the exception that caused this event to be raised
-     *
-     * @return The Exception that caused this event to be raised
-     */
-    public Exception getException(){
+    public PWCInterface.Error getError(){
 
-        return exception;
-    }
-
-    /**
-     * Return the error message from the exception that caused this event to be raised
-     *
-     * @return The error message from the Exception that caused this event to be raised
-     */
-    public String getErrorMessage(){
-
-        return exception.getClass().getName() + ": " + exception.getMessage();
+        return this.error;
     }
 }
