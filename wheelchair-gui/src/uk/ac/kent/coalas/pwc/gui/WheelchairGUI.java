@@ -100,7 +100,7 @@ public class WheelchairGUI implements PWCInterfaceListener {
             // you'll get this exception. this will report
             // an error message.
             System.err.println(ce.getMessage());
-            System.err.println("java sysiass-wheelchair-gui [options...]");
+            System.err.println("java wheelchair-gui [options...]");
             // print the list of available options
             parser.printUsage(System.err);
             System.err.println();
