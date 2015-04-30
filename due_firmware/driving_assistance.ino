@@ -301,6 +301,11 @@ Serial.print("Initializing SD card...");
 
 void algorithm_loop() {
   
+   uint32_t thisLoopTime = millis();
+  
+   if(thisLoopTime - lastLoopTime > constantLoopTime){
+     lastLoopTime = thisLoopTime;
+     
     // Check to see if the isolated switch has changed state
     if(isolated != oldIsolatedState){
       // Increment run number
@@ -333,6 +338,7 @@ void algorithm_loop() {
       update_vibration();              // Send haptic feedback to joystick vibration motor
       Dynamic_model();                 // Use the DLAFF 'dynamic model' to generate kinematic valid output back to GPSB
     }
+  }    
 }
 
 
