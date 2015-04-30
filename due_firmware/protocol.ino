@@ -302,6 +302,8 @@ void serialEvent() {
   while(Serial.available()){
     // Get the next available character
     char inChar = (char)Serial.read();
+    
+    //PRINT_SAFE(inChar);
 
     // If it's the end of the line, the command is complete
     if(inChar == COMMAND_END_INDICATOR){
@@ -309,12 +311,15 @@ void serialEvent() {
       commandSendComplete = true;
       break;
     } 
-    else {
+    else if(commandCurrentIndex < COMMAND_MAX_LENGTH){
       // Otherwise, add the character to the command info buffer
       command_info[commandCurrentIndex] = inChar;
       // Uncomment for debugging
       //PRINT_SAFE("Received - Index = " + String(commandCurrentIndex) + "; Char = " + String(inChar));
       commandCurrentIndex++;  
+    }
+    else {
+      PRINT_SAFE("The command sent was too long");
     }
   }    
 }
