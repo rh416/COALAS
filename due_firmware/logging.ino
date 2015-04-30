@@ -20,7 +20,7 @@ LoggingStatus currentLoggingStatus = LoggingStatus();
 void logging(){
   
   // Only carry on if logging is currently enabled and no error has been reported
-  if(currentLoggingStatus.enabled && currentLoggingStatus.errorReported === false){
+  if(currentLoggingStatus.enabled && currentLoggingStatus.errorReported == false){
     timer = millis();
     stopWatch = timer - currentTime;
     String dataString = "";
