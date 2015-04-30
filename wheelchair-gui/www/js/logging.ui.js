@@ -9,6 +9,9 @@ ui.logging = {
         // Refresh the log file list on connection to the chair
         connection.onConnect(function(){
             ui.logging.refreshList(true);
+            setTimeout(function(){
+                ui.logging.refreshList(true);
+            }, 10000);
         });
 
         connection.onDisconnect(function(){
@@ -40,7 +43,8 @@ ui.logging = {
             if(logging.isLogging){
                 logging.stopLogging(function(){
 
-                    ui.logging.refreshList(true);
+                    // Refresh the log file list on log end - do this so that other clients also update
+                    ui.logging.refreshList(false);
                     ui.logging.updateLoggingUI();
                 });
             } else {
