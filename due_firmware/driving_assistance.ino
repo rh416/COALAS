@@ -128,6 +128,7 @@ const int illumination_relay = 49;
 // Safety ======================================
 
 volatile int isolated = 0;  //switch is on  means we don't want a correction
+int oldIsolatedState = 0;   // store the old isolated state so that we know to increment the run counter
 void scan_for_sensors(int);
 
 const int kill_pin = 46;
@@ -184,6 +185,10 @@ int  previous = 0;       // set flag
 unsigned int  timer = 0;        // run clock
 int stopWatch = 0;
 int currentTime = 0;
+
+// Constant loop timing
+uint32_t lastLoopTime = 0;
+uint16_t constantLoopTime = 50; // Max every loop take 50ms, whether or not the algorithm is running
 
 // ============================================== Setup ===========
 
@@ -296,49 +301,38 @@ Serial.print("Initializing SD card...");
 
 void algorithm_loop() {
   
+    // Check to see if the isolated switch has changed state
+    if(isolated != oldIsolatedState){
+      // Increment run number
+      runNumber++;
+      // Reset the run start time
+      currentTime = millis();
+      // Save the new state of isolate
+      oldIsolatedState = isolated;
+    }
   
-     if (isolated == 1){
-       runNumber = runNumber + 1;
-       timer = millis();
-       currentTime = timer;
-       do{
-            check_isolate_switch();           // check for isolation of obstacle avoidance software, 0 means run obstacle avoidance 1 means isolate
-            GPSB_update_joystick_position();  // continuously grab joystick data from GPSB 
-            speed = get_joystick_speed();     // Take user speed input from data stream
-            turn = get_joystick_turn();       // Take user turn input from data stream
-            userSpeed = speed;                // logging
-            userTurn = turn;                  // logging 
-            returnJoystickDirect();
-            serialEventRun();                 // Get any data from the serial port
-            handleProtocolMessages();          // Handle any protocol messages that have been sent over the serial port
-            logging();            
-          }while(isolated == 1);
-        }                                   // return joystick to system without obstacle correction if isolate on
-
-
-     if (isolated == 0){                 // Run DLAFF obstacle avoidance if isolate is off 
-        runNumber = runNumber + 1;
-        timer = millis();
-        currentTime = timer;
-         do{
-             if (directionFlag == 0 && rotationFlag == 0){
-                set_vibration_pattern(OFF); // Turn off vibration if joystick centred
-                } 
-             check_isolate_switch();           
-             GPSB_update_joystick_position();  // continuously grab joystick data from GPSB 
-             speed = get_joystick_speed();     // Take user speed input from data stream
-             turn = get_joystick_turn();       // Take user turn input from data stream
-             userSpeed = speed;                // logging
-             userTurn = turn;                  // logging
-             DLAFF_collision_avoidance ();    // Doorway passing, use linecameras to improve doorway resolution and lock-in  
-             hapticFeedback ();               // Set haptic feedback to user
-             update_vibration();              // Send haptic feedback to joystick vibration motor   
-             Dynamic_model();                 // Use the DLAFF 'dynamic model' to generate kinematic valid output back to GPSB            
-             serialEventRun();                // Get any data from the serial port
-             handleProtocolMessages();        // Process any commands that have been sent over the serial port
-             logging();
-          }while(isolated == 0);
-      } 
+  handleProtocolMessages();          // Handle any protocol messages that have been sent over the serial port
+  logging();
+  
+    if (directionFlag == 0 && rotationFlag == 0){
+      set_vibration_pattern(OFF); // Turn off vibration if joystick centred
+    }
+  
+    check_isolate_switch();           // check for isolation of obstacle avoidance software, 0 means run obstacle avoidance 1 means isolate
+    GPSB_update_joystick_position();  // continuously grab joystick data from GPSB
+    speed = get_joystick_speed();     // Take user speed input from data stream
+    turn = get_joystick_turn();       // Take user turn input from data stream
+    userSpeed = speed;                // logging
+    userTurn = turn;                  // logging
+  
+    if(isolated == 1){
+      returnJoystickDirect();  
+    } else if(isolated == 0){
+      DLAFF_collision_avoidance ();    // Doorway passing, use linecameras to improve doorway resolution and lock-in
+      hapticFeedback ();               // Set haptic feedback to user
+      update_vibration();              // Send haptic feedback to joystick vibration motor
+      Dynamic_model();                 // Use the DLAFF 'dynamic model' to generate kinematic valid output back to GPSB
+    }
 }
 
 
@@ -1104,4 +1098,3 @@ void send_data()
   Serial.write((const uint8_t*)joystick, 7);
   Serial.println();
 }
-
