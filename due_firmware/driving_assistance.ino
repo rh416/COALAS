@@ -30,6 +30,7 @@
 #include <haptic.h>
 #include <SPI.h>
 #include <SD.h>
+#include "errors.h"
 
 
 //enum Verbosity {SILENT, VERBOSE}; // doesn't compile in Arduino IDE
@@ -191,6 +192,7 @@ void algorithm_setup() { // logging on to RS485 and GPSB updated and modified by
   delay(100);  // Power-up delay
   Serial.begin(115200);  // Setup comms to PC 
   delay(100);
+  PRINT_SAFE("Startup begin...");
   
  // =============== initialise log on to GPSB
    

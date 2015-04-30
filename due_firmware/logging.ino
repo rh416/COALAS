@@ -1,9 +1,15 @@
+#include "errors.h"
+
+#define LOG_FILE_MAX_FILENAME_LENGTH 12
+#define LOG_FILE_EVENT_CODE_LENGTH 4
+
 // ================================== Data logging on SD card function
 struct LoggingStatus{
   
-    boolean enabled = true;
-    String filename = "datalog.txt";
-    String nextEventDescription = "";
+    // Default to logging being disabled
+    boolean enabled = false;
+    char filename[LOG_FILE_MAX_FILENAME_LENGTH] = "datalog.txt";
+    char nextEventDescription[LOG_FILE_EVENT_CODE_LENGTH] = "";
     unsigned long timeFromSystem = 0;
     unsigned long millisWhenTimeWasReceived = 0;
     boolean errorReported = false;
@@ -11,11 +17,10 @@ struct LoggingStatus{
   
 LoggingStatus currentLoggingStatus = LoggingStatus();
 
-
 void logging(){
   
-  // Only carry on if logging is currently enabled
-  if(currentLoggingStatus.enabled){
+  // Only carry on if logging is currently enabled and no error has been reported
+  if(currentLoggingStatus.enabled && currentLoggingStatus.errorReported === false){
     timer = millis();
     stopWatch = timer - currentTime;
     String dataString = "";
@@ -25,8 +30,6 @@ void logging(){
     dataString += ",";
     dataString += String(stopWatch);
     dataString += ",";
-    
-    
     
     // Timestamp - needs to have been set via serial port to be anything useful
     unsigned long currentSeconds = 0;
@@ -64,16 +67,12 @@ void logging(){
     
     // Reset the next event description to be blank
     //      setting the first character to be a terminating character achieves this
-    currentLoggingStatus.nextEventDescription = "";
-
-    // We need to convert the String filename to a char array
-    const int dataFilenameBufferSize = 12;
-    char dataFilenameBuffer[dataFilenameBufferSize];
-    currentLoggingStatus.filename.toCharArray(dataFilenameBuffer, dataFilenameBufferSize);
+    // See - http://arduino.stackexchange.com/a/3178 for explanation
+    currentLoggingStatus.nextEventDescription[0] = (char)0;
 
     // open the file. note that only one file can be open at a time,
     // so you have to close this one before opening another.
-    File dataFile = SD.open(dataFilenameBuffer, FILE_WRITE);
+    File dataFile = SD.open(currentLoggingStatus.filename, FILE_WRITE);
 
     // if the file is available, write to it:
     if (dataFile) {
@@ -86,9 +85,7 @@ void logging(){
     // if the file isn't open, pop up an error:
     else {
       if(!currentLoggingStatus.errorReported){
-        // print to the serial port for debugging
-        Serial.print("error opening "); 
-        Serial.println(currentLoggingStatus.filename); 
+        report_error(LOG_SD_CARD_INACCESSIBLE);
         currentLoggingStatus.errorReported = true;
       }        
     }
@@ -96,15 +93,10 @@ void logging(){
 }
 
 void logging_start(String filename){
-  
+    
+  filename.toCharArray(currentLoggingStatus.filename, LOG_FILE_MAX_FILENAME_LENGTH);
   currentLoggingStatus.enabled = true;
-  currentLoggingStatus.filename = filename;
   currentLoggingStatus.errorReported = false;
-  
-   // We need to convert the String filename to a char array
-   const int dataFilenameBufferSize = 12;
-   char dataFilenameBuffer[dataFilenameBufferSize];
-   currentLoggingStatus.filename.toCharArray(dataFilenameBuffer, dataFilenameBufferSize);
 }
 
 void logging_end(){
@@ -116,26 +108,27 @@ void logging_end(){
   Serial.print(currentLoggingStatus.filename);
   Serial.print(":");
   
-  char filename[12];
-  currentLoggingStatus.filename.toCharArray(filename, 12);
-  File log_file = SD.open(filename);
-    
-  Serial.println(log_file.size());
+  // Set the default filesize to 0
+  uint32_t filesize = 0;
   
-  log_file.close();
+  // If we're able to open the log file, read its filesize
+  if(File log_file = SD.open(currentLoggingStatus.filename)){
+    filesize = log_file.size();
+    log_file.close();
+  }
+    
+  Serial.println(filesize);
 }
 
-String logging_list(){
+void logging_list(){
     
   File log_root = SD.open("/");
+  
+  // Make sure we're at the start of the root directory
+  log_root.rewindDirectory();
     
-  while(true){
-    File log_file = log_root.openNextFile();
-    
-    if(!log_file){
-      log_root.rewindDirectory();
-      break;
-    } else if (!log_file.isDirectory()){
+  while(File log_file = log_root.openNextFile()){
+    if (!log_file.isDirectory()){
       Serial.print("L:");
       Serial.print(log_file.name());
       Serial.print(":");
@@ -148,5 +141,5 @@ String logging_list(){
 
 void logging_event(String eventDescription){
   
-  currentLoggingStatus.nextEventDescription = eventDescription;
+  eventDescription.toCharArray(currentLoggingStatus.nextEventDescription, LOG_FILE_EVENT_CODE_LENGTH);
 }
