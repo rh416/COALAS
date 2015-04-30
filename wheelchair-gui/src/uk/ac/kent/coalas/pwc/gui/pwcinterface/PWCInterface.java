@@ -25,6 +25,8 @@ public class PWCInterface {
     private boolean loggingHasRequestedList = false;
 
     /***************************************
+     *  IMPORTANT: The numbers given to each error type MUST match those listed in the documentation!
+     *  See - https://github.com/rh416/COALAS/wiki/Wheelchair-Communication-Protocol#error-codes
      */
     public static enum Error {
         UNKNOWN(0),
@@ -781,6 +783,7 @@ public class PWCInterface {
 
                     case 'E':
                         type = PWCInterfaceEvent.EventType.ERROR;
+                        payload = new PWCInterfacePayloadError(this, response);
                         break;
 
                     /*
