@@ -46,7 +46,7 @@ ui.pi_control = {
         $('#pi-time-buttons .btn-primary').click(function(){
 
             pi.synchroniseTime(ui.pi_control.displayTimeSyncSuccess, function(){
-                alert("Synchronising time failed!");
+                alert("Synchronising time failed!\n\nMessage: " + response.message);
             });
         });
     },
