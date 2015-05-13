@@ -36,6 +36,9 @@ void setup(){
   } else {   
     algorithm_setup(); 
   }
+  
+  // Send a notification that the boot process is complete
+  Serial.println("B:Boot Complete");
 }
 
 void loop(){

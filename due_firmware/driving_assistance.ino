@@ -188,7 +188,7 @@ int currentTime = 0;
 
 // Constant loop timing
 uint32_t lastLoopTime = 0;
-uint16_t constantLoopTime = 50; // Max every loop take 50ms, whether or not the algorithm is running
+uint16_t constantLoopTime = 46; // Make every loop take at least this many miliseconds, whether or not the algorithm is running
 
 // ============================================== Setup ===========
 
@@ -211,6 +211,9 @@ void algorithm_setup() { // logging on to RS485 and GPSB updated and modified by
 
   Serial.println("Logged on to GPSB");
   delay(200);
+  
+  
+  logging_init();
  
  
   comms_485 = new Comms_485();  // Setup comms to RS_485 node communication
@@ -303,7 +306,7 @@ void algorithm_loop() {
   
    uint32_t thisLoopTime = millis();
   
-   if(thisLoopTime - lastLoopTime > constantLoopTime){
+   if(thisLoopTime - lastLoopTime >= constantLoopTime){
      lastLoopTime = thisLoopTime;
      
     // Check to see if the isolated switch has changed state
