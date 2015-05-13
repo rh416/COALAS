@@ -8,6 +8,9 @@ var logging = {
     currentLoggingFilename : '',
     currentLoggingStartTimestamp : 0,
 
+    onLoggingStartCallbacks : [],
+    onLoggingCompleteCallbacks : [],
+
     // Array to store a list of log files
     files : [],
 
@@ -22,13 +25,44 @@ var logging = {
         api("/logging-list/force", logging.handleListRefresh, successCallback, errorCallback);
     },
 
+    setIsLogging : function(isLogging){
+
+        // Only do anything if the state has changed
+        if(logging.isLogging !== isLogging){
+            // Record the new state
+            logging.isLogging = isLogging;
+
+            var loggingCallbacks = [];
+
+            // Iterate over the start / stop logging callbacks and execute them
+            if(isLogging){
+                loggingCallbacks = logging.onLoggingStartCallbacks;
+            } else {
+                loggingCallbacks = logging.onLoggingCompleteCallbacks;
+            }
+            for(var x in loggingCallbacks){
+                loggingCallbacks[x]();
+            }
+        }
+    },
+
+    onLoggingStart : function(callback){
+
+        logging.onLoggingStartCallbacks.push(callback);
+    },
+
+    onLoggingComplete : function(callback){
+
+        logging.onLoggingCompleteCallbacks.push(callback);
+    },
+
     startLogging : function(filename, successCallback, errorCallback){
 
         apiWithData("/logging-start",
             {filename : filename},
             function(response){
 
-                logging.isLogging = true;
+                logging.setIsLogging(true);
                 logging.currentLoggingFilename = response.logging_filename;
                 logging.currentLoggingStartTimestamp = response.logging_start_timestamp;
             },

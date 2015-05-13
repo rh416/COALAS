@@ -35,13 +35,17 @@ ui.logging = {
         // Create a listener to react to any status changes
         chairStatus.onStatusChange(ui.logging.updateLoggingUI);
 
+        // Create a listener to update the log file list when logging complete
+        logging.onLoggingComplete(function(){
+            ui.logging.refreshList();
+        })
+
         $('#logging-buttons .btn-primary').click(function(){
 
             if(logging.isLogging){
                 logging.stopLogging(function(){
 
-                    // Refresh the log file list on log end - do this so that other clients also update
-                    ui.logging.refreshList(false);
+                    // Update the log file list
                     ui.logging.updateLoggingUI();
                 });
             } else {
@@ -50,7 +54,7 @@ ui.logging = {
                 var run = $('#logging-run').val();
                 var runtype = $('#logging-runtype').val();
 
-                var filename = user + padLeft(run, 2) + runtype + ".csv";
+                var filename = (user + padLeft(run, 2) + runtype + ".csv").toUpperCase();
 
                 logging.startLogging(filename, ui.logging.updateLoggingUI, function(){
 

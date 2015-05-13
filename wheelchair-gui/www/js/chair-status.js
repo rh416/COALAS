@@ -31,7 +31,7 @@ var chairStatus = {
 
         connection.setConnected(response.is_connected);
         connection.setBootComplete(response.is_boot_complete);
-        logging.isLogging = response.is_logging;
+        logging.setIsLogging(response.is_logging);
         logging.currentLoggingFilename = response.logging_filename;
         logging.currentLoggingStartTimestamp = response.logging_start_timestamp;
 
