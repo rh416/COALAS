@@ -17,7 +17,7 @@ public class PWCInterface {
     private ArrayList<Node> nodes = new ArrayList<Node>(10);
     private Map<String, LogFile> logFiles = new HashMap<String, LogFile>();
     private boolean connected = false;
-
+    private boolean isBootComplete = false;
     private boolean isLogging = false;
     private String currentLogFilename = null;
     private String currentLogFilenameNext = null;
@@ -190,11 +190,24 @@ public class PWCInterface {
             PWCInterfacePayloadConnectionStatus eventPayload = new PWCInterfacePayloadConnectionStatus(this, connected);
             dispatchPWCInterfaceEvent(new PWCInterfaceEvent(this, eventType, eventPayload));
 
-            if(eventType == PWCInterfaceEvent.EventType.CONNECTED){
-                // When the chair connects, automatically retrieve the version information and send the time
-                requestVersion();
-                setSystemTime();
-            }
+            // If the connection state has changed, the firmware will not be booted
+            setBootComplete(false);
+        }
+    }
+
+    public boolean isBootComplete(){
+
+        return this.isBootComplete;
+    }
+
+    public void setBootComplete(boolean isBootComplete){
+
+        this.isBootComplete = isBootComplete;
+
+        // Once the chair is booted, request the latest version and set the time
+        if(isBootComplete) {
+            requestVersion();
+            setSystemTime();
         }
     }
 
@@ -784,6 +797,12 @@ public class PWCInterface {
                     case 'E':
                         type = PWCInterfaceEvent.EventType.ERROR;
                         payload = new PWCInterfacePayloadError(this, response);
+                        break;
+
+                    case 'B':
+                        setBootComplete(true);
+                        type = PWCInterfaceEvent.EventType.BOOT_COMPLETE;
+                        payload = null;
                         break;
 
                     /*

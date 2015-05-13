@@ -6,12 +6,9 @@ ui.logging = {
 
     init : function(){
 
-        // Refresh the log file list on connection to the chair
-        connection.onConnect(function(){
+        // Refresh the log file list when the chair boots
+        connection.onBootComplete(function(){
             ui.logging.refreshList(true);
-            setTimeout(function(){
-                ui.logging.refreshList(true);
-            }, 10000);
         });
 
         connection.onDisconnect(function(){

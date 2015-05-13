@@ -57,6 +57,20 @@ ui.connection = {
                 });
             }
         });
+
+        // Register a listener so that we can display an information window when the chair connects
+        connection.onConnect(function(){
+            dialog.show({
+                title : 'Wheelchair Booting, please wait',
+                message : 'Wheelchair is connected, but it is still booting.<br />This should take approximately 5 - 10 seconds to complete',
+                buttons : false
+            })
+        });
+
+        // Register a listener to hide the boot warning once it's complete
+        connection.onBootComplete(function(){
+            dialog.hide();
+        })
     },
 
     updateSerialPortList : function(){

@@ -5,10 +5,12 @@
 var connection = {
 
     connected : false,
+    isBootComplete : false,
     ports : [],
 
     onConnectCallbacks : [],
     onDisconnectCallbacks : [],
+    onBootCompleteCallbacks : [],
 
     loadAvailablePorts : function(successCallback, errorCallback){
 
@@ -52,12 +54,29 @@ var connection = {
             // Record the new state
             connection.connected = connected;
 
-            // Iterate over both sets of callbacks and execute them
-            for(var x in connection.onConnectCallbacks){
-                connection.onConnectCallbacks[x]();
+            // Iterate over the correct set of callbacks and execute them
+            if(connected){
+                for(var x in connection.onConnectCallbacks){
+                    connection.onConnectCallbacks[x]();
+                }
+            } else {
+                for(var x in connection.onDisconnectCallbacks){
+                    connection.onDisconnectCallbacks[x]();
+                }
             }
-            for(var x in connection.onDisconnectCallbacks){
-                connection.onDisconnectCallbacks[x]();
+        }
+    },
+
+    setBootComplete : function(isBootComplete){
+
+        // Only do anything if the state has changed
+        if(connection.isBootComplete !== isBootComplete){
+            // Record the new state
+            connection.isBootComplete = isBootComplete;
+
+            // Iterate over the boot callbacks and execute them
+            for(var x in connection.onBootCompleteCallbacks){
+                connection.onBootCompleteCallbacks[x]();
             }
         }
     },
@@ -70,5 +89,10 @@ var connection = {
     onDisconnect : function(callback){
 
         connection.onDisconnectCallbacks.push(callback);
+    },
+
+    onBootComplete : function(callback){
+
+        connection.onBootCompleteCallbacks.push(callback);
     }
 }

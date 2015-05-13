@@ -47,6 +47,7 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
     private static final String JSON_FIELD_STATUS = "status";
     private static final String JSON_FIELD_MESSAGE = "message";
     private static final String JSON_FIELD_IS_CONNECTED = "is_connected";
+    private static final String JSON_FIELD_IS_BOOT_COMPLETE = "is_boot_complete";
     private static final String JSON_FIELD_IS_LOGGING = "is_logging";
     private static final String JSON_FIELD_LOGGING_FILENAME = "logging_filename";
     private static final String JSON_FIELD_LOGGING_FILESIZE = "logging_filesize";
@@ -284,6 +285,7 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
 
         response.put(JSON_FIELD_STATUS, "okay")
                 .put(JSON_FIELD_IS_CONNECTED, chairInterface().isConnected())
+                .put(JSON_FIELD_IS_BOOT_COMPLETE, chairInterface().isBootComplete())
                 .put(JSON_FIELD_IS_LOGGING, chairInterface().isLogging())
                 .put(JSON_FIELD_LOGGING_FILENAME, chairInterface().getCurrentLoggingFilename())
                 .put(JSON_FIELD_LOGGING_START_TIMESTAMP, chairInterface().getCurrentLoggingStartTime());
@@ -299,6 +301,7 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
         PWCInterface chairInterface = chairInterface();
 
         boolean oldConnected = chairInterface.isConnected();
+        boolean oldBooted = chairInterface.isBootComplete();
         boolean oldIsLogging = chairInterface.isLogging();
         String oldLoggingFilename = chairInterface.getCurrentLoggingFilename();
         long oldLoggingStartTimestamp = chairInterface.getCurrentLoggingStartTime();
@@ -311,18 +314,23 @@ public class WheelchairWebServer extends SimpleWebServer implements PWCInterface
 
             // Get the new values
             boolean newConnected = chairInterface.isConnected();
+            boolean newBooted = chairInterface.isBootComplete();
             boolean newIsLogging = chairInterface.isLogging();
             String newLoggingFilename = chairInterface.getCurrentLoggingFilename();
             long newLoggingStartTimestamp = chairInterface.getCurrentLoggingStartTime();
 
             // Record them in our response - this will only get returned if something has actually changed
             response.put(JSON_FIELD_IS_CONNECTED, newConnected);
+            response.put(JSON_FIELD_IS_BOOT_COMPLETE, newBooted);
             response.put(JSON_FIELD_IS_LOGGING, newIsLogging);
             response.put(JSON_FIELD_LOGGING_FILENAME, newLoggingFilename);
             response.put(JSON_FIELD_LOGGING_START_TIMESTAMP, newLoggingStartTimestamp);
 
             // Check if anything has changed. If so, return the current response
             if(oldConnected != newConnected){
+                break;
+            }
+            if(oldBooted != newBooted){
                 break;
             }
             if(oldIsLogging != newIsLogging){
