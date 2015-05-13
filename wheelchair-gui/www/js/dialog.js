@@ -23,7 +23,7 @@ var dialog = {
 
     show : function(options){
 
-        var settings = $.extend(dialog.defaults, options);
+        var settings = $.extend({}, dialog.defaults, options);
 
         var d = $('#dialog-task-confirmation');
 
@@ -34,7 +34,6 @@ var dialog = {
         d.find('.btn-default').text(settings.negative.text);
 
         var buttons = d.find('.modal-footer');
-        // TODO: Hide buttons if desired
         if(settings.buttons){
             buttons.show();
         } else {
@@ -51,10 +50,15 @@ var dialog = {
         d.modal({show : true, keyboard : false});
     },
 
+    hide : function(){
+
+        $('#dialog-task-confirmation').modal('hide');
+    },
+
     handlePositiveCallback : function(){
 
         // Hide the modal
-        $('#dialog-task-confirmation').modal('hide');
+        dialog.hide();
 
         if(dialog.currentPositiveCallback){
             dialog.currentPositiveCallback();
@@ -67,7 +71,7 @@ var dialog = {
     handleNegativeCallback : function(){
 
         // Hide the modal
-        $('#dialog-task-confirmation').modal('hide');
+        dialog.hide();
 
         if(dialog.currentNegativeCallback){
             dialog.currentNegativeCallback();
