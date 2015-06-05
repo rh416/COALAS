@@ -1,8 +1,8 @@
 /*
- SYSIASS Master code file for the clinical trial powered wheelchair, Version 1.0
+ SYSIASS Master code file for the clinical trial powered wheelchair, Version 2.0
  Communicates with sensor nodes and GPSB and runs the embeded collision avoidance algorithms
  Authors: Michael Gillham and Martin Henderson from the University of Kent (Contribution by Bruce Ferrer from ISEN Lille)
- Last edited 18/02/15 
+ Last edited 15/05/15 
  
  NOTES:
          1. Explanation of the obstacle avoidance and dynamic model (DLAFF) are dealt with elsewhere and should not be changed without understanding the principle
@@ -40,18 +40,18 @@
 
 // ====== Obstacle avoidance Michael Gillham 31/08/14 ================================
 
-#define A1pin 1      // Analog pin right camera
-#define AOpin 0      // Analog pin left camera
-#define CLKpin 60    // digital pin 2
-#define SIpin 61     // digital pin 3
-#define NPIXELS 128  // number of pixels in line camera array
-
-// Line camera
-int PixelA[NPIXELS];   // array to capture analogue pixel read
-int PixelB[NPIXELS];   // array to capture analogue pixel read
-int i;
-int outputB = 0;
-int outputA = 0;
+//#define A1pin 1      // Analog pin right camera
+//#define AOpin 0      // Analog pin left camera
+//#define CLKpin 60    // digital pin 2
+//#define SIpin 61     // digital pin 3
+//#define NPIXELS 128  // number of pixels in line camera array
+//
+//// Line camera
+//int PixelA[NPIXELS];   // array to capture analogue pixel read
+//int PixelB[NPIXELS];   // array to capture analogue pixel read
+//int i;
+//int outputB = 0;
+//int outputA = 0;
 
 // Dynamic model
 double F_desired = 0;     // human input device desired drive trajectory
@@ -105,10 +105,19 @@ const int analogInPin2 = A9;
 const int analogInPin3 = A10;
 const int analogInPin4 = A11;
 const int digital = 66;
+const int joystickFeedbackSwitchPin = 68;
+
+int switchRPG = 67;
+  int sensorAmount = 5;
+  int sensorData[10];
+
 int potValue1 = 0;        
 int potValue2 = 0;
 int potValue3 = 0;
 int potValue4 = 0;
+
+int rpgX = 0;
+int rpgY = 0;
 
 // #### WARNING these nodes run anticlockwise on the EDECT/SYSIASS chair ######
 
@@ -175,14 +184,14 @@ Comms_485* comms_485 = 0; // RS485 Comms
 
 
 // logging
-File myFile;             // SD card logging file
+File myFile;               // SD card logging file
 int  userSpeed = 128;      // logging
 int  userTurn = 128;       // logging
-int  returnedSpeed = 0;  // logging
-int  returnedTurn = 0;   // logging
-int  runNumber = 0;      // file number
-int  previous = 0;       // set flag
-unsigned int  timer = 0;        // run clock
+int  returnedSpeed = 0;    // logging
+int  returnedTurn = 0;     // logging
+int  runNumber = 0;        // file number
+int  previous = 0;         // set flag
+unsigned int  timer = 0;   // run clock
 int stopWatch = 0;
 int currentTime = 0;
 
@@ -197,7 +206,7 @@ void algorithm_setup() { // logging on to RS485 and GPSB updated and modified by
   delay(100);  // Power-up delay
   Serial.begin(115200);  // Setup comms to PC 
   delay(100);
-  PRINT_SAFE("Startup begin...");
+ // PRINT_SAFE("Startup begin...");
   
  // =============== initialise log on to GPSB
    
@@ -230,19 +239,22 @@ void algorithm_setup() { // logging on to RS485 and GPSB updated and modified by
   pinMode(isolate_pin, INPUT);  // Set up isolate switch
   pinMode(digital, INPUT);      // Set up potential force field switch
   
+  pinMode(switchRPG, INPUT);
+  pinMode(joystickFeedbackSwitchPin, INPUT);
+  
   // ============== initialise data structures ==========
 
   scan_for_sensors(VERBOSE); // scan for sensors and report values to serial print
   Serial.println();
-  Serial.println("Setup Complete: EDECT Version 1 18.02.15"); 
+  Serial.println("Setup Complete: EDECT Version 2 15.05.15"); 
   delay(200);
   
   // ============== initialise line cameras ==== Michael Gillham 31/08/14
   
-  pinMode (SIpin, OUTPUT);
-  pinMode (CLKpin, OUTPUT);
-  pinMode (49, OUTPUT);  
-  digitalWrite (CLKpin, HIGH);  
+//  pinMode (SIpin, OUTPUT);
+//  pinMode (CLKpin, OUTPUT);
+//  pinMode (49, OUTPUT);  
+//  digitalWrite (CLKpin, HIGH);  
   digitalWrite (49, LOW);       // switches on illumination relay when HIGH, call it elsewhere
    
  // ======== There is no kill switch attached. However if so desired one can be attached to kill code, although essentially the above fuction serves the same purpose ====  
@@ -271,7 +283,7 @@ Serial.print("Initializing SD card...");
   // if the file opened okay, write to it:
   if (myFile) {
     Serial.println("Writing to test.txt...");
-    myFile.println("EDECT Version 1 18.02.15");
+    myFile.println("EDECT Version 2 15.05.15");
    // close the file:
     myFile.close();
     Serial.println("done.");
@@ -323,7 +335,8 @@ void algorithm_loop() {
   logging();
   
     if (directionFlag == 0 && rotationFlag == 0){
-      set_vibration_pattern(OFF); // Turn off vibration if joystick centred
+      set_vibration_pattern(OFF);      // Turn off vibration if joystick centred
+      update_vibration();              // Send haptic feedback to joystick vibration motor
     }
   
     check_isolate_switch();           // check for isolation of obstacle avoidance software, 0 means run obstacle avoidance 1 means isolate
@@ -333,49 +346,101 @@ void algorithm_loop() {
     userSpeed = speed;                // logging
     userTurn = turn;                  // logging
   
-    if(isolated == 1){
-      returnJoystickDirect();  
-    } else if(isolated == 0){
-      DLAFF_collision_avoidance ();    // Doorway passing, use linecameras to improve doorway resolution and lock-in
-      hapticFeedback ();               // Set haptic feedback to user
-      update_vibration();              // Send haptic feedback to joystick vibration motor
-      Dynamic_model();                 // Use the DLAFF 'dynamic model' to generate kinematic valid output back to GPSB
-    }
+    boolean rpgE = digitalRead(switchRPG);
+  
+    // ROBERTS CODE
+      //Serial.println("RH CODE " + rpgE );
+      if(rpgE == HIGH){
+        rpg();
+        speed = rpgX;
+        //Serial.print(speed + ",");
+        turn = rpgY;
+        // Serial.println("sdcjknsdkjnsdcnsdkjcnkjsdnckjsnckjsnkcsjnkjnsdjkcnsknckjsnkcjsdnkcjnskncsdjnskjcns");
+      //  Serial.println(rpgX);
+  
+      }
+
+      if(rpgE == LOW)
+      {
+       speed = speed; 
+       turn = turn;
+  
+      }
+  
+  
+      uint16_t feedbackInTurn = turn;
+      uint16_t feedbackInSpeed = speed;
+      uint16_t feedbackOutTurn = 0;
+      uint16_t feedbackOutSpeed = 0;
+      uint8_t feedbackAssistEnabled = false;
+  
+      if(isolated == 1){
+        returnJoystickDirect();  
+        
+        feedbackOutTurn = turn;
+        feedbackOutSpeed = speed;
+        
+      } else if(isolated == 0){
+        DLAFF_collision_avoidance ();    // Doorway passing, use linecameras to improve doorway resolution and lock-in
+        hapticFeedback ();               // Set haptic feedback to user
+        update_vibration();              // Send haptic feedback to joystick vibration motor
+        Dynamic_model();                 // Use the DLAFF 'dynamic model' to generate kinematic valid output back to GPSB
+        
+        feedbackOutTurn = returnedTurn;
+        feedbackOutSpeed = returnedSpeed;
+        feedbackAssistEnabled = true;
+      }
+      
+      if(joystickDisplayEnabled()){
+        // J:INTURN-INSPEED-OUTTURN-OUTSPEED-ENABLED(0=true, 1=false)
+        String feedbackStr = "J:";
+        feedbackStr += (feedbackInTurn + 100);
+        feedbackStr += (feedbackInSpeed + 100);
+        feedbackStr += (feedbackOutTurn + 100);
+        feedbackStr += (feedbackOutSpeed + 100);
+        feedbackStr += (feedbackAssistEnabled ? "0" : "1");
+        
+        Serial.println(feedbackStr);
+      }
   }    
 }
+
+boolean joystickDisplayEnabled(){
+  return digitalRead(joystickFeedbackSwitchPin);
+  }
 
 
 
 
 // ================================== Obstacle avoidance algorithms: Michael Gillham 31st August 2014 ======= 
 
-void lineCameras() {
-   
-  digitalWrite (CLKpin, LOW);
-  delayMicroseconds (6);
-  digitalWrite (SIpin, HIGH);
-  digitalWrite (CLKpin, HIGH);
-  digitalWrite (SIpin, LOW);  
- 
-    for (i = 0; i < NPIXELS; i++) {
-    PixelA[i] = analogRead (AOpin);
-    PixelB[i] = analogRead (A1pin);
-    digitalWrite (CLKpin, LOW);   
-    digitalWrite (CLKpin, HIGH);
-    }
-       outputA = 0;
-       for (i = 0; i < NPIXELS; i++) {
-        if (PixelA[i] <150)                   // Threshold value empirically obtained
-           outputA = outputA +1;
-        else   outputA = outputA;
-           }         
-       outputB = 0;
-       for (i = 0; i < NPIXELS; i++) {
-        if (PixelB[i] <150)                  // Threshold value empirically obtained
-           outputB = outputB +1;
-        else  outputB = outputB;
-          }        
-}
+//void lineCameras() {
+//   
+//  digitalWrite (CLKpin, LOW);
+//  delayMicroseconds (6);
+//  digitalWrite (SIpin, HIGH);
+//  digitalWrite (CLKpin, HIGH);
+//  digitalWrite (SIpin, LOW);  
+// 
+//    for (i = 0; i < NPIXELS; i++) {
+//    PixelA[i] = analogRead (AOpin);
+//    PixelB[i] = analogRead (A1pin);
+//    digitalWrite (CLKpin, LOW);   
+//    digitalWrite (CLKpin, HIGH);
+//    }
+//       outputA = 0;
+//       for (i = 0; i < NPIXELS; i++) {
+//        if (PixelA[i] <150)                   // Threshold value empirically obtained
+//           outputA = outputA +1;
+//        else   outputA = outputA;
+//           }         
+//       outputB = 0;
+//       for (i = 0; i < NPIXELS; i++) {
+//        if (PixelB[i] <150)                  // Threshold value empirically obtained
+//           outputB = outputB +1;
+//        else  outputB = outputB;
+//          }        
+//}
 
 void Dynamic_model() {      // DLAFF model not fully applied, in this case only!
                             //  ### IMPORTANT DO NOT IGNORE THE NOTE BELOW #####
@@ -405,16 +470,19 @@ void Dynamic_model() {      // DLAFF model not fully applied, in this case only!
      
      returnedSpeed = speed;  // logging
      returnedTurn = turn;    // logging
-     GPSB_set_speed_turn(speed, turn);  // Return modified joystick values (1-255) to system
-     GPSB_send_drive_packet(); 
+
+     if(!joystickDisplayEnabled()){
+       GPSB_set_speed_turn(speed, turn);  // Return modified joystick values (1-255) to system
+       GPSB_send_drive_packet(); 
+     }
 }
 
 void hapticFeedback (){
      
-    if (leftDamping < 0.5 || rightDamping < 0.5)
+    if (leftDamping < 0.4 || rightDamping < 0.4)
          {set_vibration_pattern(SUBTLE);}      
-    else if (leftDamping < 0.2 || rightDamping < 0.2)
-         {set_vibration_pattern(CONTINUOUS);} 
+    else if (leftDamping < 0.1 || rightDamping < 0.1)
+         {set_vibration_pattern(WARNING);} 
     else {set_vibration_pattern(OFF);}    
 }
 
@@ -504,42 +572,42 @@ if (digitalRead(digital) == HIGH){ // set forward potential force field values f
     
 }
      
-void doorwayLineCameras (){  //  Simple doorway detection assumption if doorway is detected this function turns on the linecameras and illuminators, 
-                             //  then it compares the data with sonar and infrared to deterine which sensor type has detected closest obstacle
-    
-        if ((leftFront < 50 || left45 < 50 || left90 < 20) && (rightFront < 50 || right45 < 50 || right90 < 20))  
-           {doorwayFlag = 1;}                                          
-        if ((leftFront > 49 && rightFront > 49) || directionFlag != 2) // If we reverse back and not enter doorway, abort.
-           {doorwayFlag = 0;}    
-                     
-        if (doorwayFlag == 1){                             // Run doorway edge detection using line cameras
-              digitalWrite (illumination_relay, HIGH);     // Turn on infrared illumination
-              lineCameras();                               
-              leftDoorwayDamping = (128-outputA);
-              leftDoorwayDamping = map(leftDoorwayDamping, 30, 80, 0, 350);    // adjust values according to callibration with doorway
-              leftDoorwayDamping = constrain(leftDoorwayDamping, 0, 350);
-              leftDoorwayDamping = 1-(1/(exp(leftDoorwayDamping)));
-              rightDoorwayDamping = (128-outputB);
-              rightDoorwayDamping = map(rightDoorwayDamping, 30, 80, 0, 350);  // adjust values according to callibration with doorway
-              rightDoorwayDamping = constrain(rightDoorwayDamping, 0, 350);
-              rightDoorwayDamping = 1-(1/(exp(rightDoorwayDamping)));            
-              }
-        else if (doorwayFlag == 0)
-              {digitalWrite (illumination_relay, LOW);       // Turn off infrared illumination
-              rightDoorwayDamping = 128;
-              leftDoorwayDamping = 128;}  
-              
-     // Mitigation for doorway detection, if there is no doorway then ignore it           
-      if (leftDoorwayDamping < leftDamping)                   
-         {leftDamping = leftDoorwayDamping;} 
-         else if (leftDoorwayDamping >= leftDamping)  
-                 {leftDamping = leftDamping;}
-      if (rightDoorwayDamping < rightDamping)
-         {rightDamping = rightDoorwayDamping;} 
-         else if (rightDoorwayDamping >= rightDamping)  
-                 {rightDamping = rightDamping;}   
-            
-}  
+//void doorwayLineCameras (){  //  Simple doorway detection assumption if doorway is detected this function turns on the linecameras and illuminators, 
+//                             //  then it compares the data with sonar and infrared to deterine which sensor type has detected closest obstacle
+//    
+//        if ((leftFront < 50 || left45 < 50 || left90 < 20) && (rightFront < 50 || right45 < 50 || right90 < 20))  
+//           {doorwayFlag = 1;}                                          
+//        if ((leftFront > 49 && rightFront > 49) || directionFlag != 2) // If we reverse back and not enter doorway, abort.
+//           {doorwayFlag = 0;}    
+//                     
+//        if (doorwayFlag == 1){                             // Run doorway edge detection using line cameras
+//              digitalWrite (illumination_relay, HIGH);     // Turn on infrared illumination
+//              lineCameras();                               
+//              leftDoorwayDamping = (128-outputA);
+//              leftDoorwayDamping = map(leftDoorwayDamping, 30, 80, 0, 350);    // adjust values according to callibration with doorway
+//              leftDoorwayDamping = constrain(leftDoorwayDamping, 0, 350);
+//              leftDoorwayDamping = 1-(1/(exp(leftDoorwayDamping)));
+//              rightDoorwayDamping = (128-outputB);
+//              rightDoorwayDamping = map(rightDoorwayDamping, 30, 80, 0, 350);  // adjust values according to callibration with doorway
+//              rightDoorwayDamping = constrain(rightDoorwayDamping, 0, 350);
+//              rightDoorwayDamping = 1-(1/(exp(rightDoorwayDamping)));            
+//              }
+//        else if (doorwayFlag == 0)
+//              {digitalWrite (illumination_relay, LOW);       // Turn off infrared illumination
+//              rightDoorwayDamping = 128;
+//              leftDoorwayDamping = 128;}  
+//              
+//     // Mitigation for doorway detection, if there is no doorway then ignore it           
+//      if (leftDoorwayDamping < leftDamping)                   
+//         {leftDamping = leftDoorwayDamping;} 
+//         else if (leftDoorwayDamping >= leftDamping)  
+//                 {leftDamping = leftDamping;}
+//      if (rightDoorwayDamping < rightDamping)
+//         {rightDamping = rightDoorwayDamping;} 
+//         else if (rightDoorwayDamping >= rightDamping)  
+//                 {rightDamping = rightDamping;}   
+//            
+//}  
   
 void forwardObstacleAvoidance (){ 
   
@@ -1071,12 +1139,15 @@ void returnJoystickDirect(){  // Change to isolate switch function by Michael Gi
    update_vibration();
    digitalWrite (illumination_relay, LOW);    // Turn off illumination, ensure previous state zeroed
    
-   speed = map(speed, 1, 255, 28, 228);       // we can map the un-assisted system to have the-
-   turn = map(turn, 1, 255, 32, 224);         // same velocity and rate of turn as the assisted for comparison when testing
-   speed = constrain(speed, 28, 228);       
-   turn = constrain(turn, 32, 224);         
-   GPSB_set_speed_turn(speed, turn);          // Return modified joystick values (0-255) to system
-   GPSB_send_drive_packet();  
+   speed = map(speed, 1, 255, 30, 226);       // we can map the un-assisted system to have the-
+   turn = map(turn, 1, 255, 34, 222);         // same velocity and rate of turn as the assisted for comparison when testing
+   speed = constrain(speed, 30, 226);       
+   turn = constrain(turn, 34, 222);         
+   
+   if(!joystickDisplayEnabled()){
+     GPSB_set_speed_turn(speed, turn);          // Return modified joystick values (0-255) to system
+     GPSB_send_drive_packet();  
+   }
 }  
 
 void send_data()
@@ -1107,3 +1178,22 @@ void send_data()
   Serial.write((const uint8_t*)joystick, 7);
   Serial.println();
 }
+
+void rpg()
+{
+//  Serial.println("Engage");
+  for (int i = 0; i < sensorAmount; i++)
+  {
+    sensorData[i] = analogRead(i);
+    Serial.println(sensorData[i]);
+    sensorData[i] = sensorData[i] - 1023;
+    sensorData[i] = -sensorData[i];
+    sensorData[i] = map(sensorData[i], 0, 1024, 0, 125);
+    
+  }
+  rpgY = 127 - sensorData[0] + sensorData[2];
+  rpgX = 127 + sensorData[1] - sensorData[3];
+  Serial.println(rpgX);
+//Serial.println("HERE");
+}
+

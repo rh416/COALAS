@@ -1,0 +1,2 @@
+// Default version file. Will cause compilation to fail if source was not checked out from GitHub and new Version file was not generated
+#error "Compilation halted: No Version information available. Please ensure that you are following the instructions found at the COALAS GitHub page - https://github.com/rh416/COALAS/blob/master/README.md

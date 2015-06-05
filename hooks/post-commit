@@ -1,0 +1,5 @@
+#!/bin/sh
+# 
+# This file outputs the current hash for this commit to a file called hash.txt
+
+git rev-parse --short HEAD > hash.txt
