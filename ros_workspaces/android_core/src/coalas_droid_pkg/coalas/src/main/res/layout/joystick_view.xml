@@ -1,0 +1,57 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="wrap_content"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:clipChildren="false"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context=".MainActivity$PlaceholderFragment"
+    android:focusable="false"
+    android:focusableInTouchMode="false"
+    >
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="30dp"
+        android:id="@+id/linearLayout"
+
+        >
+        <!--
+            android:clipChildren="false"
+            -->
+
+        <CheckBox
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:text="@string/joystick_toggle_straight_text"
+            android:id="@+id/joystick_toggle_straight"
+            android:layout_gravity="bottom"
+            android:checked="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:enabled="true" />
+
+    </LinearLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:id="@+id/space"
+        android:layout_height="20dp"
+        android:layout_below="@+id/linearLayout"
+        android:layout_gravity="center_horizontal" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="70dp"
+        android:layout_below="@+id/space"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/joystick_canvas_view"
+        android:clipChildren="false"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"></LinearLayout>
+
+</RelativeLayout>

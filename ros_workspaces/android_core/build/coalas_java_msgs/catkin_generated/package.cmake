@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "coalas_java_msgs")
+set(coalas_java_msgs_MAINTAINER "user <user@todo.todo>")
+set(coalas_java_msgs_DEPRECATED "")
+set(coalas_java_msgs_VERSION "0.1.0")
+set(coalas_java_msgs_BUILD_DEPENDS "coalas_msgs" "rosjava_bootstrap" "rosjava_build_tools" "rosjava_messages")
+set(coalas_java_msgs_RUN_DEPENDS )
+set(coalas_java_msgs_BUILDTOOL_DEPENDS "catkin")

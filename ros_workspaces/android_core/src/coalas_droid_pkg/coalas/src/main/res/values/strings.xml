@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Coalas</string>
+    <string name="title_section1">Joystick</string>
+    <string name="title_section2">Potential fields</string>
+    <string name="title_section3">Commands</string>
+    <string name="title_section4">Data Feedback</string>
+    <string name="title_section5">Navigation View</string>
+
+    <string name="default_zero">0%</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="front_left_text_label">Front left field:</string>
+    <string name="front_right_text_label">Front right field:</string>
+    <string name="left_side_text_label">Left side field:</string>
+    <string name="right_side_Text_label">Right side field:</string>
+    <string name="potential_field_toggle_text">Toggle potential fields</string>
+    <string name="joystick_toggle_straight_text">Toggle straight lines</string>
+    <string name="ip_label_txt">Coalas Server IP address</string>
+    <string name="_ok">OK</string>
+    <string name="_cancel">Cancel</string>
+    <string name="_send"> Send </string>
+    <string name="dot">.</string>
+</resources>

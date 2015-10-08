@@ -1,0 +1,8 @@
+prefix=/home/user/android_core/devel
+
+Name: coalas_msgs
+Description: Description of coalas_msgs
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/user/android_core/devel/lib 
+Requires: 

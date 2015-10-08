@@ -1,0 +1,8 @@
+prefix=/home/user/catkin_ws/devel/devel
+
+Name: coalas_pkg
+Description: Description of coalas_pkg
+Version: 0.0.0
+Cflags: -I/home/user/catkin_ws/devel/devel/include
+Libs: -L/home/user/catkin_ws/devel/devel/lib 
+Requires: message_runtime

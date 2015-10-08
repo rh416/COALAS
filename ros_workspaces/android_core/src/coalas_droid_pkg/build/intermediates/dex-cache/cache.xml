@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.apache.commons/com.springsource.org.apache.commons.logging/1.1.1/7657caf2c78e1d79c74d36f2ae128a115f7cc180/com.springsource.org.apache.commons.logging-1.1.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="7657caf2c78e1d79c74d36f2ae128a115f7cc180">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/com.springsource.org.apache.commons.logging-1.1.1-2870abc04ca2edcbdca73ee33df992b54c9adfc1.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_messages/actionlib_msgs/1.11.7/9ec983bb2eaaa20552edeb3544e04a45308fe71b/actionlib_msgs-1.11.7.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="9ec983bb2eaaa20552edeb3544e04a45308fe71b">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/actionlib_msgs-1.11.7-3211e0eb36e3a6b30d98159dc4aa4710c81e6c61.jar" />
+    </item>
+    <item
+        jar="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/exploded-aar/org.ros.android_core/android_15/0.2.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="e6d5fabcb9dfff241dfdfbb0fc835fbc3a7f9ca9">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/classes-d1bec790aaafa9bd3589153139b10f083368f62e.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_messages/tf2_msgs/0.5.9/b2fea11356b0f4ce744f30ac76e987b531b6028e/tf2_msgs-0.5.9.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="b2fea11356b0f4ce744f30ac76e987b531b6028e">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/tf2_msgs-0.5.9-899f9ed9cb61e9841773e70bb24e83b1fb5ad01f.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_core/apache_xmlrpc_server/0.2.1/f96701e8f578b6a4fc538e8a8a6b8f9256fd6718/apache_xmlrpc_server-0.2.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="f96701e8f578b6a4fc538e8a8a6b8f9256fd6718">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/apache_xmlrpc_server-0.2.1-5d410a61ca8033313ffcf1ce24472caf8d807274.jar" />
+    </item>
+    <item
+        jar="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/exploded-aar/org.ros.android_core/android_10/0.2.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="c3a30924c3f64ed4870fa76411f01ae2be62abcc">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/classes-265dd709e19fa99e81e06d1185500fb19221b1c5.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.apache.ws.commons/ws-commons-util/1.0.1/126e80ff798fece634bc94e61f8be8a8da00be60/ws-commons-util-1.0.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="126e80ff798fece634bc94e61f8be8a8da00be60">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/ws-commons-util-1.0.1-9cd0419f54b2f41cc099a04b08f938e4df175d79.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/io.netty/netty/3.5.2.Final/e6fb74a0699abe108969b2ec1f269391169a0426/netty-3.5.2.Final.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="e6fb74a0699abe108969b2ec1f269391169a0426">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/netty-3.5.2.Final-e19ae468bff0dcf809fe92fed6917f4dfcc6edb9.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_messages/nav_msgs/1.11.7/13b7b4aae1bf791c4f3a3a9ef68e58015cff1152/nav_msgs-1.11.7.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="13b7b4aae1bf791c4f3a3a9ef68e58015cff1152">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/nav_msgs-1.11.7-b7dd166f6dbb362c793ccbab85b75c627e2b3a18.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/dnsjava/dnsjava/2.1.1/5708df81cf6dbff545695f0be6380b7bbc85accc/dnsjava-2.1.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="5708df81cf6dbff545695f0be6380b7bbc85accc">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/dnsjava-2.1.1-132f50a8d30d64e7cd15ce2917fff6c6059d1e6d.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_messages/sensor_msgs/1.11.7/5f0b7ac0b5d341b9b37f408ab45c4a2e4c80068e/sensor_msgs-1.11.7.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="5f0b7ac0b5d341b9b37f408ab45c4a2e4c80068e">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/sensor_msgs-1.11.7-73c9ea7094fcc029e7cddf4c92c218c762181708.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_messages/geometry_msgs/1.11.7/bb9ca9051697047f8ebacae69956aa562d43b0e1/geometry_msgs-1.11.7.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="bb9ca9051697047f8ebacae69956aa562d43b0e1">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/geometry_msgs-1.11.7-1249c9185f9672b44ed750d03aec76e44869fd3d.jar" />
+    </item>
+    <item
+        jar="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/exploded-aar/com.android.support/support-v4/22.0.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="4e86306289ace4aa0cfec44a05ed2b410d36989d">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/classes-b2d3e77acaafa3d6a62ed089873c68d9b7ae4372.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_messages/rosjava_test_msgs/0.2.1/e10783e01c21cbe271aa6062c87f20d11c6053f0/rosjava_test_msgs-0.2.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="e10783e01c21cbe271aa6062c87f20d11c6053f0">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/rosjava_test_msgs-0.2.1-795d2590d134e3fb446624b44220ae7c18ca96eb.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_bootstrap/message_generation/0.2.1/dc3afb66cd5aa168a71bcb63ba89560b197b9300/message_generation-0.2.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="dc3afb66cd5aa168a71bcb63ba89560b197b9300">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/message_generation-0.2.1-545b9c210c43b3b58738ca5fd074699727a08510.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_messages/diagnostic_msgs/1.11.7/119c52755000fa22288dd666c4185f54ca737410/diagnostic_msgs-1.11.7.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="119c52755000fa22288dd666c4185f54ca737410">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/diagnostic_msgs-1.11.7-95d69b47e04b18f13a16ee48528760afc6176ae5.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.apache.commons/com.springsource.org.apache.commons.net/2.0.0/3e78766072ff5a5cf3f5431d973c430c94ec612/com.springsource.org.apache.commons.net-2.0.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="03e78766072ff5a5cf3f5431d973c430c94ec612">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/com.springsource.org.apache.commons.net-2.0.0-79b8d226979099a6fa84652814c16dddc7d98a81.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/12.0/5bc66dd95b79db1e437eb08adba124a3e4088dc0/guava-12.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="5bc66dd95b79db1e437eb08adba124a3e4088dc0">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/guava-12.0-ee75a54fd48565b0983dbf389a57aadc3cce5315.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_messages/rosgraph_msgs/1.11.1/e3d30a4a74f6282d014f7fd9828f5131bb3a9915/rosgraph_msgs-1.11.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="e3d30a4a74f6282d014f7fd9828f5131bb3a9915">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/rosgraph_msgs-1.11.1-ce71d0f794880b1889f65e99ec7e6bafa06158da.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/1.3.9/40719ea6961c0cb6afaeb6a921eaa1f6afd4cfdf/jsr305-1.3.9.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="40719ea6961c0cb6afaeb6a921eaa1f6afd4cfdf">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/jsr305-1.3.9-3ab3857ad0b37b529f162bfadaf7c5d987ca49be.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.apache.commons/com.springsource.org.apache.commons.io/1.4.0/51097cd000ec88214ff181c9f059947de1cf4a35/com.springsource.org.apache.commons.io-1.4.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="51097cd000ec88214ff181c9f059947de1cf4a35">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/com.springsource.org.apache.commons.io-1.4.0-69c985f56dbadd308a622eb66295ac484bae3741.jar" />
+    </item>
+    <item
+        jar="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/exploded-aar/com.android.support/support-v4/22.0.0/libs/internal_impl-22.0.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="b5b92f469d515a13d778900f6d50c03d12f35504">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/internal_impl-22.0.0-c4597b225da9e624dce18270bd99e582645a3a14.jar" />
+    </item>
+    <item
+        jar="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.0.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="d84409890828e07d344a3b9b1da545dba9897b51">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/classes-9aa91468f17ba50120f2f4839d4395c2b0215d05.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.apache.commons/com.springsource.org.apache.commons.lang/2.4.0/686e3713650c8e3a5d98723b4d3e239586bf9822/com.springsource.org.apache.commons.lang-2.4.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="686e3713650c8e3a5d98723b4d3e239586bf9822">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/com.springsource.org.apache.commons.lang-2.4.0-3ec4ab5fcf65294318f519e7c303cac5d805ce5f.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_core/rosjava_geometry/0.2.1/a31311017f578093eb09216269d0e25b0bd3d81d/rosjava_geometry-0.2.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="a31311017f578093eb09216269d0e25b0bd3d81d">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/rosjava_geometry-0.2.1-ecc7b53d98e8f64b29a83837438e90d5d75121f2.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.apache.commons/com.springsource.org.apache.commons.codec/1.3.0/f8690570eb0913d750262bb4223eed30b0d619ed/com.springsource.org.apache.commons.codec-1.3.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="f8690570eb0913d750262bb4223eed30b0d619ed">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/com.springsource.org.apache.commons.codec-1.3.0-17d4bdd81a3d8c79ac07beaaec1056decb4b26c4.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_core/rosjava/0.2.1/68face01dcd34ac0dd82fc3745afd764d330b427/rosjava-0.2.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="68face01dcd34ac0dd82fc3745afd764d330b427">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/rosjava-0.2.1-62e621c66b07ae173385e8735a9f2e32e9a367cd.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_messages/std_msgs/0.5.9/68490f8a983f5415bb95ebf93010c347c4fd20d8/std_msgs-0.5.9.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="68490f8a983f5415bb95ebf93010c347c4fd20d8">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/std_msgs-0.5.9-b5560b9702d556cc1f9a3e85a177c6b47b327932.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/commons-pool/commons-pool/1.6/4572d589699f09d866a226a14b7f4323c6d8f040/commons-pool-1.6.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="4572d589699f09d866a226a14b7f4323c6d8f040">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/commons-pool-1.6-c8f3e419adcc453ce99cbb0fff1d46b5e97ea849.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.apache.commons/com.springsource.org.apache.commons.httpclient/3.1.0/c493a925a091ac3d8f449d9265fe12482dabb2a7/com.springsource.org.apache.commons.httpclient-3.1.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="c493a925a091ac3d8f449d9265fe12482dabb2a7">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/com.springsource.org.apache.commons.httpclient-3.1.0-99c23ff253dba38a2f8d0d880477d4a2e2597d1d.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_core/apache_xmlrpc_common/0.2.1/a956178368232d0a9fccf501a8c91aacf2ac0256/apache_xmlrpc_common-0.2.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="a956178368232d0a9fccf501a8c91aacf2ac0256">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/apache_xmlrpc_common-0.2.1-97b231abf867d0ea646b9ce30b709f37a3ab02cc.jar" />
+    </item>
+    <item
+        jar="/home/user/Android/Sdk/extras/android/m2repository/com/android/support/support-annotations/22.0.0/support-annotations-22.0.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="685d0b2c590447e85284ed84712cb363ba04eff8">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/support-annotations-22.0.0-57d43262caed18e9a18048aeff6d4c86b242236f.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_bootstrap/gradle_plugins/0.2.1/33c05915db7ef72ac3978d33b16abd1b4b06fec9/gradle_plugins-0.2.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="33c05915db7ef72ac3978d33b16abd1b4b06fec9">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/gradle_plugins-0.2.1-2fcdf09ce54149fdba0a3194af9e34c860f35dee.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_messages/visualization_msgs/1.11.7/3a91db88f91333643e2cde4b16e13b9cd46f7700/visualization_msgs-1.11.7.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="3a91db88f91333643e2cde4b16e13b9cd46f7700">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/visualization_msgs-1.11.7-d7fe6b458d9c738b5dc1f43e58a2962e6959f9f8.jar" />
+    </item>
+    <item
+        jar="/home/user/.gradle/caches/modules-2/files-2.1/org.ros.rosjava_core/apache_xmlrpc_client/0.2.1/55f1cf075db9507a26102898e9f146221e4c1aaf/apache_xmlrpc_client-0.2.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="55f1cf075db9507a26102898e9f146221e4c1aaf">
+        <dex dex="/home/user/android_core/src/coalas_droid_pkg/coalas/build/intermediates/pre-dexed/debug/apache_xmlrpc_client-0.2.1-c41e4d299abf24f9b57ad938fc66ce7f77cc0050.jar" />
+    </item>
+
+</items>

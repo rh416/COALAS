@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>org.ros.rosjava_messages</groupId>
+  <artifactId>std_msgs</artifactId>
+  <version>0.5.9</version>
+  <versioning>
+    <versions>
+      <version>0.5.9</version>
+    </versions>
+    <lastUpdated>20151008152610</lastUpdated>
+  </versioning>
+</metadata>

@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Export-Package: rosserial_arduino;version="0.6.4";uses:="org.ros.inter
+ nal.message"
+Bundle-SymbolicName: org.ros.rosjava_messages.rosserial_arduino
+Bundle-Version: 0.6.4
+Bundle-Name: rosserial_arduino
+Bundle-ManifestVersion: 2
+Bnd-LastModified: 1444313340000
+Import-Package: org.ros.internal.message
+Created-By: 1.8.0_60 (Oracle Corporation)
+Tool: Bnd-2.1.0.20130426-122213
+

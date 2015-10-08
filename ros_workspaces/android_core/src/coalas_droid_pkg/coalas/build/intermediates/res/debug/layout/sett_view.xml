@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="20dp"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/ip_label_txt"
+        android:id="@+id/ip_label"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:singleLine="false"
+        android:gravity="center" />
+
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ip_address_field1"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:maxLength="3"
+            android:layout_weight=".4"
+            android:inputType="number"
+            android:singleLine="true"
+            android:nextFocusDown="@+id/ip_address_field2"
+            android:selectAllOnFocus="true"
+            android:gravity="center_horizontal"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="57dp"
+            android:text="@string/dot"
+            android:id="@+id/textView0"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:singleLine="false"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:textAlignment="viewEnd"
+            android:layout_weight="0.07" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@id/ip_address_field2"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:maxLength="3"
+            android:layout_weight=".4"
+            android:inputType="number"
+            android:singleLine="true"
+            android:nextFocusDown="@+id/ip_address_field3"
+            android:selectAllOnFocus="true"
+            android:gravity="center_horizontal"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="57dp"
+            android:text="@string/dot"
+            android:id="@+id/textView"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:singleLine="false"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:textAlignment="viewEnd"
+            android:layout_weight="0.08" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@id/ip_address_field3"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:maxLength="3"
+            android:layout_weight=".4"
+            android:inputType="number"
+            android:singleLine="true"
+            android:nextFocusDown="@+id/ip_address_field4"
+            android:selectAllOnFocus="true"
+            android:gravity="center_horizontal"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="57dp"
+            android:text="@string/dot"
+            android:id="@+id/textView2"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:singleLine="false"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:textAlignment="viewEnd"
+            android:layout_weight="0.08" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@id/ip_address_field4"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:maxLength="3"
+            android:layout_weight=".4"
+            android:inputType="number"
+            android:singleLine="true"
+            android:selectAllOnFocus="true"
+            android:gravity="center_horizontal">
+
+            <requestFocus />
+        </EditText>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ipOk_button"
+            android:text="@string/_ok"
+            android:layout_weight=".5"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:padding="5dp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ipCancel_button"
+            android:text="@string/_cancel"
+            android:layout_weight=".5"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:padding="5dp" />
+    </LinearLayout>
+</LinearLayout><!-- From: file:/home/user/android_core/src/coalas_droid_pkg/coalas/src/main/res/layout/sett_view.xml -->

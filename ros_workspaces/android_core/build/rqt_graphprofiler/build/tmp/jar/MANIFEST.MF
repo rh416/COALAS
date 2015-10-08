@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-SymbolicName: org.ros.rosjava_messages.rqt_graphprofiler
+Bundle-Version: 0.1.2
+Bundle-Name: rqt_graphprofiler
+Bundle-ManifestVersion: 2
+Bnd-LastModified: 1444313347000
+Created-By: 1.8.0_60 (Oracle Corporation)
+Tool: Bnd-2.1.0.20130426-122213
+

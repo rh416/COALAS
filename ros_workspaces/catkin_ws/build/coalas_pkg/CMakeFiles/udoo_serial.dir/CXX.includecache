@@ -1,0 +1,36 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/user/catkin_ws/src/coalas_pkg/src/udoo_serial_node.cpp
+fcntl.h
+-
+ros/init.h
+-
+ros/node_handle.h
+-
+ros/publisher.h
+-
+ros/subscriber.h
+-
+rosconsole/macros_generated.h
+-
+std_msgs/String.h
+-
+termios.h
+-
+cstdio
+-
+cstdlib
+-
+sstream
+-
+string
+-
+sys/ioctl.h
+-
+
