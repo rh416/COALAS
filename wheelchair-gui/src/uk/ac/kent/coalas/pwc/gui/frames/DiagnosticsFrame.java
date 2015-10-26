@@ -96,7 +96,9 @@ public class DiagnosticsFrame extends WheelchairGUIFrame {
     public void draw() {
         background(255);
 
-        positionTracker.resetY();
+        if (positionTracker != null) {
+            positionTracker.resetY();
+        }
 
         // Update the sensor data if the view is not paused and updatePeriod milliseconds has elapsed since last update
         if(!updatePaused && (updatePeriod > 0) && (millis() - lastUpdateTime > updatePeriod)){
