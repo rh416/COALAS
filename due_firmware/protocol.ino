@@ -8,6 +8,7 @@ char command_info[COMMAND_MAX_LENGTH];
 byte commandCurrentIndex = 0;
 boolean commandSendComplete = false;
 
+
 // Constants showing where command information is stored in the buffer
 const byte INDEX_COMMAND_INDICATOR_1 = 0;
 const byte INDEX_COMMAND_ID_1 = 1;
@@ -72,6 +73,13 @@ void handleProtocolMessages(){
 
       // Determine what the command was asking for
       switch(getCommandChar()){
+
+        // Return the boot message
+        case 'B':
+        {
+          response = "B: Boot complete";
+          break;
+        }
 
         // Return the current firmware version
         case 'I':
@@ -194,7 +202,7 @@ void handleProtocolMessages(){
 
       if(response){
         // Send the response back to the host pc
-        Serial.println(response);
+        SerialUSB.println(response);
         // Also print it with characters marking the beginning and end; uncomment for debugging purposes
         //PRINT_SAFE("Response: START_" + response + "_END");
       }
@@ -299,9 +307,9 @@ void resetCommandBuffer(){
 void serialEvent() {
 
   // Get all the bytes in the buffer
-  while(Serial.available()){
+  while(SerialUSB.available()){
     // Get the next available character
-    char inChar = (char)Serial.read();
+    char inChar = (char)SerialUSB.read();
     
     //PRINT_SAFE(inChar);
 

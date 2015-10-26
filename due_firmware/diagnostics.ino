@@ -2,8 +2,8 @@
 #include "SYSIASS_485_comms.h"
 
 // A macro used to print messages to the serial port that will be ignored by the host software
-#define PRINT_SAFE(str) ( Serial.println("_" + String(str)) )
-#define PRINT_SAFE_LEN(str,len) ( Serial.println("_" + String(str).substring(0, len)) )
+#define PRINT_SAFE(str) ( SerialUSB.println("_" + String(str)) )
+#define PRINT_SAFE_LEN(str,len) ( SerialUSB.println("_" + String(str).substring(0, len)) )
 
 #define PC_BAUD_RATE 115200
 
@@ -16,7 +16,7 @@ Comms_485* comms_485_diag = 0; // RS485 Comms
 void diagnostics_setup(){
 
   // Connect to the PC
-  Serial.begin(PC_BAUD_RATE);
+  SerialUSB.begin(PC_BAUD_RATE);
 
   // Connect to the RS-485 bus
   comms_485_diag = new Comms_485();
@@ -31,6 +31,11 @@ void diagnostics_setup(){
 }
 
 void diagnostics_loop(){
+  
+  // Make serialEvent run for the Native port
+  if(SerialUSB.available()){
+    serialEvent();
+  }    
    
-   handleProtocolMessages();
+  handleProtocolMessages();
 }

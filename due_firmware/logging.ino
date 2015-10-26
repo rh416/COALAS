@@ -117,9 +117,9 @@ void logging_end(){
   // Prevent anymore logging
   currentLoggingStatus.enabled = false;
   // Output the last log file name and size
-  Serial.print("L:");
-  Serial.print(currentLoggingStatus.filename);
-  Serial.print(":");
+  SerialUSB.print("L:");
+  SerialUSB.print(currentLoggingStatus.filename);
+  SerialUSB.print(":");
   
   // Set the default filesize to 0
   uint32_t filesize = 0;
@@ -130,7 +130,7 @@ void logging_end(){
     log_file.close();
   }
     
-  Serial.println(filesize);
+  SerialUSB.println(filesize);
 }
 
 void logging_list(){
@@ -142,10 +142,10 @@ void logging_list(){
     
   while(File log_file = log_root.openNextFile()){
     if (!log_file.isDirectory()){
-      Serial.print("L:");
-      Serial.print(log_file.name());
-      Serial.print(":");
-      Serial.println(log_file.size());
+      SerialUSB.print("L:");
+      SerialUSB.print(log_file.name());
+      SerialUSB.print(":");
+      SerialUSB.println(log_file.size());
     }
     log_file.close();
   }

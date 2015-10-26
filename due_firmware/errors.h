@@ -12,8 +12,8 @@ enum Error {
 
 void report_error(Error error){
   
-  Serial.print("E:");
-  Serial.println(error);
+  SerialUSB.print("E:");
+  SerialUSB.println(error);
 }
 
 #endif // ERRORS

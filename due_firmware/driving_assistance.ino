@@ -195,7 +195,7 @@ uint16_t constantLoopTime = 46; // Make every loop take at least this many milis
 void algorithm_setup() { // logging on to RS485 and GPSB updated and modified by Michael Gillham 31/08/14 to prevent intialisation drop out.
   
   delay(100);  // Power-up delay
-  Serial.begin(115200);  // Setup comms to PC 
+  SerialUSB.begin(115200);  // Setup comms to PC 
   delay(100);
   PRINT_SAFE("Startup begin...");
   
@@ -209,7 +209,7 @@ void algorithm_setup() { // logging on to RS485 and GPSB updated and modified by
   GPSB_log_on();       // Log on to the GPSB interface with Dynamics Control PWC system
   delay(5000); 
 
-  Serial.println("Logged on to GPSB");
+  SerialUSB.println("Logged on to GPSB");
   delay(200);
   
   
@@ -233,8 +233,8 @@ void algorithm_setup() { // logging on to RS485 and GPSB updated and modified by
   // ============== initialise data structures ==========
 
   scan_for_sensors(VERBOSE); // scan for sensors and report values to serial print
-  Serial.println();
-  Serial.println("Setup Complete: EDECT Version 1 18.02.15"); 
+  SerialUSB.println();
+  SerialUSB.println("Setup Complete: EDECT Version 1 18.02.15"); 
   delay(200);
   
   // ============== initialise line cameras ==== Michael Gillham 31/08/14
@@ -251,7 +251,7 @@ void algorithm_setup() { // logging on to RS485 and GPSB updated and modified by
 
 // =============== initialise communication to SPI data storage device
 
-Serial.print("Initializing SD card...");
+SerialUSB.print("Initializing SD card...");
   // On the Ethernet Shield, CS is pin 4. It's set as an output by default.
   // Note that even if it's not used as the CS pin, the hardware SS pin 
   // (10 on most Arduino boards, 53 on the Mega) must be left as an output 
@@ -259,10 +259,10 @@ Serial.print("Initializing SD card...");
    pinMode(10, OUTPUT);
    
   if (!SD.begin(4)) {
-    Serial.println("initialization failed!");
+    SerialUSB.println("initialization failed!");
     return;
    }
-   Serial.println("initialization done.");
+   SerialUSB.println("initialization done.");
   
   // open the file. note that only one file can be open at a time,
   // so you have to close this one before opening another.
@@ -270,32 +270,32 @@ Serial.print("Initializing SD card...");
   
   // if the file opened okay, write to it:
   if (myFile) {
-    Serial.println("Writing to test.txt...");
+    SerialUSB.println("Writing to test.txt...");
     myFile.println("EDECT Version 1 18.02.15");
    // close the file:
     myFile.close();
-    Serial.println("done.");
+    SerialUSB.println("done.");
     } 
   else {
     // if the file didn't open, print an error:
-    Serial.println("error opening test.txt");
+    SerialUSB.println("error opening test.txt");
     }
   
    // re-open the file for reading:
    myFile = SD.open("test.txt");
    if (myFile) {
-     Serial.println("test.txt:");
+     SerialUSB.println("test.txt:");
     
     // read from the file until there's nothing else in it:
      while (myFile.available()) {
-    	Serial.write(myFile.read());
+    	SerialUSB.write(myFile.read());
      }
     // close the file:
      myFile.close();
      } 
     else {
   	// if the file didn't open, print an error:
-    Serial.println("error opening test.txt");
+    SerialUSB.println("error opening test.txt");
    }
  }
 
@@ -831,8 +831,8 @@ void scan_for_sensors(int/*Verbosity*/ v)
 
     if (v == VERBOSE)
      {
-      Serial.print("Sensor Node ");
-      Serial.print(i);      
+      SerialUSB.print("Sensor Node ");
+      SerialUSB.print(i);      
      }
 
     if (node->exists())
@@ -845,210 +845,210 @@ void scan_for_sensors(int/*Verbosity*/ v)
       sensor_nodes[i] = node;
       if (v == VERBOSE)
       {
-        Serial.println(" found...................");       
+        SerialUSB.println(" found...................");       
       }
       Sensor_Node_Configuration conf = node->get_configuration();
       if (v == VERBOSE)
       {
-        Serial.println("=== Zone 1 ===");
-        Serial.print("Position: ");
+        SerialUSB.println("=== Zone 1 ===");
+        SerialUSB.print("Position: ");
         switch (conf.zone_1.position)
         {
         case FRONT:
-          Serial.println("front");
+          SerialUSB.println("front");
           break;
         case BACK:
-          Serial.println("back");
+          SerialUSB.println("back");
           break;
         case LEFT:
-          Serial.println("left");
+          SerialUSB.println("left");
           break;
         case RIGHT:
-          Serial.println("right");
+          SerialUSB.println("right");
           break;
         case FRONT_LEFT:
-          Serial.println("front-left");
+          SerialUSB.println("front-left");
           break;
         case FRONT_RIGHT:
-          Serial.println("front-right");
+          SerialUSB.println("front-right");
           break;
         case BACK_LEFT:
-          Serial.println("back-left");
+          SerialUSB.println("back-left");
           break;
         case BACK_RIGHT:
-          Serial.println("back-right");
+          SerialUSB.println("back-right");
           break;
         }
-        Serial.print("Orientation: ");
+        SerialUSB.print("Orientation: ");
         switch (conf.zone_1.orientation)
         {
         case ZERO_DEG:
-          Serial.println("0 degrees");
+          SerialUSB.println("0 degrees");
           break;
         case FORTY_FIVE_DEG:
-          Serial.println("45 degrees");
+          SerialUSB.println("45 degrees");
           break;
         case NINETY_DEG:
-          Serial.println("90 degrees");
+          SerialUSB.println("90 degrees");
           break;
         case ONE_THIRTY_FIVE_DEG:
-          Serial.println("135 degrees");
+          SerialUSB.println("135 degrees");
           break;
         case ONE_EIGHTY_DEG:
-          Serial.println("180 degrees");
+          SerialUSB.println("180 degrees");
           break;
         case TWO_TWENTY_FIVE_DEG:
-          Serial.println("225 degrees");
+          SerialUSB.println("225 degrees");
           break;
         case TWO_SEVENTY_DEG:
-          Serial.println("270 degrees");
+          SerialUSB.println("270 degrees");
           break;
         case THREE_FIFTEEN_DEG:
-          Serial.println("315 degrees");
+          SerialUSB.println("315 degrees");
           break;
         }
-        Serial.print("Infrared? ");
-        if (conf.zone_1.ir) Serial.println("Yes.");
-        else Serial.println("No.");
-        Serial.print("Ultrasound? ");
-        if (conf.zone_1.us) Serial.println("Yes.");
-        else Serial.println("No.");
-        Serial.print("Fused? ");
-        if (conf.zone_1.fused_sensors) Serial.println("Yes.");
-        else Serial.println("No.");
-        Serial.println("=== Zone 2 ===");
-        Serial.print("Position: ");
+        SerialUSB.print("Infrared? ");
+        if (conf.zone_1.ir) SerialUSB.println("Yes.");
+        else SerialUSB.println("No.");
+        SerialUSB.print("Ultrasound? ");
+        if (conf.zone_1.us) SerialUSB.println("Yes.");
+        else SerialUSB.println("No.");
+        SerialUSB.print("Fused? ");
+        if (conf.zone_1.fused_sensors) SerialUSB.println("Yes.");
+        else SerialUSB.println("No.");
+        SerialUSB.println("=== Zone 2 ===");
+        SerialUSB.print("Position: ");
         switch (conf.zone_2.position)
         {
         case FRONT:
-          Serial.println("front");
+          SerialUSB.println("front");
           break;
         case BACK:
-          Serial.println("back");
+          SerialUSB.println("back");
           break;
         case LEFT:
-          Serial.println("left");
+          SerialUSB.println("left");
           break;
         case RIGHT:
-          Serial.println("right");
+          SerialUSB.println("right");
           break;
         case FRONT_LEFT:
-          Serial.println("front-left");
+          SerialUSB.println("front-left");
           break;
         case FRONT_RIGHT:
-          Serial.println("front-right");
+          SerialUSB.println("front-right");
           break;
         case BACK_LEFT:
-          Serial.println("back-left");
+          SerialUSB.println("back-left");
           break;
         case BACK_RIGHT:
-          Serial.println("back-right");
+          SerialUSB.println("back-right");
           break;
         }
-        Serial.print("Orientation: ");
+        SerialUSB.print("Orientation: ");
         switch (conf.zone_2.orientation)
         {
         case ZERO_DEG:
-          Serial.println("0 degrees");
+          SerialUSB.println("0 degrees");
           break;
         case FORTY_FIVE_DEG:
-          Serial.println("45 degrees");
+          SerialUSB.println("45 degrees");
           break;
         case NINETY_DEG:
-          Serial.println("90 degrees");
+          SerialUSB.println("90 degrees");
           break;
         case ONE_THIRTY_FIVE_DEG:
-          Serial.println("135 degrees");
+          SerialUSB.println("135 degrees");
           break;
         case ONE_EIGHTY_DEG:
-          Serial.println("180 degrees");
+          SerialUSB.println("180 degrees");
           break;
         case TWO_TWENTY_FIVE_DEG:
-          Serial.println("225 degrees");
+          SerialUSB.println("225 degrees");
           break;
         case TWO_SEVENTY_DEG:
-          Serial.println("270 degrees");
+          SerialUSB.println("270 degrees");
           break;
         case THREE_FIFTEEN_DEG:
-          Serial.println("315 degrees");
+          SerialUSB.println("315 degrees");
           break;
         }
-        Serial.print("Infrared? ");
-        if (conf.zone_2.ir) Serial.println("Yes.");
-        else Serial.println("No.");
-        Serial.print("Ultrasound? ");
-        if (conf.zone_2.us) Serial.println("Yes.");
-        else Serial.println("No.");
-        Serial.print("Fused? ");
-        if (conf.zone_2.fused_sensors) Serial.println("Yes.");
-        else Serial.println("No.");
-        Serial.println("=== Zone 3 ===");
-        Serial.print("Position: ");
+        SerialUSB.print("Infrared? ");
+        if (conf.zone_2.ir) SerialUSB.println("Yes.");
+        else SerialUSB.println("No.");
+        SerialUSB.print("Ultrasound? ");
+        if (conf.zone_2.us) SerialUSB.println("Yes.");
+        else SerialUSB.println("No.");
+        SerialUSB.print("Fused? ");
+        if (conf.zone_2.fused_sensors) SerialUSB.println("Yes.");
+        else SerialUSB.println("No.");
+        SerialUSB.println("=== Zone 3 ===");
+        SerialUSB.print("Position: ");
         switch (conf.zone_3.position)
         {
         case FRONT:
-          Serial.println("front");
+          SerialUSB.println("front");
           break;
         case BACK:
-          Serial.println("back");
+          SerialUSB.println("back");
           break;
         case LEFT:
-          Serial.println("left");
+          SerialUSB.println("left");
           break;
         case RIGHT:
-          Serial.println("right");
+          SerialUSB.println("right");
           break;
         case FRONT_LEFT:
-          Serial.println("front-left");
+          SerialUSB.println("front-left");
           break;
         case FRONT_RIGHT:
-          Serial.println("front-right");
+          SerialUSB.println("front-right");
           break;
         case BACK_LEFT:
-          Serial.println("back-left");
+          SerialUSB.println("back-left");
           break;
         case BACK_RIGHT:
-          Serial.println("back-right");
+          SerialUSB.println("back-right");
           break;
         }
-        Serial.print("Orientation: ");
+        SerialUSB.print("Orientation: ");
         switch (conf.zone_3.orientation)
         {
         case ZERO_DEG:
-          Serial.println("0 degrees");
+          SerialUSB.println("0 degrees");
           break;
         case FORTY_FIVE_DEG:
-          Serial.println("45 degrees");
+          SerialUSB.println("45 degrees");
           break;
         case NINETY_DEG:
-          Serial.println("90 degrees");
+          SerialUSB.println("90 degrees");
           break;
         case ONE_THIRTY_FIVE_DEG:
-          Serial.println("135 degrees");
+          SerialUSB.println("135 degrees");
           break;
         case ONE_EIGHTY_DEG:
-          Serial.println("180 degrees");
+          SerialUSB.println("180 degrees");
           break;
         case TWO_TWENTY_FIVE_DEG:
-          Serial.println("225 degrees");
+          SerialUSB.println("225 degrees");
           break;
         case TWO_SEVENTY_DEG:
-          Serial.println("270 degrees");
+          SerialUSB.println("270 degrees");
           break;
         case THREE_FIFTEEN_DEG:
-          Serial.println("315 degrees");
+          SerialUSB.println("315 degrees");
           break;
         }
-        Serial.print("Infrared? ");
-        if (conf.zone_3.ir) Serial.println("Yes.");
-        else Serial.println("No.");
-        Serial.print("Ultrasound? ");
-        if (conf.zone_3.us) Serial.println("Yes.");
-        else Serial.println("No.");
-        Serial.print("Fused? ");
-        if (conf.zone_3.fused_sensors) Serial.println("Yes.");
-        else Serial.println("No.");
-        Serial.println("==============");
+        SerialUSB.print("Infrared? ");
+        if (conf.zone_3.ir) SerialUSB.println("Yes.");
+        else SerialUSB.println("No.");
+        SerialUSB.print("Ultrasound? ");
+        if (conf.zone_3.us) SerialUSB.println("Yes.");
+        else SerialUSB.println("No.");
+        SerialUSB.print("Fused? ");
+        if (conf.zone_3.fused_sensors) SerialUSB.println("Yes.");
+        else SerialUSB.println("No.");
+        SerialUSB.println("==============");
       }
 
       // configure node
@@ -1059,7 +1059,7 @@ void scan_for_sensors(int/*Verbosity*/ v)
       delete node;
       if (v == VERBOSE)
       {
-        Serial.println(" not found.");
+        SerialUSB.println(" not found.");
       }
     }
   }
@@ -1096,14 +1096,14 @@ void send_data()
       sprintf(&data[14], "%04x", sensor_nodes[i]->get_sensor_data(ZONE_2, US));
       sprintf(&data[18], "%04x", sensor_nodes[i]->get_sensor_data(ZONE_3, IR));
       sprintf(&data[22], "%04x", sensor_nodes[i]->get_sensor_data(ZONE_3, US));
-      Serial.write((const uint8_t*)data, 26);
-      Serial.println();
+      SerialUSB.write((const uint8_t*)data, 26);
+      SerialUSB.println();
     }
   }
   // send joystick data, format example "j:08,f2\n"
   char joystick[8] = {
     'j',':',0,0,',',0,0,0  };
   sprintf(joystick, "j:%02x,%02x", get_joystick_speed(), get_joystick_turn());
-  Serial.write((const uint8_t*)joystick, 7);
-  Serial.println();
+  SerialUSB.write((const uint8_t*)joystick, 7);
+  SerialUSB.println();
 }
