@@ -88,10 +88,10 @@ void handleProtocolMessages(){
 
           response = "S" + String(getCommandNode()) + ":";
           if(node->exists()){
-            response = "Y";
+            response += "Y";
           }
           else {
-            response = "N";
+            response += "N";
           }
           break;
         }
