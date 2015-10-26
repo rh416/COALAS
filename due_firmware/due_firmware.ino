@@ -38,7 +38,7 @@ void setup(){
   }
   
   // Send a notification that the boot process is complete
-  Serial.println("B:Boot Complete");
+  SerialUSB.println("B:Boot Complete");
 }
 
 void loop(){
