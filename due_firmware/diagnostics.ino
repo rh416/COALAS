@@ -31,11 +31,6 @@ void diagnostics_setup(){
 }
 
 void diagnostics_loop(){
-  
-  // Make serialEvent run for the Native port
-  if(SerialUSB.available()){
-    serialEvent();
-  }    
    
   handleProtocolMessages();
 }

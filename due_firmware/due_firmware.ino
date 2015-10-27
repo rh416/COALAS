@@ -48,4 +48,9 @@ void loop(){
   } else {
     algorithm_loop();
   }
+
+  // Make serialEvent run for the Native port
+  if(SerialUSB.available()){
+    serialEvent();
+  }
 }
