@@ -190,13 +190,13 @@ public class PWCInterface {
             PWCInterfacePayloadConnectionStatus eventPayload = new PWCInterfacePayloadConnectionStatus(this, connected);
             dispatchPWCInterfaceEvent(new PWCInterfaceEvent(this, eventType, eventPayload));
 
+            // If the connection state has changed, the firmware will not be booted
+            setBootComplete(false);
+
             // Send a message to the firmware:
             //      if connected via the Due's Programming port this will just be ignored
             //      if connected via the Due's Native port it'll generate a boot message and allow the system to work as expected
             bufferCommand(PWCInterfaceEvent.EventType.BOOT_COMPLETE, 0, "B");
-
-            // If the connection state has changed, the firmware will not be booted
-            setBootComplete(false);
         }
     }
 
