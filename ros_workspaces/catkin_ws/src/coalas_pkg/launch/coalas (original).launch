@@ -1,0 +1,23 @@
+<launch>
+    <!-- no terminal spawning
+        
+    <node pkg="coalas_pkg" name="udoo_wifi" type="udoo_wifi"/>
+    
+    <node pkg="coalas_pkg" name="arduino_serial" type="arduino_serial" />
+    
+    <node pkg="coalas_pkg" name="udoo_delegator" type="udoo_delegator" />
+    
+     -->
+
+    <!-- with seperate terminals -->
+
+    <node pkg="coalas_pkg" name="udoo_wifi" type="udoo_wifi" output="screen" launch-prefix="gnome-terminal -e"   />
+    
+    <node pkg="coalas_pkg" name="arduino_serial" type="arduino_serial"  output="screen" launch-prefix="gnome-terminal -e"   />
+    
+    <node pkg="coalas_pkg" name="udoo_delegator" type="udoo_delegator"  output="screen" launch-prefix="gnome-terminal -e"   />
+    
+ output="screen" launch-prefix="gnome-terminal -e"   
+    
+</launch>
+

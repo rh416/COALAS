@@ -1,0 +1,2 @@
+set(coalas_pkg_MESSAGE_FILES "/home/user/catkin_ws/src/coalas_pkg/msg/ChairState.msg;/home/user/catkin_ws/src/coalas_pkg/msg/EncodersOutput.msg;/home/user/catkin_ws/src/coalas_pkg/msg/SimpleJoystick.msg;/home/user/catkin_ws/src/coalas_pkg/msg/RangeArray.msg")
+set(coalas_pkg_SERVICE_FILES "/home/user/catkin_ws/src/coalas_pkg/srv/ChairStateService.srv;/home/user/catkin_ws/src/coalas_pkg/srv/CollAvoidService.srv")

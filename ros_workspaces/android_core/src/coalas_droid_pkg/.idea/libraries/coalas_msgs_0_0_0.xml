@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="coalas_msgs-0.0.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/coalas/libs/coalas_msgs-0.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

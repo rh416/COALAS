@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Export-Package: ros_statistics_msgs;version="0.1.0";uses:="org.ros.int
+ ernal.message,org.ros.message"
+Bundle-SymbolicName: org.ros.rosjava_messages.ros_statistics_msgs
+Bundle-Version: 0.1.0
+Bundle-Name: ros_statistics_msgs
+Bundle-ManifestVersion: 2
+Bnd-LastModified: 1444313372000
+Import-Package: org.ros.internal.message,org.ros.message
+Created-By: 1.8.0_60 (Oracle Corporation)
+Tool: Bnd-2.1.0.20130426-122213
+

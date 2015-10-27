@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/coalas/coalas.iml" filepath="$PROJECT_DIR$/coalas/coalas.iml" />
+      <module fileurl="file://$PROJECT_DIR$/coalas_droid_pkg.iml" filepath="$PROJECT_DIR$/coalas_droid_pkg.iml" />
+    </modules>
+  </component>
+</project>

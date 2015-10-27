@@ -1,0 +1,2 @@
+android_core:android_extras:coalas_droid_pkg:coalas_java_msgs:coalas_msgs
+-DCATKIN_DEVEL_PREFIX=/home/user/android_core/devel -DCMAKE_INSTALL_PREFIX=/home/user/android_core/install -G Unix Makefiles

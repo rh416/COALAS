@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "coalas_droid_pkg")
+set(coalas_droid_pkg_MAINTAINER "user <user@todo.todo>")
+set(coalas_droid_pkg_DEPRECATED "")
+set(coalas_droid_pkg_VERSION "0.1.0")
+set(coalas_droid_pkg_BUILD_DEPENDS "rosjava_build_tools")
+set(coalas_droid_pkg_RUN_DEPENDS )
+set(coalas_droid_pkg_BUILDTOOL_DEPENDS "catkin")

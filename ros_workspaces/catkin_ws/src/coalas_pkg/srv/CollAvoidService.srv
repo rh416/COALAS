@@ -1,0 +1,7 @@
+	uint8 joy_speed_output
+	uint8 joy_turn_output
+	uint8[11] sensdor_data
+    ---
+	uint8 corrected_joy_speed
+	uint8 corrected_joy_turn
+

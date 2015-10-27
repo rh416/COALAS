@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Export-Package: rosserial_msgs;version="0.6.4";uses:="org.ros.internal
+ .message"
+Bundle-SymbolicName: org.ros.rosjava_messages.rosserial_msgs
+Bundle-Version: 0.6.4
+Bundle-Name: rosserial_msgs
+Bundle-ManifestVersion: 2
+Bnd-LastModified: 1444313344000
+Import-Package: org.ros.internal.message
+Created-By: 1.8.0_60 (Oracle Corporation)
+Tool: Bnd-2.1.0.20130426-122213
+

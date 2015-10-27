@@ -1,0 +1,8 @@
+prefix=/home/user/android_core/install
+
+Name: coalas_java_msgs
+Description: Description of coalas_java_msgs
+Version: 0.1.0
+Cflags: 
+Libs: -L/home/user/android_core/install/lib 
+Requires: 

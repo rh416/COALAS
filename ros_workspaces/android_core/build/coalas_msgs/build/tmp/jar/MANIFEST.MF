@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Export-Package: coalas_msgs;version="0.0.0";uses:="org.ros.internal.me
+ ssage,sensor_msgs,std_msgs"
+Bundle-SymbolicName: org.ros.rosjava_messages.coalas_msgs
+Bundle-Version: 0.0.0
+Bundle-Name: coalas_msgs
+Bundle-ManifestVersion: 2
+Bnd-LastModified: 1444320420000
+Import-Package: org.ros.internal.message,sensor_msgs;version="[1.11,2)
+ ",std_msgs;version="[0.5,1)"
+Created-By: 1.8.0_60 (Oracle Corporation)
+Tool: Bnd-2.1.0.20130426-122213
+

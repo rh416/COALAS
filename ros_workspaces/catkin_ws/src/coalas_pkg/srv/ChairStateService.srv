@@ -1,0 +1,4 @@
+bool isRequest
+uint8 state
+---
+uint8 responseState
