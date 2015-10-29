@@ -2,6 +2,7 @@
 #include "haptic.h"
 #include "SYSIASS_485_comms.h"
 #include "SYSIASS_sensor.h"
+#include "timing.h"
 
 #define DEBUG_MODE_PIN 52
 

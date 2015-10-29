@@ -188,7 +188,7 @@ int currentTime = 0;
 
 // Constant loop timing
 uint32_t lastLoopTime = 0;
-uint16_t constantLoopTime = 46; // Make every loop take at least this many miliseconds, whether or not the algorithm is running
+uint16_t constantLoopTime = 0; // Make every loop take at least this many miliseconds, whether or not the algorithm is running
 
 // ============================================== Setup ===========
 
@@ -268,6 +268,7 @@ SerialUSB.print("Initializing SD card...");
   // so you have to close this one before opening another.
   myFile = SD.open("test.txt", FILE_WRITE);
   
+
   // if the file opened okay, write to it:
   if (myFile) {
     SerialUSB.println("Writing to test.txt...");
@@ -305,6 +306,8 @@ SerialUSB.print("Initializing SD card...");
 void algorithm_loop() {
   
    uint32_t thisLoopTime = millis();
+   
+   timing_log(F("Loop Begin"));
   
    if(thisLoopTime - lastLoopTime >= constantLoopTime){
      lastLoopTime = thisLoopTime;
@@ -319,28 +322,39 @@ void algorithm_loop() {
       oldIsolatedState = isolated;
     }
   
+  timing_log(F("Start protocol handling"));
   handleProtocolMessages();          // Handle any protocol messages that have been sent over the serial port
+  timing_log(F("End protocol handling"));
+  timing_log(F("Start logging to SD Card"));
   logging();
+  timing_log(F("End logging to SD Card"));
   
     if (directionFlag == 0 && rotationFlag == 0){
       set_vibration_pattern(OFF); // Turn off vibration if joystick centred
     }
   
     check_isolate_switch();           // check for isolation of obstacle avoidance software, 0 means run obstacle avoidance 1 means isolate
+    timing_log(F("Start getting Joystick data from the GPSB"));
     GPSB_update_joystick_position();  // continuously grab joystick data from GPSB
+    timing_log(F("End getting Joystick data"));
     speed = get_joystick_speed();     // Take user speed input from data stream
     turn = get_joystick_turn();       // Take user turn input from data stream
     userSpeed = speed;                // logging
     userTurn = turn;                  // logging
   
     if(isolated == 1){
+      timing_log(F("Start sending Joystick data back directly"));
       returnJoystickDirect();  
+      timing_log(F("End sending Joystick data back directly"));
     } else if(isolated == 0){
+      timing_log(F("Start collision avoidance"));
       DLAFF_collision_avoidance ();    // Doorway passing, use linecameras to improve doorway resolution and lock-in
       hapticFeedback ();               // Set haptic feedback to user
       update_vibration();              // Send haptic feedback to joystick vibration motor
       Dynamic_model();                 // Use the DLAFF 'dynamic model' to generate kinematic valid output back to GPSB
-    }
+      timing_log(F("End collision avoidance"));
+    }   
+    timing_log(F("End of Loop"));
   }    
 }
 
