@@ -78,7 +78,11 @@ void logging(){
     // See - http://arduino.stackexchange.com/a/3178 for explanation
     currentLoggingStatus.nextEventDescription[0] = (char)0;
 
-    if(loggingIterationCount == 10){
+    SerialUSB.println(loggingDataString);
+    loggingDataString = "";
+
+    if(false){
+    //if(loggingIterationCount == 10){
       // open the file. note that only one file can be open at a time,
       // so you have to close this one before opening another.
       File dataFile = SD.open(currentLoggingStatus.filename, FILE_WRITE);
