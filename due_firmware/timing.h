@@ -10,5 +10,6 @@
 
 void timing_log(const char*);
 void timing_log(const __FlashStringHelper*);
+void timing_log(const __FlashStringHelper*, const __FlashStringHelper*);
 
 #endif // COALAS_TIMING_H
