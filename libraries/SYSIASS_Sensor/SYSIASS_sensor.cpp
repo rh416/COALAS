@@ -493,7 +493,6 @@ void Sensor_Node::get_data_format()
 /* Requests new data from the node */
 bool Sensor_Node::refresh_data()
 {
-  timing_log(F("Start refreshing data for node: ") + this->id);
   clear_rx();
   char instruction[] = "&0D"; // get current data
   instruction[0] = SENSOR_PROTOCOL_BYTE;
@@ -582,7 +581,6 @@ bool Sensor_Node::refresh_data()
 	  done = true;
 	}
   }
-  timing_log(F("End refreshing data for node: ") + this->id);
   return true;
 }
 
