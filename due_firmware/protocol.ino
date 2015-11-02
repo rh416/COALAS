@@ -23,7 +23,11 @@ const char COMMAND_END_INDICATOR = '\n';   // This character indicates the end o
 
 const char SENSOR_PROTOCOL_BYTE = '&';     // The byte that starts all commands over the RS-485 bus
 
+#define TIMING_TAG_PROTOCOL F("Protocol")
+
 void handleProtocolMessages(){
+  
+  timing_log(TIMING_TAG_PROTOCOL, F("Start"));
   
   if(commandSendComplete){
     // Debugging code - safely print that the sending of the command is now complete
@@ -211,6 +215,8 @@ void handleProtocolMessages(){
     // Reset the command buffer back to a known state, ready to receive new instructions
     resetCommandBuffer();
   }
+  
+  timing_log(TIMING_TAG_PROTOCOL, F("End"));
 }  
 
 boolean isCommandValid(){

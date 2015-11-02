@@ -7,6 +7,8 @@ String loggingDataString = "";
 
 uint8_t loggingIterationCount = 1;
 
+#define TIMING_TAG_LOGGING F("Logging")
+
 // ================================== Data logging on SD card function
 struct LoggingStatus{
   
@@ -27,6 +29,8 @@ void logging_init(){
 }
 
 void logging(){
+  
+  timing_log(TIMING_TAG_LOGGING, F("Start"));
   
   // Only carry on if logging is currently enabled and no error has been reported
   if(currentLoggingStatus.enabled && currentLoggingStatus.errorReported == false){
@@ -106,7 +110,9 @@ void logging(){
       loggingDataString += "\n";
       loggingIterationCount++;
     }  
-  }    
+  }
+  
+  timing_log(TIMING_TAG_LOGGING, F("End"));
 }
 
 void logging_start(String filename){
