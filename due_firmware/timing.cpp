@@ -5,31 +5,31 @@
 
 #ifdef COALAS_TIMING_LOGGING_ENABLED
   // If logging is enabled, create the functions
+  
+  // A macro is used here to ensure that each method outputs the same format / data
+  #define __COALAS_TIMING_OUTPUT(tag, label) \
+    SerialUSB.print(micros()); \
+    SerialUSB.print(F(",")); \
+    SerialUSB.print(tag); \
+    SerialUSB.print(F(",")); \
+    SerialUSB.print(label); \
+    SerialUSB.print(F(",")); \
+    SerialUSB.println(micros()); \
 
   void timing_log(const char *label){
-    SerialUSB.print(micros());
-    SerialUSB.print(F(",General,"));
-    SerialUSB.print(label);
-    SerialUSB.print(F(","));
-    SerialUSB.println(micros());
+    
+    __COALAS_TIMING_OUTPUT(F("General"), label)
   }
 
   void timing_log(const __FlashStringHelper *label){
-    SerialUSB.print(micros());
-    SerialUSB.print(F(",General,"));
-    SerialUSB.print(label);
-    SerialUSB.print(F(","));
-    SerialUSB.println(micros());
+    
+    __COALAS_TIMING_OUTPUT(F("General"), label)
   }
 
   void timing_log(const __FlashStringHelper *tag, const __FlashStringHelper *label){
-    SerialUSB.print(micros());
-    SerialUSB.print(F(","));
-    SerialUSB.print(tag);
-    SerialUSB.print(F(","));
-    SerialUSB.print(label);
-    SerialUSB.print(F(","));
-    SerialUSB.println(micros());
+    
+    __COALAS_TIMING_OUTPUT(tag, label)
+    
   }
 
 #else
