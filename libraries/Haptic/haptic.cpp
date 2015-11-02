@@ -43,6 +43,7 @@ void init_haptic()
 
 void update_vibration()
 {
+  timing_log(F("Start update vibration")) ;
   if (!initialised) init_haptic();
   
   unsigned long elapsed;
@@ -68,6 +69,7 @@ void update_vibration()
       digitalWrite(VIBRATION_PIN, HIGH);
     }
   }
+  timing_log(F("End update vibration"));
 }
 
 void set_vibration_pattern(Pattern p)

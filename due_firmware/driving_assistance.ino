@@ -394,23 +394,30 @@ void lineCameras() {
 void Dynamic_model() {      // DLAFF model not fully applied, in this case only!
                             //  ### IMPORTANT DO NOT IGNORE THE NOTE BELOW #####
                             // In this application, because this is connected to the Dynamic controller mapping, mass and inertia MUST be <= 1 
-
+                            
+#define TIMING_TAG_DYNAMIC_MODEL F("Dynamic Model")
+                            
+ timing_log(TIMING_TAG_DYNAMIC_MODEL, F("Start"));
  F_desired = mass * speed;             // Dynamic variable is from joystic and static variable determined by measurement                                    
  T_desired = inertia * turn;           
  F_desired = map (F_desired, 1, 255, -127, 127);   
  T_desired = map (T_desired, 1, 255, -127, 127);   
+ 
+ timing_log(TIMING_TAG_DYNAMIC_MODEL, F("Position A"));
     
      Left_F_desired = rightDamping*(F_desired - (0.5 * T_desired));  
      Right_F_desired = leftDamping*(F_desired + (0.5 * T_desired)); 
  
      speed = 0.5*(Left_F_desired + Right_F_desired);
      turn = (Right_F_desired - Left_F_desired);
+     timing_log(TIMING_TAG_DYNAMIC_MODEL, F("Position B"));
      
      speed = map (speed, -127, 127, 1, 255);   
      turn = map (turn, -127, 127, 1, 255); 
       
      speed = constrain(speed, 1, 255);
      turn = constrain(turn, 1, 255);
+     timing_log(TIMING_TAG_DYNAMIC_MODEL, F("Position C"));
      
      if (directionFlag == 0){
        speed = 128;}
@@ -419,17 +426,22 @@ void Dynamic_model() {      // DLAFF model not fully applied, in this case only!
      
      returnedSpeed = speed;  // logging
      returnedTurn = turn;    // logging
+     timing_log(TIMING_TAG_DYNAMIC_MODEL, F("Start sending data"));
      GPSB_set_speed_turn(speed, turn);  // Return modified joystick values (1-255) to system
      GPSB_send_drive_packet(); 
+     timing_log(TIMING_TAG_DYNAMIC_MODEL, F("End"));
 }
 
 void hapticFeedback (){
-     
+    
+    timing_log(F("Start haptic feedback")) ;
     if (leftDamping < 0.5 || rightDamping < 0.5)
          {set_vibration_pattern(SUBTLE);}      
     else if (leftDamping < 0.2 || rightDamping < 0.2)
          {set_vibration_pattern(CONTINUOUS);} 
     else {set_vibration_pattern(OFF);}    
+      
+    timing_log(F("End haptic feedback")) ;
 }
 
 void DLAFF_collision_avoidance (){    // Returns DLAFF sensor modified drive signals to dynamic model
