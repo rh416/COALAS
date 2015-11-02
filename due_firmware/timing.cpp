@@ -8,16 +8,19 @@
 
   void timing_log(const char *label){
     SerialUSB.print(micros());
-    SerialUSB.print(F(":"));
-    SerialUSB.println(label);
+    SerialUSB.print(F(","));
+    SerialUSB.print(label);
+    SerialUSB.print(F(","));
+    SeriaUSB.println(micros());
   }
 
   void timing_log(const __FlashStringHelper *label){
     SerialUSB.print(micros());
-    SerialUSB.print(F(":"));
-    SerialUSB.println(label);
+    SerialUSB.print(F(","));
+    SerialUSB.print(label);
+    SerialUSB.print(F(","));
+    SeriaUSB.println(micros());
   }
-
 
 #else
   // If logging is disabled, just create empty functions
