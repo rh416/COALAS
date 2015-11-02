@@ -11,7 +11,7 @@
     SerialUSB.print(F(","));
     SerialUSB.print(label);
     SerialUSB.print(F(","));
-    SeriaUSB.println(micros());
+    SerialUSB.println(micros());
   }
 
   void timing_log(const __FlashStringHelper *label){
@@ -19,7 +19,7 @@
     SerialUSB.print(F(","));
     SerialUSB.print(label);
     SerialUSB.print(F(","));
-    SeriaUSB.println(micros());
+    SerialUSB.println(micros());
   }
 
 #else
