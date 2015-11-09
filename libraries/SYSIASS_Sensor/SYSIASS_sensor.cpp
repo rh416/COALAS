@@ -14,6 +14,9 @@
 #include "SYSIASS_sensor.h"
 #include "SYSIASS_485_comms.h"
 #include <Arduino.h>
+#include "timing.h"
+
+#define TIMING_LOG_REFRESH F("Sensor Refresh Data")
 
 #define SENSOR_PROTOCOL_BYTE '&'
 
@@ -493,11 +496,14 @@ void Sensor_Node::get_data_format()
 /* Requests new data from the node */
 bool Sensor_Node::refresh_data()
 {
+  timing_log(TIMING_LOG_REFRESH, F("Start"));
   clear_rx();
   char instruction[] = "&0D"; // get current data
   instruction[0] = SENSOR_PROTOCOL_BYTE;
   instruction[1] = id;
+  timing_log(TIMING_LOG_REFRESH, F("Send"));
   comms->send(instruction, 3);
+  timing_log(TIMING_LOG_REFRESH, F("Sent"));
   
   long start = millis();
   
@@ -511,11 +517,13 @@ bool Sensor_Node::refresh_data()
 	{
 	  retried ++;
 	  //while (comms->available() > 0) Serial.write(comms->read());Serial.println();
+    timing_log(TIMING_LOG_REFRESH, F("Retry"));
       clear_rx();
 	  comms->send(instruction, 3);
 	}
 	if (now - start > 400)
     { // timeout
+      timing_log(TIMING_LOG_REFRESH, F("Timeout"));
 	    conf.zone_1.us->latest_data->current_data = 0;
 	    conf.zone_2.us->latest_data->current_data = 0;
 	    conf.zone_3.us->latest_data->current_data = 0;
@@ -526,6 +534,7 @@ bool Sensor_Node::refresh_data()
     	break;
 	}
     if (comms->available() >= 26)
+    timing_log(TIMING_LOG_REFRESH, F("Got response, processing..."));
 	{
 	  char recieved[33] = "0000 0000 0000 0000 0000 0000 00";
 	  char **ptr;
@@ -581,6 +590,9 @@ bool Sensor_Node::refresh_data()
 	  done = true;
 	}
   }
+  
+  timing_log(TIMING_LOG_REFRESH, F("End"));
+  
   return true;
 }
 
