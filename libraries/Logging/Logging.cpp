@@ -1,37 +1,27 @@
-#include "errors.h"
+#include "Logging.h"
 
-#define LOG_FILE_MAX_FILENAME_LENGTH 12
-#define LOG_FILE_EVENT_CODE_LENGTH 4
+#include "SPI.h"
+#include "SD.h"
+#include "timing.h"
+#include "ErrorReporting.h"
 
 String loggingDataString = "";
 
 uint8_t loggingIterationCount = 1;
-
-// ================================== Data logging on SD card function
-struct LoggingStatus{
-  
-    // Default to logging being disabled
-    boolean enabled = false;
-    char filename[LOG_FILE_MAX_FILENAME_LENGTH] = "datalog.txt";
-    char nextEventDescription[LOG_FILE_EVENT_CODE_LENGTH] = "";
-    unsigned long timeFromSystem = 0;
-    unsigned long millisWhenTimeWasReceived = 0;
-    boolean errorReported = false;
-  };
-  
-LoggingStatus currentLoggingStatus = LoggingStatus();
 
 void logging_init(){
   
   loggingDataString.reserve(512);
 }
 
-void logging(){
+void logging(uint8_t runNumber, uint32_t currentTime, uint8_t userSpeed, uint8_t userTurn, uint8_t returnedSpeed, uint8_t returnedTurn, uint8_t potValue1, uint8_t potValue2, uint8_t potValue3, uint8_t potValue4){
+  
+  timing_log(TIMING_TAG_LOGGING, F("Start"));
   
   // Only carry on if logging is currently enabled and no error has been reported
   if(currentLoggingStatus.enabled && currentLoggingStatus.errorReported == false){
-    timer = millis();
-    stopWatch = timer - currentTime;
+    uint32_t timer = millis();
+    uint32_t stopWatch = timer - currentTime;
   
     // Keep these fields to maintain compatibility with Michael's system
     loggingDataString += String(runNumber);
@@ -78,7 +68,11 @@ void logging(){
     // See - http://arduino.stackexchange.com/a/3178 for explanation
     currentLoggingStatus.nextEventDescription[0] = (char)0;
 
-    if(loggingIterationCount == 10){
+    SerialUSB.println(loggingDataString);
+    loggingDataString = "";
+
+    if(false){
+    //if(loggingIterationCount == 10){
       // open the file. note that only one file can be open at a time,
       // so you have to close this one before opening another.
       File dataFile = SD.open(currentLoggingStatus.filename, FILE_WRITE);
@@ -102,7 +96,9 @@ void logging(){
       loggingDataString += "\n";
       loggingIterationCount++;
     }  
-  }    
+  }
+  
+  timing_log(TIMING_TAG_LOGGING, F("End"));
 }
 
 void logging_start(String filename){
@@ -156,3 +152,14 @@ void logging_event(String eventDescription){
   
   eventDescription.toCharArray(currentLoggingStatus.nextEventDescription, LOG_FILE_EVENT_CODE_LENGTH);
 }
+
+void logging_set_time(uint32_t unix_timestamp){
+
+  // Record the new time and when it was set
+  currentLoggingStatus.timeFromSystem = unix_timestamp;
+  currentLoggingStatus.millisWhenTimeWasReceived = millis();
+  PRINT_SAFE("Time set");
+  PRINT_SAFE(currentLoggingStatus.timeFromSystem);
+}
+
+LoggingStatus currentLoggingStatus = LoggingStatus();

@@ -30,8 +30,16 @@
 #include <haptic.h>
 #include <SPI.h>
 #include <SD.h>
-#include "errors.h"
+#include "ErrorReporting.h"
 
+#define TIMING_TAG_DLAFF F("DLAFF")
+#define TIMING_TAG_DYNAMIC_MODEL F("Dynamic Model")
+#define TIMING_TAG_HAPTIC F("Haptic")
+#define TIMING_TAG_JOYSTICK_GET F("Joystick - Get from GPSB")
+#define TIMING_TAG_JOYSTICK_SEND F("Joystick - Send to GPSB")
+#define TIMING_TAG_LOGGING F("Logging")
+#define TIMING_TAG_VIBRATION F("Vibration")
+#define TIMING_TAG_SENSOR F("Sensor")
 
 //enum Verbosity {SILENT, VERBOSE}; // doesn't compile in Arduino IDE
 #define Verbosity int
@@ -171,9 +179,6 @@ unsigned char convert_to_char(const int value)
 
 Sensor_Node* sensor_nodes[10] = {0,0,0,0,0,0,0,0,0,0}; //Sensor Node Abstraction
 
-Comms_485* comms_485 = 0; // RS485 Comms
-
-
 // logging
 File myFile;             // SD card logging file
 int  userSpeed = 128;      // logging
@@ -188,7 +193,7 @@ int currentTime = 0;
 
 // Constant loop timing
 uint32_t lastLoopTime = 0;
-uint16_t constantLoopTime = 46; // Make every loop take at least this many miliseconds, whether or not the algorithm is running
+uint16_t constantLoopTime = 0; // Make every loop take at least this many miliseconds, whether or not the algorithm is running
 
 // ============================================== Setup ===========
 
@@ -268,6 +273,7 @@ SerialUSB.print("Initializing SD card...");
   // so you have to close this one before opening another.
   myFile = SD.open("test.txt", FILE_WRITE);
   
+
   // if the file opened okay, write to it:
   if (myFile) {
     SerialUSB.println("Writing to test.txt...");
@@ -305,6 +311,8 @@ SerialUSB.print("Initializing SD card...");
 void algorithm_loop() {
   
    uint32_t thisLoopTime = millis();
+   
+   timing_log(F("Loop Begin"));
   
    if(thisLoopTime - lastLoopTime >= constantLoopTime){
      lastLoopTime = thisLoopTime;
@@ -319,28 +327,37 @@ void algorithm_loop() {
       oldIsolatedState = isolated;
     }
   
-  handleProtocolMessages();          // Handle any protocol messages that have been sent over the serial port
-  logging();
+  serialProtocolHandler.loop();          // Handle any protocol messages that have been sent over the serial port
+  logging(runNumber, currentTime, userSpeed, userTurn, returnedSpeed, returnedTurn, potValue1, potValue2, potValue3, potValue4);
   
     if (directionFlag == 0 && rotationFlag == 0){
       set_vibration_pattern(OFF); // Turn off vibration if joystick centred
     }
   
     check_isolate_switch();           // check for isolation of obstacle avoidance software, 0 means run obstacle avoidance 1 means isolate
+    timing_log(TIMING_TAG_JOYSTICK_GET, F("Start"));
     GPSB_update_joystick_position();  // continuously grab joystick data from GPSB
+    timing_log(TIMING_TAG_JOYSTICK_GET, F("End"));
     speed = get_joystick_speed();     // Take user speed input from data stream
     turn = get_joystick_turn();       // Take user turn input from data stream
     userSpeed = speed;                // logging
     userTurn = turn;                  // logging
   
     if(isolated == 1){
+      timing_log(TIMING_TAG_JOYSTICK_SEND, F("Start"));
       returnJoystickDirect();  
+      timing_log(TIMING_TAG_JOYSTICK_SEND, F("End"));
     } else if(isolated == 0){
+      timing_log(F("Start collision avoidance"));
       DLAFF_collision_avoidance ();    // Doorway passing, use linecameras to improve doorway resolution and lock-in
       hapticFeedback ();               // Set haptic feedback to user
+      timing_log(TIMING_TAG_VIBRATION, F("Start")) ;
       update_vibration();              // Send haptic feedback to joystick vibration motor
+      timing_log(TIMING_TAG_VIBRATION, F("End"));
       Dynamic_model();                 // Use the DLAFF 'dynamic model' to generate kinematic valid output back to GPSB
-    }
+      timing_log(F("End collision avoidance"));
+    }   
+    timing_log(F("End of Loop"));
   }    
 }
 
@@ -380,23 +397,30 @@ void lineCameras() {
 void Dynamic_model() {      // DLAFF model not fully applied, in this case only!
                             //  ### IMPORTANT DO NOT IGNORE THE NOTE BELOW #####
                             // In this application, because this is connected to the Dynamic controller mapping, mass and inertia MUST be <= 1 
+                            
 
+                            
+ timing_log(TIMING_TAG_DYNAMIC_MODEL, F("Start"));
  F_desired = mass * speed;             // Dynamic variable is from joystic and static variable determined by measurement                                    
  T_desired = inertia * turn;           
  F_desired = map (F_desired, 1, 255, -127, 127);   
  T_desired = map (T_desired, 1, 255, -127, 127);   
+ 
+ timing_log(TIMING_TAG_DYNAMIC_MODEL, F("Position A"));
     
      Left_F_desired = rightDamping*(F_desired - (0.5 * T_desired));  
      Right_F_desired = leftDamping*(F_desired + (0.5 * T_desired)); 
  
      speed = 0.5*(Left_F_desired + Right_F_desired);
      turn = (Right_F_desired - Left_F_desired);
+     timing_log(TIMING_TAG_DYNAMIC_MODEL, F("Position B"));
      
      speed = map (speed, -127, 127, 1, 255);   
      turn = map (turn, -127, 127, 1, 255); 
       
      speed = constrain(speed, 1, 255);
      turn = constrain(turn, 1, 255);
+     timing_log(TIMING_TAG_DYNAMIC_MODEL, F("Position C"));
      
      if (directionFlag == 0){
        speed = 128;}
@@ -405,17 +429,22 @@ void Dynamic_model() {      // DLAFF model not fully applied, in this case only!
      
      returnedSpeed = speed;  // logging
      returnedTurn = turn;    // logging
+     timing_log(TIMING_TAG_DYNAMIC_MODEL, F("Start sending data"));
      GPSB_set_speed_turn(speed, turn);  // Return modified joystick values (1-255) to system
      GPSB_send_drive_packet(); 
+     timing_log(TIMING_TAG_DYNAMIC_MODEL, F("End"));
 }
 
 void hapticFeedback (){
-     
+    
+    timing_log(TIMING_TAG_HAPTIC, F("Start")) ;
     if (leftDamping < 0.5 || rightDamping < 0.5)
          {set_vibration_pattern(SUBTLE);}      
     else if (leftDamping < 0.2 || rightDamping < 0.2)
          {set_vibration_pattern(CONTINUOUS);} 
     else {set_vibration_pattern(OFF);}    
+      
+    timing_log(TIMING_TAG_HAPTIC, F("End")) ;
 }
 
 void DLAFF_collision_avoidance (){    // Returns DLAFF sensor modified drive signals to dynamic model
@@ -543,7 +572,10 @@ void doorwayLineCameras (){  //  Simple doorway detection assumption if doorway 
   
 void forwardObstacleAvoidance (){ 
   
+   
+   timing_log(TIMING_TAG_SENSOR, F("Refresh data for node: 1"));
    sensor_nodes[1]->refresh_data();     // Update data from sensor node 1
+   timing_log(TIMING_TAG_SENSOR, F("Done refreshing"));
    S_rightFront = sensor_nodes[1]->get_sensor_data(ZONE_1, US);
    S_right45 = sensor_nodes[1]->get_sensor_data(ZONE_3, US);
    S_right90 = sensor_nodes[1]->get_sensor_data(ZONE_2, US);
@@ -554,7 +586,9 @@ void forwardObstacleAvoidance (){
    IR_right90 = sensor_nodes[1]->get_sensor_data(ZONE_3, IR);
    IR_right90 = map (IR_right90, 66, 160, 10, 30);          // max range 35cm    
    
+   timing_log(TIMING_TAG_SENSOR, F("Refresh data for node: 2"));
    sensor_nodes[2]->refresh_data();    // Update data from sensor node 2
+   timing_log(TIMING_TAG_SENSOR, F("Done refreshing"));
    S_leftFront = sensor_nodes[2]->get_sensor_data(ZONE_3, US);
    S_left45 = sensor_nodes[2]->get_sensor_data(ZONE_2, US);
    S_left90 = sensor_nodes[2]->get_sensor_data(ZONE_1, US);  
