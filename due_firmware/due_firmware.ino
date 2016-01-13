@@ -11,7 +11,7 @@
 boolean DEBUG_MODE_ENABLED = false;
 
 // Firmware information
-const String firmware_version = "v0.1";  // Store the firmware version
+const char* firmware_version = "v0.1";  // Store the firmware version
 
 Comms_485* comms_485 = 0; // RS485 Comms
 

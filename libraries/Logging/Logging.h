@@ -8,34 +8,42 @@
 #endif
 
 // A macro used to print messages to the serial port that will be ignored by the host software
-#define PRINT_SAFE(str) ( SerialUSB.println("_" + String(str)) )
-#define PRINT_SAFE_LEN(str,len) ( SerialUSB.println("_" + String(str).substring(0, len)) )
+//#define PRINT_SAFE(str) ( SerialUSB.println("_" + String(str)) )
+//#define PRINT_SAFE_LEN(str,len) ( SerialUSB.println("_" + String(str).substring(0, len)) )
+#define PRINT_SAFE(str)
+#define PRINT_SAFE_LEN(str, len)
 
 #define LOG_FILE_MAX_FILENAME_LENGTH 12
-#define LOG_FILE_EVENT_CODE_LENGTH 4
+#define LOG_FILE_MAX_EVENT_CODE_LENGTH 4
 
 #define TIMING_TAG_LOGGING F("Logging")
 
-// ================================== Data logging on SD card function
-struct LoggingStatus{
+class Logger{
+  protected:
+    char* _buffer[100];
+    char _filename[LOG_FILE_MAX_FILENAME_LENGTH]; // = "datalog.txt";
+    char _next_event_code[LOG_FILE_MAX_EVENT_CODE_LENGTH]; // = "";
+    boolean _enabled = false;
+    boolean _error_reported = false;
+    uint32_t _time_from_system = 0;
+    uint32_t _millis_when_time_was_received = 0;
   
-    // Default to logging being disabled
-    boolean enabled = false;
-    char filename[LOG_FILE_MAX_FILENAME_LENGTH] = "datalog.txt";
-    char nextEventDescription[LOG_FILE_EVENT_CODE_LENGTH] = "";
-    unsigned long timeFromSystem = 0;
-    unsigned long millisWhenTimeWasReceived = 0;
-    boolean errorReported = false;
-  };
-  
-void logging_init();
-void logging(uint8_t, uint32_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
-void logging_start(String);
-void logging_end();
-void logging_list();
-void logging_event(String);
-void logging_set_time(uint32_t);
+  public:
+    void start(const char*);
+    void end();
+    void log(uint8_t, uint32_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
+    void printHistory();
+    void recordEvent(const char*);
+    void setTime(uint32_t);
+    
+    void getFilename(char*);
+    boolean getEnabled();
+    boolean getErrorReported();
+    uint32_t getTime();
+    uint32_t getTimeSet();
 
-extern LoggingStatus currentLoggingStatus;
+};
+
+extern Logger logger;
 
 #endif // Logging_H_
