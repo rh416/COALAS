@@ -9,6 +9,8 @@
 
 #include "SYSIASS_485_comms.h"
 #include "SYSIASS_sensor.h"
+#include "Logging.h"
+#include "Timing.h"
 
 #define TIMING_TAG_PROTOCOL F("Protocol")
 
@@ -31,28 +33,32 @@ const char COMMAND_END_INDICATOR = '\n';   // This character indicates the end o
 
 const char SENSOR_PROTOCOL_BYTE = '&';     // The byte that starts all commands over the RS-485 bus
 
+const char RESPONSE_YES = 'Y';
+const char RESPONSE_NO = 'N';
+
 
 
 class ProtocolHandler{
   private:
     Print* _protocol_serial_bus;
     Comms_485* _sensor_serial_bus;
-    String _firmware_version;
-
+    const char* _firmware_version;
+    Logger* _logger;
+    
     // Store the information that represents a command from the Config UI
     char command_info[COMMAND_MAX_LENGTH];
     byte commandCurrentIndex = 0;
     boolean commandSendComplete = false;
 
     boolean isCommandValid();
-    boolean isResponseAckNack(String);
+    boolean isResponseAckNack(const char*);
     char getCommandNode();
     char getCommandChar();
-    String getCommandType();
-    String commandPassthrough(char[], byte, char);
+    void getCommandType(char*);
+    void commandPassthrough(char[], byte, char, char*, uint8_t);
 
   public:
-    ProtocolHandler(Print*, Comms_485*, String);
+    ProtocolHandler(Print*, Comms_485*, const char*, Logger*);
     boolean buffer(char);
     void loop();
     void resetCommandBuffer();
