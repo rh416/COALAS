@@ -168,9 +168,9 @@ void Logger::setTime(uint32_t unix_timestamp){
   _millis_when_time_was_received = millis();
 }
 
-void Logger::getFilename(char* filename_buffer){
+void Logger::getFilename(char* filename_buffer, byte buffer_size){
 
-  // TODO: Make work
+	snprintf(filename_buffer, buffer_size, "%s", _filename);
 }
 
 boolean Logger::getEnabled(){
@@ -192,3 +192,5 @@ uint32_t Logger::getTimeSet(){
 
   return _millis_when_time_was_received;
 }
+
+Logger logger = Logger();

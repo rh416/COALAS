@@ -31,6 +31,7 @@
 #include <SPI.h>
 #include <SD.h>
 #include "ErrorReporting.h"
+#include "Logging.h"
 
 #define TIMING_TAG_DLAFF F("DLAFF")
 #define TIMING_TAG_DYNAMIC_MODEL F("Dynamic Model")
@@ -215,9 +216,6 @@ void algorithm_setup() { // logging on to RS485 and GPSB updated and modified by
 
   SerialUSB.println("Logged on to GPSB");
   delay(200);
-  
-  
-  logging_init();
  
  
   comms_485 = new Comms_485();  // Setup comms to RS_485 node communication
@@ -334,7 +332,7 @@ void algorithm_loop() {
     }
   
   serialProtocolHandler.loop();          // Handle any protocol messages that have been sent over the serial port
-  logging(runNumber, currentTime, userSpeed, userTurn, returnedSpeed, returnedTurn, potValue1, potValue2, potValue3, potValue4);
+  logger.log(runNumber, currentTime, userSpeed, userTurn, returnedSpeed, returnedTurn, potValue1, potValue2, potValue3, potValue4);
   
     if (directionFlag == 0 && rotationFlag == 0){
       //haptic.set_vibration_pattern(OFF); // Turn off vibration if joystick centred

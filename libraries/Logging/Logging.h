@@ -7,11 +7,19 @@
   #include "WProgram.h"
 #endif
 
+#ifdef SERIAL_SAFE_PRINT
 // A macro used to print messages to the serial port that will be ignored by the host software
-//#define PRINT_SAFE(str) ( SerialUSB.println("_" + String(str)) )
-//#define PRINT_SAFE_LEN(str,len) ( SerialUSB.println("_" + String(str).substring(0, len)) )
-#define PRINT_SAFE(str)
-#define PRINT_SAFE_LEN(str, len)
+    #define PRINT_SAFE(str) ( SerialUSB.println("_" + String(str)) )
+    #define PRINT_SAFE_LEN(str,len) ( SerialUSB.println("_" + String(str).substring(0, len)) )
+#else
+    #ifdef STD_SAFE_PRINT
+        #define PRINT_SAFE(str) std::cout << str << std::endl;
+        #define PRINT_SAFE_LEN(str, len) std::cout << str << std::endl;
+    #else
+        #define PRINT_SAFE(str)
+        #define PRINT_SAFE_LEN(str, len)
+    #endif
+#endif
 
 #define LOG_FILE_MAX_FILENAME_LENGTH 12
 #define LOG_FILE_MAX_EVENT_CODE_LENGTH 4
@@ -36,7 +44,7 @@ class Logger{
     void recordEvent(const char*);
     void setTime(uint32_t);
     
-    void getFilename(char*);
+    void getFilename(char*, byte);
     boolean getEnabled();
     boolean getErrorReported();
     uint32_t getTime();
