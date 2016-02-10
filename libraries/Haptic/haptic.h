@@ -1,19 +1,35 @@
-#ifndef HAPTIC
-#define HAPTIC
-/***********************************************
-Haptic feedback for SYSIASS wheelchair platform
-@author Martin Henderson
-@date 04/12/2013
-***********************************************/
+#ifndef _HAPTIC_H
+#define _HAPTIC_H
 
-enum Pattern {OFF, SUBTLE, WARNING, INSISTANT, CONTINUOUS};
-
-void  init_haptic();
-/* Call this in main loop to 'wake' haptic thread periodically */
-void update_vibration();
-
-/* Set the type of feedback that the user will experience */
-void set_vibration_pattern(Pattern);
-
-
+#if defined(ARDUINO) && ARDUINO >= 100
+  #include "arduino.h"
+#else
+  #include "WProgram.h"
 #endif
+
+#include "IHaptic.h"
+
+class Haptic : public IHaptic{
+	
+	private:
+		int _pin;
+		int _intensity = 255;
+		int _on_duration = 0;
+		int _off_duration = 0;
+		boolean _current_state = false;
+		int _next_delay;
+		uint32_t _last_change_timestamp;
+	
+	public:
+		Haptic(int);
+		virtual void set_vibration_pattern(HapticPattern);
+		virtual void set_vibration_pattern(int, int);
+		virtual void set_intensity(int);
+		virtual void update_vibration();	
+};
+
+
+
+
+
+#endif // _HAPTIC_H

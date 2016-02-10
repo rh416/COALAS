@@ -27,7 +27,7 @@
 #include <GPSB_helper.h>
 #include <SYSIASS_485_comms.h>
 #include <SYSIASS_sensor.h>
-#include <haptic.h>
+#include <Haptic.h>
 #include <SPI.h>
 #include <SD.h>
 #include "ErrorReporting.h"
@@ -141,7 +141,6 @@ void scan_for_sensors(int);
 
 const int kill_pin = 46;
 const int isolate_pin = 48;
-const int haptic_pin = 2;
 
 // tests the Isolate pin, NB: disconnection of switch should default to ISOLATE
 void check_isolate_switch()
@@ -231,7 +230,6 @@ void algorithm_setup() { // logging on to RS485 and GPSB updated and modified by
    
   // Pins ========================================
   
-  init_haptic();
   pinMode(isolate_pin, INPUT);  // Set up isolate switch
   pinMode(digital, INPUT);      // Set up potential force field switch
   
@@ -331,7 +329,7 @@ void algorithm_loop() {
   logging(runNumber, currentTime, userSpeed, userTurn, returnedSpeed, returnedTurn, potValue1, potValue2, potValue3, potValue4);
   
     if (directionFlag == 0 && rotationFlag == 0){
-      set_vibration_pattern(OFF); // Turn off vibration if joystick centred
+      //haptic.set_vibration_pattern(OFF); // Turn off vibration if joystick centred
     }
   
     check_isolate_switch();           // check for isolation of obstacle avoidance software, 0 means run obstacle avoidance 1 means isolate
@@ -352,7 +350,7 @@ void algorithm_loop() {
       DLAFF_collision_avoidance ();    // Doorway passing, use linecameras to improve doorway resolution and lock-in
       hapticFeedback ();               // Set haptic feedback to user
       timing_log(TIMING_TAG_VIBRATION, F("Start")) ;
-      update_vibration();              // Send haptic feedback to joystick vibration motor
+	  haptic.update_vibration();              // Send haptic feedback to joystick vibration motor
       timing_log(TIMING_TAG_VIBRATION, F("End"));
       Dynamic_model();                 // Use the DLAFF 'dynamic model' to generate kinematic valid output back to GPSB
       timing_log(F("End collision avoidance"));
@@ -438,12 +436,13 @@ void Dynamic_model() {      // DLAFF model not fully applied, in this case only!
 void hapticFeedback (){
     
     timing_log(TIMING_TAG_HAPTIC, F("Start")) ;
+	/*
     if (leftDamping < 0.5 || rightDamping < 0.5)
          {set_vibration_pattern(SUBTLE);}      
     else if (leftDamping < 0.2 || rightDamping < 0.2)
          {set_vibration_pattern(CONTINUOUS);} 
     else {set_vibration_pattern(OFF);}    
-      
+    */	
     timing_log(TIMING_TAG_HAPTIC, F("End")) ;
 }
 
@@ -1101,8 +1100,8 @@ void scan_for_sensors(int/*Verbosity*/ v)
 
 void returnJoystickDirect(){  // Change to isolate switch function by Michael Gillham 31/08/14, returns adjustable joystick values to enable a comparison between obstacle help on or off states
 
-   set_vibration_pattern(OFF);                // Turn off haptic, ensure previous state zeroed
-   update_vibration();
+   //set_vibration_pattern(OFF);                // Turn off haptic, ensure previous state zeroed
+   haptic.update_vibration();
    digitalWrite (illumination_relay, LOW);    // Turn off illumination, ensure previous state zeroed
    
    speed = map(speed, 1, 255, 28, 228);       // we can map the un-assisted system to have the-

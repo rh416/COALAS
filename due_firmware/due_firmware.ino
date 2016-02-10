@@ -1,5 +1,5 @@
 #include "GPSB_helper.h"
-#include "haptic.h"
+#include "Haptic.h" 
 #include "Logging.h"
 #include "ProtocolHandler.h"
 #include "SYSIASS_485_comms.h"
@@ -9,6 +9,9 @@
 #define DEBUG_MODE_PIN 52
 
 boolean DEBUG_MODE_ENABLED = false;
+
+const int haptic_pin = 2;
+Haptic haptic(haptic_pin);
 
 // Firmware information
 const char* firmware_version = "v0.1";  // Store the firmware version
@@ -32,15 +35,15 @@ void setup(){
     // Make the haptic feedback vibrate for 1 second
     unsigned long bootupToneStartTime = millis();
     
-    set_vibration_pattern(INSISTANT);
+    haptic.set_vibration_pattern(INSISTANT);
     
     while(1000 > millis() - bootupToneStartTime){
-      update_vibration();
+      haptic.update_vibration();
     }
     
     // Turn off the haptic feedback
-    set_vibration_pattern(OFF);
-    update_vibration();
+    haptic.set_vibration_pattern(OFF);
+    haptic.update_vibration();
     
     diagnostics_setup();
   } else {   
