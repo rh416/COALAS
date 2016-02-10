@@ -311,6 +311,14 @@ void algorithm_loop() {
    uint32_t thisLoopTime = millis();
    
    timing_log(F("Loop Begin"));
+   
+   // Get the potential field values
+   zone_2_forward = fields.get_field_forwards();
+   zone_2_left = fields.get_field_sideways();
+   zone_1_forward = fields.get_field_forwards();
+   zone_1_right = fields.get_field_sideways();
+   
+   
   
    if(thisLoopTime - lastLoopTime >= constantLoopTime){
      lastLoopTime = thisLoopTime;
@@ -473,11 +481,14 @@ if (digitalRead(digital) == HIGH){ // set forward potential force field values f
     potValue4 = analogRead (analogInPin4);
     
     // map the potetiometer values to the range 0cm to 350cm, 
+	
+	fields.set_field_forwards(map(potValue1, 0, 1024, 0, 50));
+	fields.set_field_sideways(map(potValue4, 0, 1024, 0, 50));
     
-    zone_2_forward = map (potValue1, 0, 1024, 0, 50);
-    zone_2_left = map (potValue4, 0, 1024, 0, 50);
-    zone_1_forward = map (potValue2, 0, 1024, 0, 50);
-    zone_1_right = map (potValue3, 0, 1024, 0, 50);
+    //zone_2_forward = map (potValue1, 0, 1024, 0, 50);
+    //zone_2_left = map (potValue4, 0, 1024, 0, 50);
+    //zone_1_forward = map (potValue2, 0, 1024, 0, 50);
+    //zone_1_right = map (potValue3, 0, 1024, 0, 50);
   
 }
 
@@ -636,7 +647,7 @@ void forwardObstacleAvoidance (){
    else if (S_left90 > IR_left90)   
       {left90 = IR_left90;}    
    
-    
+	   
     if (right45 < rightFront && right45 < right90)
        {leftDamping = right45;
          leftDamping = map(leftDamping, (0+zone_1_forward), (120+zone_1_forward), 0, 350);    

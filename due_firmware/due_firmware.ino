@@ -1,5 +1,6 @@
 #include "GPSB_helper.h"
 #include "Haptic.h" 
+#include "PotentialFields.h"
 #include "Logging.h"
 #include "ProtocolHandler.h"
 #include "SYSIASS_485_comms.h"
@@ -12,6 +13,8 @@ boolean DEBUG_MODE_ENABLED = false;
 
 const int haptic_pin = 2;
 Haptic haptic(haptic_pin);
+
+PotentialFields fields;
 
 // Firmware information
 const char* firmware_version = "v0.1";  // Store the firmware version
@@ -29,6 +32,10 @@ void setup(){
   DEBUG_MODE_ENABLED = (digitalRead(DEBUG_MODE_PIN) == LOW);
   // Force the program into driving assist mode
   DEBUG_MODE_ENABLED = true;
+  
+  // Set default potential field values
+  fields.set_field_forwards(5);
+  fields.set_field_sideways(0);
   
   if(DEBUG_MODE_ENABLED){
     
