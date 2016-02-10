@@ -9,7 +9,9 @@
 
 #include "SYSIASS_485_comms.h"
 #include "SYSIASS_sensor.h"
+#include "Haptic.h"
 #include "Logging.h"
+#include "PotentialFields.h"
 #include "Timing.h"
 
 #define TIMING_TAG_PROTOCOL F("Protocol")
@@ -44,6 +46,8 @@ class ProtocolHandler{
     Comms_485* _sensor_serial_bus;
     const char* _firmware_version;
     Logger* _logger;
+	IHaptic* _haptic;
+	IPotentialFields* _potential_fields;
     
     // Store the information that represents a command from the Config UI
     char command_info[COMMAND_MAX_LENGTH];
@@ -58,9 +62,11 @@ class ProtocolHandler{
     void commandPassthrough(char[], byte, char, char*, uint8_t);
 
   public:
-    ProtocolHandler(Print*, Comms_485*, const char*, Logger*);
+    ProtocolHandler(Print*, Comms_485*, const char*, Logger*, IHaptic*, IPotentialFields*);
     boolean buffer(char);
     void loop();
+    void reportObstacle(int, int, int);
+    void clearAllObstacles();
     void resetCommandBuffer();
 };
 

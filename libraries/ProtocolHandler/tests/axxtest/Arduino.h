@@ -11,17 +11,32 @@
 //#include <string.h>
 #include <math.h>
 
+#define OUTPUT 4
+#define LOW 0
+
 typedef unsigned char byte;
 typedef unsigned char boolean;
 
 uint32_t millis(void);
+void pinMode(int, int);
+void analogWrite(int, int);
+void digitalWrite(int, int);
+int digitalRead(int);
+int analogRead(int);
+
+#define TEST_PIN_COUNT 50
+extern int pin_modes[TEST_PIN_COUNT];
+extern int pin_digital_write[TEST_PIN_COUNT];
+extern int pin_digital_read[TEST_PIN_COUNT];
+extern int pin_analog_write[TEST_PIN_COUNT];
+extern int pin_analog_read[TEST_PIN_COUNT];
+
+void AxxTest_millis(uint32_t);
+void AxxTest_digitalRead(int, int);
+void AxxTest_analogRead(int, int);
+
 
 #define PSTR(str)(str)
-
-#define _PRINT_SAFE(str)(std::cout << str << std::endl)
-#define _PRINT_SAFE_LEN(str, len)(std::cout << str << ":" << len << std::endl)
-//#define _PRINT_SAFE(str)
-//#define _PRINT_SAFE_LEN(str, len)
 
 #include "Print.h"
 #include "File.h"

@@ -5,16 +5,30 @@
 #ifndef TESTS_PRINT_H
 #define TESTS_PRINT_H
 
+#include <string>
+#include <sstream>
+
 // Interface copied from Arduino
 // https://github.com/arduino/Arduino/blob/master/hardware/arduino/avr/cores/arduino/Print.h
 
 class Print {
 
+	private:
+		void print(std::string);
+		void println(std::string);
+	
+
   public:
-    void print(char*);
+    void print(const char*);
     void print(int);
-    void println(char*);
+	void println();
+    void println(const char*);
     void println(int);
+    
+    void clear_buffer();
+	
+	
+	std::string buffer;
     
 
 };

@@ -644,6 +644,17 @@ void forwardObstacleAvoidance (){
       {left90 = S_left90;}
    else if (S_left90 > IR_left90)   
       {left90 = IR_left90;}    
+  
+  serialProtocolHandler.reportObstacle(1, 1, rightFront);
+  serialProtocolHandler.reportObstacle(1, 3, right45);
+  serialProtocolHandler.reportObstacle(1, 2, right90);
+  
+  
+  serialProtocolHandler.reportObstacle(2, 3, leftFront);
+  serialProtocolHandler.reportObstacle(2, 2, left45);
+  serialProtocolHandler.reportObstacle(2, 1, left90);
+
+  serialProtocolHandler.clearAllObstacles();
    
 	   
     if (right45 < rightFront && right45 < right90)
@@ -693,6 +704,16 @@ void backwardObstacleAvoidance (){       //Backward collison with obstacle avoid
    sensor_nodes[4]->refresh_data();      // Update data from sensor node 4      
    S_rightRear45 = sensor_nodes[4]->get_sensor_data(ZONE_2, US);
    S_rightRear90 = sensor_nodes[4]->get_sensor_data(ZONE_1, US);  
+   
+   
+  serialProtocolHandler.reportObstacle(3, 1, S_rear);
+  serialProtocolHandler.reportObstacle(3, 3, S_leftRear45);
+  serialProtocolHandler.reportObstacle(3, 2, S_leftRear90);
+  
+  serialProtocolHandler.reportObstacle(4, 2, S_rightRear45);
+  serialProtocolHandler.reportObstacle(4, 3, S_rightRear45);
+
+  serialProtocolHandler.clearAllObstacles();
 
     if (S_rightRear45 < S_rightRear90){
          leftDamping = S_rightRear45;

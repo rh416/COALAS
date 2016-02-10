@@ -21,7 +21,7 @@ const char* firmware_version = "v0.1";  // Store the firmware version
 
 Comms_485* comms_485 = 0; // RS485 Comms
 
-ProtocolHandler serialProtocolHandler(&SerialUSB, comms_485, firmware_version);
+ProtocolHandler serialProtocolHandler(&SerialUSB, comms_485, firmware_version, &logger, &haptic, &fields);
 
 void setup(){
   
