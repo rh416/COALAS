@@ -1,8 +1,5 @@
 #include "timing.h"
 
-// Comment out the line below to disable timing logging
-#define COALAS_TIMING_LOGGING_ENABLED
-
 #ifdef COALAS_TIMING_LOGGING_ENABLED
   // If logging is enabled, create the functions
   

@@ -1,3 +1,6 @@
+// Comment out the line below to disable timing output
+// #define COALAS_TIMING_LOGGING_ENABLED
+
 #include "GPSB_helper.h"
 #include "Haptic.h" 
 #include "PotentialFields.h"
