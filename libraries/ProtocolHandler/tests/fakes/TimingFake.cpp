@@ -1,5 +1,8 @@
 #include "timing.h"
 
+// Comment out the line below to disable timing logging
+#define COALAS_TIMING_LOGGING_ENABLED
+
 #ifdef COALAS_TIMING_LOGGING_ENABLED
   // If logging is enabled, create the functions
   
@@ -15,17 +18,17 @@
 
   void timing_log(const char *label){
     
-    __COALAS_TIMING_OUTPUT(F("General"), label)
+    //__COALAS_TIMING_OUTPUT(F("General"), label)
   }
 
   void timing_log(const __FlashStringHelper *label){
     
-    __COALAS_TIMING_OUTPUT(F("General"), label)
+    //__COALAS_TIMING_OUTPUT(F("General"), label)
   }
 
   void timing_log(const __FlashStringHelper *tag, const __FlashStringHelper *label){
     
-    __COALAS_TIMING_OUTPUT(tag, label)
+    //__COALAS_TIMING_OUTPUT(tag, label)
     
   }
 

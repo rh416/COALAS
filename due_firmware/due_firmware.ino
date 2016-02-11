@@ -1,5 +1,9 @@
+// Comment out the line below to disable timing output
+// #define COALAS_TIMING_LOGGING_ENABLED
+
 #include "GPSB_helper.h"
-#include "haptic.h"
+#include "Haptic.h" 
+#include "PotentialFields.h"
 #include "Logging.h"
 #include "ProtocolHandler.h"
 #include "SYSIASS_485_comms.h"
@@ -10,12 +14,17 @@
 
 boolean DEBUG_MODE_ENABLED = false;
 
+const int haptic_pin = 2;
+Haptic haptic(haptic_pin);
+
+PotentialFields fields;
+
 // Firmware information
-const String firmware_version = "v0.1";  // Store the firmware version
+const char* firmware_version = "v0.1";  // Store the firmware version
 
 Comms_485* comms_485 = 0; // RS485 Comms
 
-ProtocolHandler serialProtocolHandler(&SerialUSB, comms_485, firmware_version);
+ProtocolHandler serialProtocolHandler(&SerialUSB, comms_485, firmware_version, &logger, &haptic, &fields);
 
 void setup(){
   
@@ -27,20 +36,24 @@ void setup(){
   // Force the program into driving assist mode
   DEBUG_MODE_ENABLED = true;
   
+  // Set default potential field values
+  fields.set_field_forwards(5);
+  fields.set_field_sideways(0);
+  
   if(DEBUG_MODE_ENABLED){
     
     // Make the haptic feedback vibrate for 1 second
     unsigned long bootupToneStartTime = millis();
     
-    set_vibration_pattern(INSISTANT);
+    haptic.set_vibration_pattern(INSISTANT);
     
     while(1000 > millis() - bootupToneStartTime){
-      update_vibration();
+      haptic.update_vibration();
     }
     
     // Turn off the haptic feedback
-    set_vibration_pattern(OFF);
-    update_vibration();
+    haptic.set_vibration_pattern(OFF);
+    haptic.update_vibration();
     
     diagnostics_setup();
   } else {   

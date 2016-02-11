@@ -27,10 +27,11 @@
 #include <GPSB_helper.h>
 #include <SYSIASS_485_comms.h>
 #include <SYSIASS_sensor.h>
-#include <haptic.h>
+#include <Haptic.h>
 #include <SPI.h>
 #include <SD.h>
 #include "ErrorReporting.h"
+#include "Logging.h"
 
 #define TIMING_TAG_DLAFF F("DLAFF")
 #define TIMING_TAG_DYNAMIC_MODEL F("Dynamic Model")
@@ -141,7 +142,6 @@ void scan_for_sensors(int);
 
 const int kill_pin = 46;
 const int isolate_pin = 48;
-const int haptic_pin = 2;
 
 // tests the Isolate pin, NB: disconnection of switch should default to ISOLATE
 void check_isolate_switch()
@@ -216,9 +216,6 @@ void algorithm_setup() { // logging on to RS485 and GPSB updated and modified by
 
   SerialUSB.println("Logged on to GPSB");
   delay(200);
-  
-  
-  logging_init();
  
  
   comms_485 = new Comms_485();  // Setup comms to RS_485 node communication
@@ -231,7 +228,6 @@ void algorithm_setup() { // logging on to RS485 and GPSB updated and modified by
    
   // Pins ========================================
   
-  init_haptic();
   pinMode(isolate_pin, INPUT);  // Set up isolate switch
   pinMode(digital, INPUT);      // Set up potential force field switch
   
@@ -313,6 +309,14 @@ void algorithm_loop() {
    uint32_t thisLoopTime = millis();
    
    timing_log(F("Loop Begin"));
+   
+   // Get the potential field values
+   zone_2_forward = fields.get_field_forwards();
+   zone_2_left = fields.get_field_sideways();
+   zone_1_forward = fields.get_field_forwards();
+   zone_1_right = fields.get_field_sideways();
+   
+   
   
    if(thisLoopTime - lastLoopTime >= constantLoopTime){
      lastLoopTime = thisLoopTime;
@@ -328,10 +332,10 @@ void algorithm_loop() {
     }
   
   serialProtocolHandler.loop();          // Handle any protocol messages that have been sent over the serial port
-  logging(runNumber, currentTime, userSpeed, userTurn, returnedSpeed, returnedTurn, potValue1, potValue2, potValue3, potValue4);
+  logger.log(runNumber, currentTime, userSpeed, userTurn, returnedSpeed, returnedTurn, potValue1, potValue2, potValue3, potValue4);
   
     if (directionFlag == 0 && rotationFlag == 0){
-      set_vibration_pattern(OFF); // Turn off vibration if joystick centred
+      //haptic.set_vibration_pattern(OFF); // Turn off vibration if joystick centred
     }
   
     check_isolate_switch();           // check for isolation of obstacle avoidance software, 0 means run obstacle avoidance 1 means isolate
@@ -352,7 +356,7 @@ void algorithm_loop() {
       DLAFF_collision_avoidance ();    // Doorway passing, use linecameras to improve doorway resolution and lock-in
       hapticFeedback ();               // Set haptic feedback to user
       timing_log(TIMING_TAG_VIBRATION, F("Start")) ;
-      update_vibration();              // Send haptic feedback to joystick vibration motor
+	  haptic.update_vibration();              // Send haptic feedback to joystick vibration motor
       timing_log(TIMING_TAG_VIBRATION, F("End"));
       Dynamic_model();                 // Use the DLAFF 'dynamic model' to generate kinematic valid output back to GPSB
       timing_log(F("End collision avoidance"));
@@ -438,12 +442,13 @@ void Dynamic_model() {      // DLAFF model not fully applied, in this case only!
 void hapticFeedback (){
     
     timing_log(TIMING_TAG_HAPTIC, F("Start")) ;
+	/*
     if (leftDamping < 0.5 || rightDamping < 0.5)
          {set_vibration_pattern(SUBTLE);}      
     else if (leftDamping < 0.2 || rightDamping < 0.2)
          {set_vibration_pattern(CONTINUOUS);} 
     else {set_vibration_pattern(OFF);}    
-      
+    */	
     timing_log(TIMING_TAG_HAPTIC, F("End")) ;
 }
 
@@ -474,11 +479,14 @@ if (digitalRead(digital) == HIGH){ // set forward potential force field values f
     potValue4 = analogRead (analogInPin4);
     
     // map the potetiometer values to the range 0cm to 350cm, 
+	
+	fields.set_field_forwards(map(potValue1, 0, 1024, 0, 50));
+	fields.set_field_sideways(map(potValue4, 0, 1024, 0, 50));
     
-    zone_2_forward = map (potValue1, 0, 1024, 0, 50);
-    zone_2_left = map (potValue4, 0, 1024, 0, 50);
-    zone_1_forward = map (potValue2, 0, 1024, 0, 50);
-    zone_1_right = map (potValue3, 0, 1024, 0, 50);
+    //zone_2_forward = map (potValue1, 0, 1024, 0, 50);
+    //zone_2_left = map (potValue4, 0, 1024, 0, 50);
+    //zone_1_forward = map (potValue2, 0, 1024, 0, 50);
+    //zone_1_right = map (potValue3, 0, 1024, 0, 50);
   
 }
 
@@ -636,8 +644,19 @@ void forwardObstacleAvoidance (){
       {left90 = S_left90;}
    else if (S_left90 > IR_left90)   
       {left90 = IR_left90;}    
+  
+  serialProtocolHandler.reportObstacle(1, 1, rightFront);
+  serialProtocolHandler.reportObstacle(1, 3, right45);
+  serialProtocolHandler.reportObstacle(1, 2, right90);
+  
+  
+  serialProtocolHandler.reportObstacle(2, 3, leftFront);
+  serialProtocolHandler.reportObstacle(2, 2, left45);
+  serialProtocolHandler.reportObstacle(2, 1, left90);
+
+  serialProtocolHandler.clearAllObstacles();
    
-    
+	   
     if (right45 < rightFront && right45 < right90)
        {leftDamping = right45;
          leftDamping = map(leftDamping, (0+zone_1_forward), (120+zone_1_forward), 0, 350);    
@@ -685,6 +704,16 @@ void backwardObstacleAvoidance (){       //Backward collison with obstacle avoid
    sensor_nodes[4]->refresh_data();      // Update data from sensor node 4      
    S_rightRear45 = sensor_nodes[4]->get_sensor_data(ZONE_2, US);
    S_rightRear90 = sensor_nodes[4]->get_sensor_data(ZONE_1, US);  
+   
+   
+  serialProtocolHandler.reportObstacle(3, 1, S_rear);
+  serialProtocolHandler.reportObstacle(3, 3, S_leftRear45);
+  serialProtocolHandler.reportObstacle(3, 2, S_leftRear90);
+  
+  serialProtocolHandler.reportObstacle(4, 2, S_rightRear45);
+  serialProtocolHandler.reportObstacle(4, 3, S_rightRear45);
+
+  serialProtocolHandler.clearAllObstacles();
 
     if (S_rightRear45 < S_rightRear90){
          leftDamping = S_rightRear45;
@@ -1101,8 +1130,8 @@ void scan_for_sensors(int/*Verbosity*/ v)
 
 void returnJoystickDirect(){  // Change to isolate switch function by Michael Gillham 31/08/14, returns adjustable joystick values to enable a comparison between obstacle help on or off states
 
-   set_vibration_pattern(OFF);                // Turn off haptic, ensure previous state zeroed
-   update_vibration();
+   //set_vibration_pattern(OFF);                // Turn off haptic, ensure previous state zeroed
+   haptic.update_vibration();
    digitalWrite (illumination_relay, LOW);    // Turn off illumination, ensure previous state zeroed
    
    speed = map(speed, 1, 255, 28, 228);       // we can map the un-assisted system to have the-

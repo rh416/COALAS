@@ -1,12 +1,19 @@
 #include "ProtocolHandler.h"
-#include "Logging.h"
-#include "Timing.h"
+#include <stdio.h>
 
-ProtocolHandler::ProtocolHandler(Print* protocol_serial_bus, Comms_485* sensor_serial_bus, String firmware_version){
+//#define PRINT_SAFE(str)std::cout << str << std::endl
+
+ProtocolHandler::ProtocolHandler(Print* protocol_serial_bus, Comms_485* sensor_serial_bus, const char* firmware_version, Logger* logger, IHaptic* haptic, IPotentialFields* fields){
 
   _protocol_serial_bus = protocol_serial_bus;
   _sensor_serial_bus = sensor_serial_bus;
   _firmware_version = firmware_version;
+  _logger = logger;
+  _haptic = haptic;
+  _potential_fields = fields;
+  
+  // Initialise the command buffer
+  resetCommandBuffer();
 }
 
 
@@ -17,22 +24,25 @@ void ProtocolHandler::loop(){
 
   if(commandSendComplete){
     // Debugging code - safely print that the sending of the command is now complete
-    //PRINT_SAFE("Command Send Complete");
+    PRINT_SAFE("Command Send Complete");
 
     if(isCommandValid()){
       // Debugging code - safely print that the command passed validation
-      //PRINT_SAFE("Command Valid");
+      PRINT_SAFE("Command Valid");
+      
+      char response[RESPONSE_MAX_LENGTH] = "";
 
-      String response;                          // Initiate the string that will store the response
-      response.reserve(RESPONSE_MAX_LENGTH);    // Reserve some space in memory for the response
-      response = "";                            // Set its initial value
+      //String response;                          // Initiate the string that will store the response
+      //response.reserve(RESPONSE_MAX_LENGTH);    // Reserve some space in memory for the response
+      //response = "";                            // Set its initial value
 
-      String additionalData;
-      additionalData.reserve(RESPONSE_MAX_LENGTH - INDEX_COMMAND_ADDITIONAL_DATA);
-      additionalData = "";
+      char additionalData[RESPONSE_MAX_LENGTH - INDEX_COMMAND_ADDITIONAL_DATA] = "";
+      //String additionalData;
+      //additionalData.reserve(RESPONSE_MAX_LENGTH - INDEX_COMMAND_ADDITIONAL_DATA);
+      //additionalData = "";
 
       // Create a buffer in which to store the command to be sent
-      char command[COMMAND_MAX_LENGTH];
+      char command[COMMAND_MAX_LENGTH] = {0};
 
       // Define how many bytes to send - defaults to all of them
       byte command_bytes_to_send = COMMAND_MAX_LENGTH;
@@ -41,25 +51,31 @@ void ProtocolHandler::loop(){
       command[0] = SENSOR_PROTOCOL_BYTE;
       command[1] = getCommandNode();
       command[2] = getCommandChar();
+      
+      PRINT_SAFE(command_info);
+      PRINT_SAFE(additionalData);
 
       int commandIndex = 3;
       // Loop though the incoming command to check for any additional data that needs to be added to this command
       for(int i = INDEX_COMMAND_ADDITIONAL_DATA; i < COMMAND_MAX_LENGTH; i++){
         // Get the next piece of additional data
         char additionalDataChar = command_info[i];
-        additionalData += command_info[i];
+        // Append the single character
+        strncat(additionalData, &additionalDataChar, 1);
+        //additionalData += command_info[i];
         // If the piece of additional data is a Null Character, record that we only want to send the characters up to this point to the RS-485 bus
         if(additionalDataChar == CHAR_NULL){
           command_bytes_to_send = commandIndex;
           // And break out of the loop
           break;
         }
+        
         // Store the next piece of additional data in the command buffer
         command[commandIndex] = additionalDataChar;
         commandIndex++;
       }
 
-      //PRINT_SAFE(getCommandChar());
+      PRINT_SAFE(getCommandChar());
 
       // Determine what the command was asking for
       switch(getCommandChar()){
@@ -67,29 +83,39 @@ void ProtocolHandler::loop(){
         // Return the boot message
         case 'B':
         {
-          response = "B: Boot complete";
+          strcat(response, "B: Boot complete");
           break;
         }
 
         // Return the current firmware version
         case 'I':
         {
-          response = "I:" + _firmware_version;
+          strcat(response, "I:");
+          strcat(response, _firmware_version);
+          //response = "I:" + _firmware_version;
           break;
         }
 
         // Return whether or not the given Node is connected to the bus
         case 'S':
         {
+          char command_node = getCommandNode();
           // Create an instance of the Node that we would like to check
-          Sensor_Node * node = new Sensor_Node(getCommandNode(), _sensor_serial_bus);
+          Sensor_Node * node = new Sensor_Node(command_node, _sensor_serial_bus);
 
-          response = "S" + String(getCommandNode()) + ":";
+          response[0] = 'S';
+          response[1] = command_node;
+          response[2] = ':';
+          //response = "S" + String(getCommandNode()) + ":";
           if(node->exists()){
-            response += "Y";
+              response[3] = RESPONSE_YES;
+            //strcat(response, &RESPONSE_YES);
+            //response += "Y";
           }
           else {
-            response += "N";
+              response[3] = RESPONSE_NO;
+            //strcat(response, &RESPONSE_NO);
+            //response += "N";
           }
           break;
         }
@@ -97,33 +123,79 @@ void ProtocolHandler::loop(){
         // Logging
         case 'L':
         {
-          String loggingCommand = additionalData.substring(0, 1);
-          if(loggingCommand == "E"){
+          char loggingCommand = (char)additionalData[0];
+          PRINT_SAFE(loggingCommand);
+          //String loggingCommand = additionalData.substring(0, 1);
+          if(loggingCommand == 'E'){
             // End logging
-            logging_end();
-          } else if (loggingCommand == "?"){
+            _logger->end();
+          } else if (loggingCommand == '?'){
             // List log files
-            logging_list();
-          } else if (loggingCommand == "S") {
-            logging_start(additionalData.substring(2));
+            _logger->printHistory();
+          } else if (loggingCommand == 'S') {
+            // Log file filename is all but the first two characters of additionalData
+            char* filename = additionalData + 2;
+            
+            PRINT_SAFE("start logging");
+            PRINT_SAFE(filename);
+			            
+            _logger->start(filename);
           }
-          response = "Y";
+          response[0] = RESPONSE_YES;
           break;
         }
-
+		
+		// Haptic Control
+		case 'H':
+		{
+			char* controlPointer = additionalData;
+			int intensity = strtol(controlPointer, &controlPointer, 16);
+			int on_duration = strtol(controlPointer + 1, &controlPointer, 16);
+			int off_duration = strtol(controlPointer + 1, &controlPointer, 16);
+			
+			_haptic->set_intensity(intensity);
+			_haptic->set_vibration_pattern(on_duration, off_duration);
+			
+			response[0] = RESPONSE_YES;
+			break;
+		}
+		
+		// Potential Fields
+		case 'P':
+		{
+			char* controlPointer = additionalData;
+			int forwards = strtol(controlPointer, &controlPointer, 16);
+			int backwards = strtol(controlPointer + 1, &controlPointer, 16);
+			int sideways = strtol(controlPointer + 1, &controlPointer, 16);
+			
+			_potential_fields->set_field_forwards(forwards);
+			_potential_fields->set_field_backwards(backwards);
+			_potential_fields->set_field_sideways(sideways);
+			
+			response[0] = RESPONSE_YES;
+			break;
+		}
+		
         // Log Event
         case 'E':
         {
-          logging_event(additionalData.substring(1));
-          response = "Y";
+          // Log event code is all but the first character of additionalData
+          char* event_code = additionalData + 1;
+          _logger->recordEvent(event_code);
+          response[0] = RESPONSE_YES;
           break;
         }
 
         // Set the time
         case 'Z':
         {
-          logging_set_time(additionalData.toInt());
-          response = "Y";
+          PRINT_SAFE("Set time");
+          PRINT_SAFE(additionalData);
+          uint32_t new_time = atoi(additionalData);
+          PRINT_SAFE(new_time);
+          _logger->setTime(new_time);
+          response[0] = RESPONSE_YES;
+		  PRINT_SAFE(response);
           break;
         }
 
@@ -148,50 +220,71 @@ void ProtocolHandler::loop(){
 
             case 'R':
             {
-              response = "C";
+              response[0] = 'C';
               break;
             }
             case 'F':
             case 'D':
             case 'V':
             {
-              response = String(getCommandChar());
+              response[0] = getCommandChar();
               break;
             }
           }
 
           // Add the Node Id to the response
           if(response != ""){
-            response += String(getCommandNode()) + ":";
+			response[1] = getCommandNode();
+			response[2] = ':';
+            //response += String(getCommandNode()) + ":";
           }
 
 
           // These commands just need to be sent to the Node, and then have the response sent to back to the host software
-          String passThroughResponse = commandPassthrough(command, command_bytes_to_send, responseTerminationChar);
+          char passThroughResponse[RESPONSE_MAX_LENGTH];
+          commandPassthrough(command, command_bytes_to_send, responseTerminationChar, passThroughResponse, RESPONSE_MAX_LENGTH);
 
           // If there was a response from the Node, append it to the output
-          if(passThroughResponse != ""){
-            response += passThroughResponse;
+          if(passThroughResponse[0] != '\0'){
+            strcat(response, passThroughResponse);
+            //response += passThroughResponse;
             } else {
             // Otherwise, set the output to be blank
-            response = "";
+            response[0] = '\0';
           }
-
           break;
         }
       }
-
+	  
       if(isResponseAckNack(response)){
-        response += String(getCommandNode()) + ":";
-        response += String(getCommandType()); // + String(getCommandType());
+		  PRINT_SAFE(response);
+		response[1] = getCommandNode();
+		response[2] = ':';
+		PRINT_SAFE(response);
+	  
+        char command_type[3] = "";
+        getCommandType(command_type);
+        strcat(response, command_type);
+	  
+	    //response += String(getCommandNode()) + ":";
+        //response += String(getCommandType()); // + String(getCommandType());
       }
 
       if(response){
         // Send the response back to the host pc
+		  PRINT_SAFE("Got here");
+		  PRINT_SAFE(response);
+		  PRINT_SAFE("Got here");
+		  PRINT_SAFE(strlen(response));
         _protocol_serial_bus->println(response);
+		  PRINT_SAFE("Got here");
         // Also print it with characters marking the beginning and end; uncomment for debugging purposes
         //PRINT_SAFE("Response: START_" + response + "_END");
       }
+    } else {
+        _protocol_serial_bus->println("_Invalid command");
+        _protocol_serial_bus->print("_");
+        _protocol_serial_bus->println(command_info);
     }
 
     // Reset the command buffer back to a known state, ready to receive new instructions
@@ -204,12 +297,15 @@ void ProtocolHandler::loop(){
 boolean ProtocolHandler::isCommandValid(){
 
   // Do a quick check that the command at least COULD be valid - does it have the & symbol in the correct places
+  PRINT_SAFE(COMMAND_INDICATOR);
+  PRINT_SAFE(command_info[INDEX_COMMAND_INDICATOR_1]);
+  PRINT_SAFE(command_info[INDEX_COMMAND_INDICATOR_2]);
   return (command_info[INDEX_COMMAND_INDICATOR_1] == COMMAND_INDICATOR && command_info[INDEX_COMMAND_INDICATOR_2] == COMMAND_INDICATOR);
 }
 
-boolean ProtocolHandler::isResponseAckNack(String response){
+boolean ProtocolHandler::isResponseAckNack(const char* response){
 
-  return (response == "Y" || response == "N");
+  return (response[0] == RESPONSE_YES || response[0] == RESPONSE_NO);
 }
 
 char ProtocolHandler::getCommandNode(){
@@ -224,18 +320,16 @@ char ProtocolHandler::getCommandChar(){
   return (char) command_info[INDEX_COMMAND_CHAR];
 }
 
-String ProtocolHandler::getCommandType(){
-
-  char type[2];
-  type[0] = command_info[INDEX_COMMAND_ID_1];
-  type[1] = command_info[INDEX_COMMAND_ID_2];
-
-  return String(type);
+void ProtocolHandler::getCommandType(char* command_type){
+	
+	command_type[0] = command_info[INDEX_COMMAND_ID_1];
+	command_type[1] = command_info[INDEX_COMMAND_ID_2];
+	command_type[2] = '\0';
 }
 
 // For some requests we can simply pass through a slightly altered version of the request to the RS-485 bus, as much of the
 //    protocol has been replicated in the UI
-String ProtocolHandler::commandPassthrough(char command[], byte command_bytes_to_send, char responseTerminator){
+void ProtocolHandler::commandPassthrough(char command[], byte command_bytes_to_send, char responseTerminator, char* passthrough_response, uint8_t passthrough_response_max_length){
 
   // Send the command
   _sensor_serial_bus->send(command, command_bytes_to_send);
@@ -245,10 +339,8 @@ String ProtocolHandler::commandPassthrough(char command[], byte command_bytes_to
   // Record when this request was sent, so that we can use the timeout method if we need to
   long start_time = millis();
 
-  // Create a buffer to store the response in
-  String response;
-  response.reserve(RESPONSE_MAX_LENGTH);
-
+  uint8_t response_index = 0;
+  
   // Wait for the response
   while(true){
 
@@ -259,7 +351,8 @@ String ProtocolHandler::commandPassthrough(char command[], byte command_bytes_to
       char readChar = _sensor_serial_bus->read();
 
       // Add it to the response
-      response += readChar;
+      passthrough_response[response_index] = readChar;
+      //response += readChar;
 
       // If a termination character is provided, and we see it - exit the loop
       if(responseTerminator != CHAR_NULL){
@@ -276,9 +369,13 @@ String ProtocolHandler::commandPassthrough(char command[], byte command_bytes_to
         break;
       }
     }
+        
+    // If the response buffer is full, quite
+    response_index++;
+    if(response_index == passthrough_response_max_length){
+      break;
+    }
   }
-
-  return response;
 }
 
 void ProtocolHandler::resetCommandBuffer(){
@@ -292,6 +389,20 @@ void ProtocolHandler::resetCommandBuffer(){
   commandCurrentIndex = 0;
 }
 
+void ProtocolHandler::reportObstacle(int node, int zone, int distance){
+    
+    char response[15];
+    
+    snprintf(response, 15, "O%d:%d%03X", node, zone, distance);
+    
+    _protocol_serial_bus->println(response);
+}
+
+void ProtocolHandler::clearAllObstacles(){
+    
+    _protocol_serial_bus->println("O0:C");
+}
+
 boolean ProtocolHandler::buffer(char inChar){
   
   //PRINT_SAFE(inChar);
@@ -300,7 +411,9 @@ boolean ProtocolHandler::buffer(char inChar){
   if(inChar == COMMAND_END_INDICATOR){
     // Flag that the command has finished being sent and break out of this loop, so that we can process it
     commandSendComplete = true;
-    return true;
+	// Add a NULL terminator to the command string so that it's treated as a string correctly
+	command_info[commandCurrentIndex] = '\0';
+    loop();
   }
   else if(commandCurrentIndex < COMMAND_MAX_LENGTH){
     // Otherwise, add the character to the command info buffer
@@ -311,7 +424,8 @@ boolean ProtocolHandler::buffer(char inChar){
   }
   else {
     PRINT_SAFE("The command sent was too long");
+	return false;
   }
 
-  return false;
+  return true;
 }
