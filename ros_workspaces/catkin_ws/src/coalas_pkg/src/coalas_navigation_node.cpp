@@ -2,7 +2,7 @@
  * coalas_navigation_node.cpp
  *
  *  Created on: 18 May 2015
- *      Author: Paul Oprea
+ *      Author: Paul Oprea RJ HORNE
  */
 
 // %Tag(FULLTEXT)%
